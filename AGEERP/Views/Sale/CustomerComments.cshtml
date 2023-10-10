@@ -1,0 +1,110 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "CustomerComments";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Customer Comments</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Sale</a></li>
+                    <li class="breadcrumb-item active">Customer Comments</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        <div class="row">
+            <div class="col-md-4">
+                @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("loadAccount").DataBound("loadAccount"))
+                                    .DataSource(ds =>
+                                    {
+                                    ds.Read(read => read.Action("LocationList", "Setup"));
+                                    })
+                                    .HtmlAttributes(new { @style = "width:100%" })
+                                    )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                @(Html.Kendo()
+            .Grid<LseMasterVM>()
+            .Name("grid")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.AccNo).Width(90);
+                columns.Bound(c => c.DeliveryDate).Width(90).Format("{0: dd/MM/yyyy}").Title("Date");
+                columns.Bound(c => c.CustName).Width(150).Title("Customer");
+                columns.Bound(c => c.NIC).Width(120);
+                columns.Bound(c => c.Mobile1).Width(100).Title("Mobile");
+                columns.Bound(c => c.Remarks);
+                columns.Command(c => { c.Edit();}).Width(100);
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .ToolBar(t => { t.Search(); })
+            .Search(s =>
+            {
+                s.Field(a => a.AccNo);
+                s.Field(a => a.CustName);
+                s.Field(a => a.NIC); 
+                s.Field(a => a.Mobile1);
+                s.Field(a => a.Remarks); 
+            })
+            .Editable(e => e.Mode(GridEditMode.InLine))
+            .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .Events(e =>
+                {
+                    e.RequestEnd("onRequestEnd");
+                })
+                .ServerOperation(false)
+                .PageSize(20)
+                .Model(model =>
+                {
+                    model.Id(m => m.AccNo);
+                    model.Field(m => m.AccNo).Editable(false);
+                    model.Field(m => m.CustName).Editable(false);
+                    model.Field(m => m.NIC).Editable(false);
+                    model.Field(m => m.Mobile1).Editable(false);
+                    model.Field(m => m.DeliveryDate).Editable(false);
+                })
+                .Read(read => read.Action("CustomerComments_Read", "Sale").Data("LoadAccounts"))
+                .Update(update => update.Action("CustomerComments_Update", "Sale"))
+            ))
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function loadAccount() {
+        $("#grid").data("kendoGrid").dataSource.read();
+    }
+    function LoadAccounts() {
+        return {
+            LocId: $("#LocId").val() || 0
+        };
+    }
+    function onRequestEnd(e) {
+        if (e.type == "update" && !e.response.Errors) {
+            alert("Comment has been updated! ");
+        }
+    }
+</script>

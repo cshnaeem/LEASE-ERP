@@ -1,0 +1,237 @@
+﻿@using AGEERP.Models
+
+@{
+    ViewBag.Title = "CRC Fines Approval";
+
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">CRC Fines Approval</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">CRC Fines Approval</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    @(Html.Kendo()
+    .Grid<CrcFinesVM>()
+    .Name("gridEmployeecrcfines")
+    .Columns(columns =>
+    {
+
+        columns.Bound(c => c.AccountNo).Title("Account No");
+        columns.Bound(c => c.EmpName).Title("EmpName");
+        columns.Bound(c => c.FineAmt).Title("FineAmt");
+        columns.Bound(c => c.FineReason).Title("FineReason");
+        columns.Command(c => { c.Custom("Approve").Click("ApproveFine").Visible("editVisibleCRC"); c.Custom("Approve").Click("ApproveFine").Visible("editVisibleRM"); }).Width(250);
+    })
+.Scrollable()
+.AutoBind(true)
+.PersistSelection()
+.Search(s => { s.Field(a => a.EmpName); })
+.Navigatable()
+.HtmlAttributes(new { style = "height:500px;" })
+//.Events(e => { e.DataBound("setDirty"); })
+.DataSource(dataSource => dataSource
+.Ajax()
+//.Events(e => { e.RequestEnd("PostingView"); })
+.Model(model =>
+{
+    model.Id(m => m.Id);
+    model.Field(m => m.AccountNo).Editable(false);
+    model.Field(m => m.EmpName).Editable(false);
+    model.Field(m => m.FineAmt).Editable(false);
+    model.Field(m => m.FineReason).Editable(false);
+    model.Field(m => m.ApprovedBy).Editable(false);
+    model.Field(m => m.RMApprovedBy).Editable(false);
+
+})
+.Read(read => read.Action("CrcFinesApproval_Read", "Sale"))
+))
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        resizeGrid();
+        //var SlabId = $('#SlabId').val();
+        //if (SlabId > 0) {
+        //    setDirty($('#gridEmployeeDetFine').data("kendoGrid").dataSource.data());
+        //}
+    })
+    function GetBankLetter() {
+        return {
+            SalMon: $('#SalMon').val(),
+            status: $('#LetStatus').val() || 0
+
+        }
+    }
+    var lastday = function (y, m) {
+        return new Date(y, m + 1, 0).getDate();
+    }
+
+      function editVisibleCRC(dataItem) {
+        if (dataItem.ApprovedBy) {
+            return false;
+        }
+        else {
+
+           return ("@(ViewBag.RightsCRC)" == "True") ? true : false;
+        }
+
+    }
+
+      function editVisibleRM(dataItem) {
+        if (dataItem.RMApprovedBy) {
+            return false;
+        }
+        else {
+           return ("@(ViewBag.RightsRM)" == "True") ? true : false;
+        }
+
+    }
+
+
+    function onChange(e) {
+        var date = this.value();
+        date = new Date(date.getFullYear(), date.getMonth(), lastday(date.getFullYear(), date.getMonth()));
+        this.value(date);  //or put this.set("bindname", date); if you use a data-bind.
+    }
+    function filterDept() {
+        return {
+            HDeptId: $('#HDeptId').val() || 0
+        }
+    }
+    function onChangeDept() {
+        $('#DeptId').data('kendoDropDownList').dataSource.read();
+    }
+    var gridElement = $("#gridEmployeeDetFine");
+
+
+    function RefeshGrid() {
+        $('#gridEmployeecrcfines').data('kendoGrid').dataSource.read();
+    }
+
+
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridSalarySlab").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    function ApproveFine(e) {
+
+
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            if (dataItem.ApprovedBy == null) {
+                console.log(dataItem);
+            $.ajax({
+                    url: '/Sale/CrcFinesApproval_Approve?id='+dataItem.Id,
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                                   $.confirm({
+                    title: 'Save Successfully!',
+                    content: "",
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-close',
+                    buttons: {
+                        Ok: function () {
+                           RefeshGrid();
+                        }
+                    }
+                });
+                        
+                    },
+                    error: function () {
+                      $.confirm({
+                    title: 'Not Saved!',
+                    content: "",
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-close',
+                    buttons: {
+                        Ok: function () {
+                           RefeshGrid();
+                        }
+                    }
+                });
+                    }
+                });
+        }
+
+
+    }
+
+    //function error_handler(e) {
+    //    if (e.errors) {
+    //        var message = "";
+    //        $.each(e.errors,
+    //            function (key, value) {
+    //                if ('Msg' == key) {
+    //                    $.each(value.errors,
+    //                        function () {
+    //                            message += this;
+    //                        });
+    //                } else {
+    //                    $.each(value.errors,
+    //                        function () {
+    //                            message += this;
+    //                        });
+    //                }
+    //            });
+    //        debugger;
+    //        if (message.indexOf("Successfully") > -1) {
+    //            $.confirm({
+    //                title: 'Save Successfully!',
+    //                content: "",
+    //                type: 'red',
+    //                typeAnimated: true,
+    //                icon: 'fas fa-close',
+    //                buttons: {
+    //                    Ok: function () {
+    //                        window.location.href = "/Employee/BasicSalarySlab";
+    //                    }
+    //                }
+    //            });
+
+    //        } else {
+    //            $.confirm({
+    //                title: 'Some Error Occured!',
+    //                content: "",
+    //                type: 'red',
+    //                typeAnimated: true,
+    //                icon: 'fas fa-close',
+    //                buttons: {
+    //                    Ok: function () {
+
+    //                    }
+    //                }
+
+    //            })
+    //        }
+    //    }
+    //}
+
+</script>

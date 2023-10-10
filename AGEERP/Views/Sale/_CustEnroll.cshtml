@@ -1,0 +1,99 @@
+﻿
+@{
+    ViewBag.Title = "Thumb Enrollment";
+}
+
+        <div class="row">
+            @*<div class="col-sm-12 col-md-3">
+                <img id="thumbPic" onerror="this.src ='../../app-assets/images/avatar/user.png'" src="../../../app-assets/images/avatar/user.png" alt="users view avatar" class="z-depth-4 circle" width="200" height="200">
+            </div>*@
+            <div class="col-sm-12 col-md-6">
+                <div class="row">
+                    <div class="col-6">
+                        <span><b>Device Status:</b></span>
+                    </div>
+                    <div class="col-6">
+                        <span id="status"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <span><b>Message:</b></span>
+                    </div>
+                    <div class="col-6">
+                        <span id="msg"></span>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="col-sm-12 col-md-3">
+                <img id="imagediv" class="img-responsive" height="200" width="200" src="~/Content/Attendance/fingerprint.png" /><br />
+                <span><b>Quality:</b></span>
+                <span id="qualityInputBox"></span>
+            </div>
+
+        </div>
+
+<script src="~/Scripts/Attendance/es6-shim.js"></script>
+<script src="~/Scripts/Attendance/websdk.client.bundle.min.js"></script>
+<script src="~/Scripts/Attendance/fingerprint.sdk.min.js"></script>
+@*<script src="~/Scripts/Attendance/app.js"></script>*@
+<script src="~/Scripts/Attendance/enrollment.js"></script>
+<script>
+    function CaptureEnrollment(s) {
+        var AccNo = $('#AcccNo').val();
+        if (AccNo > 0) {
+            if (currentFormat == Fingerprint.SampleFormat.PngImage) {
+                localStorage.setItem("imageSrc", "");
+                var samples = JSON.parse(s.samples);
+                localStorage.setItem("imageSrc", "data:image/png;base64," + Fingerprint.b64UrlTo64(samples[0]));
+                var image = document.getElementById("imagediv");
+                image.src = localStorage.getItem("imageSrc");
+                template.push(Fingerprint.b64UrlTo64(samples[0]));
+                count--;
+                document.getElementById("msg").textContent = "Please scan your fingure " + count + " times";
+                if (count == 0) {
+                    IsLoading = true;
+                    kendo.ui.progress($('.card'), true);
+                    $.ajax({
+                        url: "/Attendance/EnrollCustomer",
+                        type: "POST",
+                        data: JSON.stringify({ AccNo: AccNo, CustEnrolledStr: template }),
+                        processData: false,
+                        contentType: 'application/json',
+                        success: function (result) {
+                            kendo.ui.progress($('.card'), false);
+                            IsLoading = false;
+                            var dia = $("#msgBox").data("kendoDialog");
+                            if (result == "Enroll Successfully") {
+                                dia.title("Success");
+                                dia.content("Save Successfully");
+                            }
+                            else {
+                                dia.title("Error");
+                                dia.content(result);
+                            }
+                            dia.open();
+                            Reset();
+                            document.getElementById("msg").textContent = result;
+                        }
+                    });
+                }
+
+            }
+            else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content("Format Error");
+                dia.open();
+            }
+        }
+        else {
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Validation");
+            dia.content("Please Enter Account No");
+            dia.open();
+        }
+    }
+</script>

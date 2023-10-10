@@ -1,0 +1,61 @@
+﻿
+@model IEnumerable<AGEERP.Models.UserMenuInfo>
+@{
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var forms = Model.Where(it => it.Menu2 == 0).OrderBy(it => it.SortOrder).ToList();
+}
+<style>
+    .card::before{
+        opacity:0.9;
+
+    }
+    .card {
+        background-color: #ffffffd1;
+    }
+    /*.card {
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        background-color: rgba(255, 255, 255, 0.75);
+        border-radius: 12px;
+        border: 1px solid rgba(209, 213, 219, 0.3);
+    }*/
+</style>
+<div class="row m-0">
+    @foreach (var menu in forms)
+    {
+        <div class="col-md-4" style="margin-top: 10px;">
+            <div class="card small-box h-100 shadow-lg">
+                <div class="inner">
+                    <h4 style="font-weight:bold;">@menu.Name.ToUpper()</h4>
+                </div>
+                <div class="icon">
+                    <i class="fas @menu.MenuIcon" style="color:black;top:50px;"></i>
+                </div>
+                <ul style="list-style:none;padding-left:0px;">
+                    @foreach (var m in Model.Where(x => x.ParentId == menu.MenuId && x.ActionLink != "#").Take(2))
+                    {
+                        <li>
+
+                            <a class="dropdown-item" href="@m.ActionLink" style="color:black;">
+                                <i class="far fa-dot-circle nav-icon"></i>
+                                @m.Name
+                            </a>
+                        </li>
+                    }
+                    <li>
+                        <a class="dropdown-item" href="@menu.ActionLink" style="color: black;">
+                            <i class="far fa-dot-circle nav-icon"></i>
+                            More <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    }
+</div>
+@*<script>
+    $(document).ready(function () {
+        $('.nav-link').click();
+    });
+</script>*@

@@ -1,0 +1,137 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "SupplierPayment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Supplier Payment</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">Supplier Payment</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row ">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Supplier Category")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("SuppCatId")
+                .SelectedIndex(0)
+                .DataValueField("CategoryId")
+                .DataTextField("CategoryTitle")
+                .Events(e => e.Change("suppCatChange").DataBound("suppCatChange"))
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SupplierCatList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Supplier")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("SuppId")
+                .OptionLabel("All Supplier ...")
+                .SelectedIndex(0)
+                .DataValueField("SuppId")
+                .DataTextField("SuppName")
+                .Events(e => e.Change("loadGrid"))
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SupplierByCatList", "Setup").Data("filterSupplier"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+            </div>
+        </div>
+            <div class="row">
+                @Html.Label("Invoice Payments")
+                @(Html.Kendo()
+            .Grid<SuppPaymentVM>()
+            .Name("gridOrderSearch")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.TransId).Hidden();
+                columns.Bound(c => c.SuppName);
+                columns.Bound(c => c.Proposed);
+                columns.Bound(c => c.Payment);
+                //columns.Bound(c => c.WHT);
+                columns.Bound(c => c.BankAmount);
+                columns.Bound(c => c.CashAmount);
+                columns.Bound(c => c.IsWHTPaid);
+                columns.Command(c => c.Edit().Text("Post").UpdateText("Post"));
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .AutoBind(false)
+            .Navigatable()
+            .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_SuppPayment"))
+            .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .Events(e =>
+            {
+                e.RequestEnd("onRequestEnd");
+            })
+            .Model(model =>
+            {
+                model.Id(m => m.TransId);
+                model.Field(m => m.SuppName).Editable(false);
+                model.Field(m => m.ClosingBalance).Editable(false);
+                model.Field(m => m.Payment).Editable(false);
+                model.Field(m => m.WHT).Editable(false);
+            })
+            .Read(read => read.Action("SupplierPayment_Read", "Purchase").Data("MasterData"))
+            .Create(create => create.Action("SupplierPayment_Create", "Purchase").Data("MasterData"))
+            .Update(update => update.Action("SupplierPayment_Create", "Purchase").Data("MasterData"))
+            ))
+                @*</div>*@
+            </div>
+        </div>
+    </div>
+<script>
+    function MasterData() {
+        return {
+            SuppId: $('#SuppId').val()
+        }
+    }
+    function suppCatChange() {
+        $("#SuppId").data("kendoDropDownList").dataSource.read();
+    }
+    function loadGrid() {
+        $("#gridOrderSearch").data("kendoGrid").dataSource.read();
+    }
+    function onRequestEnd(e) {
+        if ((e.type == "create" || e.type == "update") && !e.response.Errors) {
+            loadGrid();
+            kendo.alert("Post Successfully");
+        }
+    }
+    function filterSupplier() {
+        return {
+            CategoryId: $('#SuppCatId').val()
+        }
+    }
+  
+    
+</script>

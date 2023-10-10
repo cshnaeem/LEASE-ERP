@@ -1,0 +1,140 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Cheque List";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Cheque List</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">Cheque List</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 col-sm-4">
+            @Html.Label("From Date")
+            @Html.Kendo().DatePicker().Name("FDate").Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)).HtmlAttributes(new { @style = "width:100%" })
+        </div>
+        <div class="col-md-3 col-sm-4">
+            @Html.Label("To Date")
+            @Html.Kendo().DatePicker().Name("TDate").Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1)).HtmlAttributes(new { @style = "width:100%" })
+        </div>
+        <div class="col-md-3">
+            <button class="k-button margin-10" onclick="LoadGrid()" style="margin-top: 35px;">
+                <i class="fas fa-search"></i>&nbsp; Search
+            </button>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            @(Html.Kendo()
+               .Grid<BankBookTransVM>()
+               .Name("gridchequelist")
+               .Columns(columns =>
+               {
+                   columns.Bound(c => c.TransID).Hidden();
+                   columns.Bound(c => c.ChequeNo).Title("Cheque No");
+                   columns.Bound(c => c.ChequeDate).Format("{0:dd MMM yyyy}").Title("ChequeDate");
+                   columns.ForeignKey(c => c.ChequeType, (System.Collections.IEnumerable)ViewData["CType"], "Value", "Text").Title("Cheque Type");
+                   //columns.Bound(c => c.ChequeType).Title("Cheque Type");
+                   columns.Bound(c => c.Amount).Title("Amount");
+                   columns.Bound(c => c.InstrumentNo).Title("InstrumentNo");
+                   columns.Bound(c => c.Recipient).Title("Recipient");
+                   columns.ForeignKey(c => c.Status, (System.Collections.IEnumerable)ViewData["CStatus"], "Value", "Text").Title("Status");
+                   columns.Command(c => { c.Edit(); }).Width(100);
+               })
+               .Pageable()
+               .Sortable()
+               .Scrollable()
+                     .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+                       //.ToolBar(t => { t.Search(); })
+                       // .Search(s => { s.Field(a => new { a.ChequeNo });
+                       //     s.Field(a => new { a.InstrumentNo });
+                       //     s.Field(a => new { a.Recipient });
+                       // })
+                       .Editable(e => e.Mode(GridEditMode.InLine))
+                       .HtmlAttributes(new { style = "height:400px;" })
+                       .DataSource(dataSource => dataSource
+                       .Ajax()
+                       .PageSize(20)
+                       .Events(e => e.Error("error_handler"))
+                       .Model(model =>
+                       {
+                           model.Id(m => m.TransID);
+                           model.Field(m => m.ChequeNo).Editable(false);
+                           model.Field(m => m.ChequeDate).Editable(false);
+                           model.Field(m => m.ChequeType).Editable(false);
+                           model.Field(m => m.Amount).Editable(false);
+                           model.Field(m => m.InstrumentNo).Editable(false);
+                           model.Field(m => m.Recipient).Editable(false);
+                           model.Field(m => m.Status);
+                       })
+                       .Read(read => read.Action("ChequeList_Read", "Account").Data("GetDates"))
+                       .Create(create => create.Action("ChequeList_Update", "Account"))
+                        .Update(create => create.Action("ChequeList_Update", "Account"))
+                       ))
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var gridElement = $("#gridchequelist");
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_18000000').addClass('active');
+        //$('#d_18000000').css("display", "block");
+        //$('#m_18010000').addClass('active');
+        //$('#d_18010000').css("display", "block");
+        //$('#m_18010400').addClass('active');
+        //$('#a_18010400').addClass('active');
+    })
+
+    function LoadGrid() {
+        $("#gridchequelist").data("kendoGrid").dataSource.read();
+    }
+
+    function GetDates() {
+        return {
+            StartDate: $('#FDate').val(),
+            EndDate: $('#TDate').val()
+        }
+    }
+
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridchequelist").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Error");
+            dia.content(message);
+            dia.open();
+        }
+    }
+</script>

@@ -1,0 +1,204 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "CashSaleRate";
+}
+<div class="row">
+    @*<div class="col-md-12 col-xs-12">
+        <div class="col-md-3 col-sm-4">
+            @Html.Label("SKU")
+            @(Html.Kendo().MultiColumnComboBox()
+                    .Name("SKUId")
+                    .AutoBind(false)
+                    .Placeholder("Select SKU...")
+                    .DataTextField("SKUName")
+                    .DataValueField("SKUId")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("SKUName").Width("350px");
+                        columns.Add().Field("Company").Width("200px");
+                        columns.Add().Field("Product").Width("200px");
+                    })
+                    .Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "SKUName", "Company", "Product" })
+                    .IgnoreCase(true)
+                    .Events(e => e.Change("SKUChange"))
+                    .MinLength(3)
+                    .BindTo((System.Collections.IEnumerable)ViewData["SKUVD"])
+                    //.DataSource(dataSource =>
+                    //{
+                    //dataSource.Read(read => read.Action("SKUByLocList", "Setup").Data("filterSKU"));
+                    //})
+                    //.CascadeFrom("LocId")
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%"})
+                    )
+            @Html.ValidationMessage("SKUId")
+        </div>
+        <div class="col-md-3 col-sm-4">
+            @Html.Label("Company")
+            @(Html.Kendo()
+                    .TextBox()
+                    .Name("Company")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+        </div>
+        <div class="col-md-3 col-sm-4">
+            @Html.Label("Product")
+            @(Html.Kendo()
+                    .TextBox()
+                    .Name("Product")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+        </div>
+        <button class="btn btn-info k-button" onclick="AddToGrid()" type="button">Add</button>
+    </div>*@
+    <div class="col-md-12 col-xs-12">
+        <label>Select File to Import</label>
+        <div class="input-group mb-3">
+            <input type="file" class="form-control importfile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Select File" aria-describedby="basic-addon1">
+            <div class="input-group-append">
+                <button class="btn btn-info btnLoadFile k-button" type="button">LOAD FILE</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        @Html.Label("Cash Sale Rate")
+        @(Html.Kendo()
+        .Grid<SaleRateVM>()
+        .Name("gridSaleRate")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.RowId).Hidden();
+            columns.Bound(c => c.SKUId).Hidden();
+            columns.ForeignKey(c => c.SKUId, (System.Collections.IEnumerable)ViewData["SKUVD"], "SKUId", "SKUName").Title("SKU").Width(200);
+            columns.Bound(c => c.EffectiveDate).Format("{0: dd/MM/yyyy}");
+            columns.Bound(c => c.SM);
+            columns.Bound(c => c.SR);
+            columns.Bound(c => c.SKT);
+            columns.Bound(c => c.Gala);
+            //columns.Command(c => c.Destroy());
+        })
+        .Sortable()
+        .Scrollable()
+        .AutoBind(false)
+        .Navigatable()
+            .ToolBar(t =>
+            {
+                t.Create();
+                t.Save();
+            })
+        .Editable(e => e.Mode(GridEditMode.InCell).CreateAt(GridInsertRowPosition.Top))
+        .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .Events(e => e.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(m => m.RowId);
+            model.Field(m => m.SKUId);
+            model.Field(m => m.EffectiveDate);
+            model.Field(m => m.SM);
+            model.Field(m => m.SR);
+            model.Field(m => m.SKT);
+            model.Field(m => m.Gala);
+        })
+        .Update(read => read.Action("CashSaleRate_Save", "Setup"))
+        .Create(read => read.Action("CashSaleRate_Save", "Setup"))
+        ))
+    </div>
+</div>
+<script type="text/javascript" src="/scripts/xlsx.full.min.js"></script>
+<script type="text/javascript" src="/scripts/jszip.js"></script>
+<script>
+    $(".btnLoadFile").click(function () {
+        var fileUpload = $(".importfile")[0];
+        var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+        if (regex.test(fileUpload.value.toLowerCase())) {
+            if (typeof (FileReader) != "undefined") {
+                var reader = new FileReader();
+                if (reader.readAsBinaryString) {
+                    reader.onload = function (e) {
+                        ProcessExcel(e.target.result);
+                    };
+                    reader.readAsBinaryString(fileUpload.files[0]);
+                } else {
+                    reader.onload = function (e) {
+                        var data = "";
+                        var bytes = new Uint8Array(e.target.result);
+                        for (var i = 0; i < bytes.byteLength; i++) {
+                            data += String.fromCharCode(bytes[i]);
+                        }
+                        ProcessExcel(data);
+                    };
+                    reader.readAsArrayBuffer(fileUpload.files[0]);
+                }
+            } else {
+                $(".btnLoadFile").html("LOAD FILE");
+                alert('This browser does not support HTML5.');
+            }
+        } else {
+            $(".btnLoadFile").html("LOAD FILE");
+            alert('Please upload a valid Excel file.');
+        }
+    });
+    function ProcessExcel(data) {
+        var workbook = XLSX.read(data, {
+            type: 'binary'
+        });
+        var cdt = new Date();
+        cdt = new Date(cdt.getFullYear(), cdt.getMonth(), cdt.getDate());
+        
+        var firstSheet = workbook.SheetNames[0];
+        var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+        var lst = [];
+        for (var i = 0; i < excelRows.length; i++) {
+            var SKUId = typeof excelRows[i]["SKUId"] === 'undefined' ? "" : excelRows[i]["SKUId"];
+            var EffectiveDate = new Date(typeof excelRows[i]["EffectiveDate"] === 'undefined' ? "" : excelRows[i]["EffectiveDate"]);
+            if (EffectiveDate < cdt) {
+                alert("Effective Date cannot be less than current date");
+                return;
+            }
+            var SM = typeof excelRows[i]["SM"] === 'undefined' ? "" : excelRows[i]["SM"];
+            var SR = typeof excelRows[i]["SR"] === 'undefined' ? "" : excelRows[i]["SR"];
+            var SKT = typeof excelRows[i]["SKT"] === 'undefined' ? "" : excelRows[i]["SKT"];
+            var Gala = typeof excelRows[i]["Gala"] === 'undefined' ? "" : excelRows[i]["Gala"];
+            lst.push({
+                SKUId: SKUId,
+                EffectiveDate: EffectiveDate,
+                SM: SM,
+                SR: SR,
+                SKT: SKT,
+                Gala: Gala,
+            });
+        }
+        $("#gridSaleRate").data('kendoGrid').dataSource.data(lst);
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Error");
+            dia.content(message);
+            dia.open();
+        }
+    }
+    function SKUChange() {
+        var modelData = $('#SKUId').data('kendoMultiColumnComboBox').dataItem();
+        $('#Company').val(modelData.Company);
+        $('#Product').val(modelData.Product);
+    }
+    function AddToGrid() {
+
+    }
+</script>

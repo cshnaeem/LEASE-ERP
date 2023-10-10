@@ -1,0 +1,7 @@
+@model int?
+
+@(Html.Kendo().IntegerTextBoxFor(m => m).Spinners(false)
+      .HtmlAttributes(new { style = "width:100%" })
+      .Min(int.MinValue)
+      .Max(int.MaxValue)
+)

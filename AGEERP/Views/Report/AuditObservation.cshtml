@@ -1,0 +1,432 @@
+﻿
+@{
+    ViewBag.Title = "Audit Observation";
+}
+@using (Html.BeginForm("AuditObservation", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Audit Observation</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Report</a></li>
+                    <li class="breadcrumb-item active">Audit Observation</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+            </div>
+            <div class="col-md-3">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Mobile")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("Mobile")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("Mobile")
+                            .Value("false")
+                                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("NIC")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("NIC")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("NIC")
+                            .Value("false")
+                                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Affidavit")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("Affidavit")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("Affidavit")
+                            .Value("false")
+                                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Cheque")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("Cheque")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("Cheque")
+                            .Value("false")
+                                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Guarantor1")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("Guarantor1")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("Guarantor1")
+                            .Value("false")
+                                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Guarantor2")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("Guarantor2")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("Guarantor2")
+                            .Value("false")
+                                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Thumb")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("Thumb")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("Thumb")
+                            .Value("false")
+                                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Pic")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("Pic")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("Pic")
+                            .Value("false")
+                                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("BMSign")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("BMSign")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("BMSign")
+                            .Value("false")
+                                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("RMSign")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("RMSign")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("RMSign")
+                            .Value("false")
+                                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("VisitStatus")
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("VisitStatus")
+                            .Value("true")
+                                )
+                @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("VisitStatus")
+                            .Value("false")
+                                )
+            </div>
+        </div>
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("WrongCase")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("WrongCase")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("WrongCase")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("WrongProduct")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("WrongProduct")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("WrongProduct")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("InvolvementCase")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("InvolvementCase")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("InvolvementCase")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("WrongPTO")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("WrongPTO")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("WrongPTO")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("PTOCase")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("PTOCase")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("PTOCase")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("HomeFake")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("HomeFake")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("HomeFake")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("OfficialFake")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("OfficialFake")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("OfficialFake")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("LoseGuarantee")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("LoseGuarantee")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("LoseGuarantee")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("FakeGuarantee")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("FakeGuarantee")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("FakeGuarantee")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("ManageGuarantee")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("ManageGuarantee")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("ManageGuarantee")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("WithoutVerification")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("WithoutVerification")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("WithoutVerification")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("HomeRental")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("HomeRental")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("HomeRental")
+                            .Value("false")
+                                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("PhotoCHQ")
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("Yes")
+                            .Name("PhotoCHQ")
+                            .Value("true")
+                                )
+                    @(Html.Kendo()
+                            .RadioButton()
+                            .Label("No")
+                            .Name("PhotoCHQ")
+                            .Value("false")
+                                )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+}

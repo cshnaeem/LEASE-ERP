@@ -1,0 +1,19 @@
+﻿@model int?
+
+@(Html.Kendo().DropDownListFor(m => m)
+            //.AutoBind(false)
+            //.Placeholder("Select Model...")
+            //.OptionLabel("Select SKU...")
+            .DataTextField("SKUCode")
+            .DataValueField("SKUId")
+            .AutoBind(false)
+            //.Suggest(true)
+            //.Filter(FilterType.Contains)
+            //.Events(e => e.DataBound("onModelDataBound"))
+            .DataSource(dataSource =>
+            {
+                dataSource.Read(read => read.Action("SKUListForGRN", "Setup").Data("filterSKU"));
+            })
+//.IgnoreCase(true)
+)
+@Html.ValidationMessageFor(m => m)

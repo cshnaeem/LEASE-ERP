@@ -1,0 +1,108 @@
+﻿@model IEnumerable<AGEERP.Models.UserMenuInfo>
+@{
+    Layout = null;
+    var parentMenuList = Model.Where(it => it.ParentId == 0).OrderBy(it => it.SortOrder).ToList();
+}
+<nav class="mt-2">
+    <ul id="main-side" class="nav nav-pills nav-sidebar flex-column text-sm nav-flat" data-widget="treeview" role="menu" data-accordion="false">
+        @foreach (var menu in parentMenuList)
+        {
+            var firstChildList = Model.Where(it => it.ParentId == menu.MenuId).OrderBy(it => it.SortOrder).ToList();
+            if (firstChildList.Any())
+            {
+                <li class="nav-item has-treeview" id="m_@menu.MenuId">
+                    <a class="nav-link">
+                        <i class="fas @menu.MenuIcon nav-icon"></i>
+                        <p>
+                            @menu.Name.ToUpper()
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+
+                    <ul id="d_@menu.MenuId" class="nav nav-treeview treeview-menu">
+                        @foreach (var fChildMenu in firstChildList)
+                        {
+                            var secChildMenu = Model.Where(it => it.ParentId == fChildMenu.MenuId).OrderBy(it => it.SortOrder).ToList();
+                            if (secChildMenu.Any())
+                            {
+                                <li class="nav-item has-treeview" id="m_@fChildMenu.MenuId">
+                                    <a id="a_@fChildMenu.MenuId" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            @fChildMenu.Name.ToUpper()
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview treeview-menu">
+                                        @foreach (var sChildMenu in secChildMenu)
+                                        {
+                                            if (sChildMenu.ActionLink == "#")
+                                            {
+                                                <li class="nav-item lnk" id="m_@sChildMenu.MenuId" style="margin-left:10px">
+                                                    <a class="nav-link" id="a_@sChildMenu.MenuId">
+                                                        <i class="far fa-dot-circle nav-icon"></i>
+                                                        <p>@sChildMenu.Name</p>
+                                                    </a>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li class="nav-item" id="m_@sChildMenu.MenuId" style="margin-left:10px">
+                                                    <a href="@sChildMenu.ActionLink" class="nav-link" id="a_@sChildMenu.MenuId">
+                                                        <i class="far fa-dot-circle nav-icon"></i>
+                                                        <p>@sChildMenu.Name</p>
+                                                    </a>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                if (fChildMenu.ActionLink == "#")
+                                {
+                                    <li class="lnk" id="m_@fChildMenu.MenuId" style="margin-left:10px">
+                                        <a class="nav-link" id="a_@fChildMenu.MenuId">
+                                            <i class="far fa-dot-circle nav-icon"></i>
+                                            <p>@fChildMenu.Name</p>
+                                        </a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li id="m_@fChildMenu.MenuId" style="margin-left:10px">
+                                        <a href="@fChildMenu.ActionLink" class="nav-link" id="a_@fChildMenu.MenuId">
+                                            <i class="far fa-dot-circle nav-icon"></i>
+                                            <p>@fChildMenu.Name</p>
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        }
+                    </ul>
+                </li>
+            }
+            else
+            {
+                <li id="m_@menu.MenuId">
+                    @if (@menu.ActionLink == "#")
+                    {
+                        <a class="nav-link lnk">
+                            <i class="far fa-dot-circle nav-icon"></i>
+                            <p>@menu.Name</p>
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="@menu.ActionLink" class="nav-link">
+                            <i class="far fa-dot-circle nav-icon"></i>
+                            <p>@menu.Name</p>
+                        </a>
+                    }
+
+                </li>
+            }
+        }
+    </ul>
+</nav>

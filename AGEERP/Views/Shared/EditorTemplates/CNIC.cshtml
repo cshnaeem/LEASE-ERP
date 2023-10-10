@@ -1,0 +1,8 @@
+@model string
+
+@(Html.Kendo().MaskedTextBoxFor(m => m)     
+    .Mask("00000-0000000-0")
+      .HtmlAttributes(new {style="width:100%"})
+)
+
+

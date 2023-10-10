@@ -1,0 +1,7 @@
+﻿@using (Html.BeginForm("PrintSlip", "Report", FormMethod.Post, new { @Id = "rptForm", @target = "print_popup",@hidden="hidden",
+    @onsubmit="window.open('about:blank','print_popup','fullscreen=0,location=0');" }))
+{
+@Html.AntiForgeryToken()
+@Html.Hidden("rpt")
+@Html.Hidden("TransId")
+}

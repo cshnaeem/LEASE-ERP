@@ -1,0 +1,194 @@
+﻿
+@{
+    ViewBag.Title = "Daily Attendance";
+}
+@using (Html.BeginForm("DailyAttendance", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Daily Attendance</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                        <li class="breadcrumb-item active">Daily Attendance</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("From Date", new { @id = "fLabel" })
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 tdt">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("Designation")
+                    @(Html.Kendo()
+                                                                    .DropDownList()
+                                                                    .Name("DesgId")
+                                                                    .OptionLabel("All Designation ...")
+                                                                    .DataValueField("DesgId")
+                                                                    .DataTextField("DesgName")
+                                                                    .Filter(FilterType.Contains)
+                                                                    .DataSource(ds =>
+                                                                    {
+                                                                        ds.Read(read => read.Action("JDesignationList", "Employee"));
+                                                                    })
+                                                                    .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+                    )
+                </div>
+
+                <div class="col-md-3">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                                                             .DropDownList()
+                                                             .Name("HDeptId")
+                                                             //.OptionLabel("Select Head Department ...")
+                                                             .SelectedIndex(0)
+                                                             .DataValueField("HDeptId")
+                                                             .DataTextField("HDeptName")
+                                                             .Events(x => x.Change("CheckLocation"))
+                                                             //.Suggest(true)
+                                                             //.Filter(FilterType.Contains)
+                                                             .DataSource(x => x.Read("HDepartmentList", "Employee"))
+                                                             .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 tdt" style="display:none;" id="CityDiv">
+                    @Html.Label("City")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CityId")
+                    //.Placeholder("Select City ...")
+                    //.SelectedIndex(0)
+                    .OptionLabel("All")
+                    .DataValueField("CityId")
+                    .DataTextField("City")
+                    .Filter(FilterType.Contains)
+                    //.Suggest(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CityList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Department")
+                    @(Html.Kendo()
+                                                                    .ComboBox()
+                                                                    .Name("DeptId")
+                                                                    .Placeholder("All Department ...")
+                                                                    .DataValueField("DeptId")
+                                                                    .DataTextField("Department")
+                                                                    .Filter(FilterType.Contains)
+                                                                    .CascadeFrom("HDeptId")
+                                                                    .Events(e => e.Change("onDepChange"))
+                                                                    .IgnoreCase(true)
+                                                                    .DataSource(ds =>
+                                                                    {
+                                                                        ds.Read(read => read.Action("DeptByHDeptList", "Employee").Data("filterDept")).ServerFiltering(true);
+                                                                    })
+                                                                    .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+                    )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Employee")
+                    @(Html.Kendo()
+                                                                    .DropDownList()
+                                                                    .Name("EmpId")
+                                                                    .OptionLabel("All")
+                                                                    .DataValueField("EmpId")
+                                                                    .DataTextField("EmpName")
+                                                                    .SelectedIndex(0)
+
+                                                                    .Filter(FilterType.Contains)
+                                                                    .DataSource(ds =>
+                                                                    {
+                                                                        ds.Read(read => read.Action("EmpByDeptList", "Employee").Data("filterEmp"));
+                                                                    })
+                                                                    .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 col-sm-2">
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Within Date Range").Value("2").Checked(true).HtmlAttributes(new { @id = "chkYes" })
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Single Date").Value("1")
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script>
+
+    $(document).ready(function () {
+        //$('#m_17000000').addClass('active');
+        //$('#d_17000000').css("display", "block");
+        //$('#m_17040000').addClass('active');
+        //$('#d_17040000').css("display", "block");
+        //$('#m_17040100').addClass('active');
+        //$('#a_17040100').addClass('active');
+    });
+    function filterDept() {
+        return {
+            HDeptId: $('#HDeptId').val() || 0,
+            str: $('#DeptId').data("kendoComboBox").input.val() || "",
+            CityId: $('#CityId').val() || 0
+        }
+    }
+    function CheckLocation() {
+        var Location = $('#HDeptId').val();
+        if (Location == "2" && $("#chkYes").is(":checked") == false) {
+            $('#CityDiv').css('display', 'block');
+        }
+        else {
+            $('#CityDiv').css('display', 'none');
+        }
+    }
+    function filterEmp() {
+        return {
+            DeptId: $('#DeptId').val()
+            //str: $('#EmpId').data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+    function onDepChange() {
+        $('#EmpId').data("kendoDropDownList").dataSource.read();
+    }
+    $("input[name='rpt']").click(function () {
+        if ($("#chkYes").is(":checked")) {
+            $('#fLabel').text("From Date");
+            $(".tdt").show();
+        } else {
+            $('#fLabel').text("Date");
+            $(".tdt").hide();
+        }
+        var Location = $('#HDeptId').val();
+        if (Location == "2" && $("#chkYes").is(":checked") == false) {
+            $('#CityDiv').css('display', 'block');
+        }
+        else {
+            $('#CityDiv').css('display', 'none');
+        }
+    });
+</script>

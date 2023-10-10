@@ -1,0 +1,322 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "ExpenseVoucherPosting";
+}
+
+<style>
+    .k-edit-form-container{
+        width:950px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Expense Voucher Posting</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">Expense Voucher Posting</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 col-sm-4">
+            @Html.Label("Location")
+            @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("Loc")
+                .Placeholder("Select Locations ...")
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                //.SelectedIndex(0)
+                .Columns(columns =>
+                {
+                    columns.Add().Field("LocCode").Width("100px");
+                    columns.Add().Field("LocName").Width("200px");
+                })
+                .FilterFields(new string[] { "LocCode", "LocName" })
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+            )
+        </div>
+        <div class="col-md-3 col-sm-4">
+            @Html.Label("Working Date")
+            @Html.Kendo().DatePicker().Name("Working").Value(ViewBag.WorkingDate).HtmlAttributes(new { @style = "width:100%" })
+        </div>
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Expense")
+            @(Html.Kendo()
+                        .DropDownList()
+                        .Name("ExpHead")
+                        .OptionLabel("All Expense")
+                        //.Placeholder("Select Locations ...")
+                        //.SelectedIndex(0)
+                        .DataValueField("ExpHeadId")
+                        .DataTextField("ExpHead")
+                        //.Events(e => e.Change("ExpChange"))
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("ExpenseList", "Sale"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+            )
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-sm-6" style="text-align:right">
+        </div>
+        <div class="col-md-3 col-sm-3" style="text-align:right">
+            @*<br />*@
+            <button class="k-button margin-10" onclick="loadGrid()">Load Vouchers</button>
+        </div>
+        <div class="col-md-3 col-sm-3" style="text-align:right">
+            @*<br />*@
+
+            <button class="k-button margin-10" onclick="SaveDoc()">Post Vouchers</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            @(Html.Kendo()
+        .Grid<ExpenseTransactionVM>()
+        .Name("gridExpense")
+        .Columns(columns =>
+        {
+            columns.Select().Width(50);
+            //columns.Bound(c => c.TransId).HtmlAttributes(new { onclick = "ViewDoc(#:TransId#)" });
+            columns.ForeignKey(c => c.LocId, (System.Collections.IEnumerable)ViewData["LocVD"], "LocId", "LocCode").Title("Location").Width(100);
+            columns.ForeignKey(c => c.ExpHeadId, (System.Collections.IEnumerable)ViewData["ExpenseHeadVD"], "ExpHeadId", "ExpHead").Title("ExpHead");
+            columns.Bound(c => c.Description);
+            columns.Bound(c => c.Amount).Format("{0:n0}").ClientFooterTemplate("Total: #=sum#").Width(100);
+            columns.ForeignKey(c => c.CCCode, (System.Collections.IEnumerable)ViewData["CCVD"], "CCCode", "CCDesc").Title("Cost Center");
+            columns.Command(c => { c.Custom("Doc").Click("ViewDoc"); c.Edit().Visible("isVis"); c.Destroy().Visible("isVis"); }).Width(150);
+        })
+        //.Pageable()
+        .Sortable()
+        .PersistSelection()
+        .Scrollable()
+
+        .ToolBar(t => { t.Create(); })
+        .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_Expense").Window( w => { w.Height(600); }))
+        .HtmlAttributes(new { style = "height:400px;font-size:12px;" })
+        .AutoBind(false)
+        .Events(e => { e.DataBound("setColor"); e.Edit("SetValue"); })
+        .DataSource(dataSource => dataSource
+        .Ajax()
+
+        //.PageSize(20)
+        .Events(e => e.Error("error_handler"))
+        .ServerOperation(false)
+        .Aggregates(aggregates =>
+        {
+            aggregates.Add(p => p.Amount).Sum();
+        })
+        .Model(model =>
+        {
+            model.Id(m => m.TransId);
+        })
+        .Read(read => read.Action("ExpenseVoucherPosting_Read", "Account").Data("masterData"))
+        .Create(create => create.Action("ExpenseVoucherPosting_Create", "Account").Data("masterData"))
+        .Update(update => update.Action("ExpenseVoucherPosting_Update", "Account"))
+        .Destroy(destroy => destroy.Action("ExpenseVoucherPosting_Destroy", "Account"))
+        ))
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .vouc {
+        color: #008000 !important;
+    }
+</style>
+<div hidden="hidden">@Html.Partial("~/Views/Document/_Doc.cshtml")</div>
+<script type="text/javascript">
+    var gridElement = $("#gridExpense");
+    var text_max = 250;
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_10000000').addClass('active');
+        //$('#d_10000000').css("display", "block");
+        //$('#m_10050000').addClass('active');
+        //$('#a_10050000').addClass('active');
+        
+        $('#Description').keyup(function () {
+            var text_length = $('#Description').val().length;
+            var text_remaining = text_max - text_length;
+
+            $('#Description_feedback').html(text_remaining + ' characters remaining');
+        });
+    });
+    function SetText(e) {
+        console.log(e);
+    }
+    function ViewDoc(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#DocId").val(dataItem.TransId);
+        $("#RefObjId").val(6);
+        $("#frmDoc").submit();
+    }
+    //function ViewDoc(e) {
+    //    window.open("/Document/EDocumentManager?id=" + e + "&refobjid=6","print_popup",)
+    //}
+    function setColor(e) {
+        var rows = e.sender.tbody.children();
+        for (var j = 0; j < rows.length; j++) {
+            var row = $(rows[j]);
+            var dataItem = e.sender.dataItem(row);
+            var isPost = dataItem.get("IsPosted");
+            if (isPost == true) {
+                row.addClass("vouc");
+            }
+        }
+    }
+  
+
+    var setSpanInnerHtml = function () {
+        var dataItem = $('#ExpHeadId').data("kendoMultiColumnComboBox").dataItem();
+        if (dataItem != null) {
+            $('#glcode').text(dataItem.SubCode);
+            //$('#SubId').data('kendoMultiColumnComboBox').dataSource.read();
+        }
+    }
+
+    function filterSubsidaryCode() {
+        var dataItem = $('#ExpHeadId').data("kendoMultiColumnComboBox").dataItem();
+        return {
+            PId: dataItem.GLCode,
+            str: $('#SubId').data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+    function loadGrid() {
+        $("#gridExpense").data("kendoGrid").dataSource.read();
+    }
+    function isVis(e) {
+        return !e.IsPosted;
+    }
+    //function loadLoc() {
+    //    $('#LocId').data('kendoMultiColumnComboBox').dataSource.read();
+    //}
+    function masterData() {
+        return {
+            Loc: $('#Loc').val() || 0,
+            ExpHead: $('#ExpHead').val() || 0,
+            Working: $('#Working').val() || 0
+        }
+    }
+    function SetValue(e) {
+        if (e.model.isNew()) {
+            var lo = $('#Loc').val();
+            //   var loccid =  $('#LocId').data('kendoMultiColumnComboBox');
+            //  loccid.value(lo);
+            //  loccid.refresh();
+            var dte = $('#Working').val();
+            e.model.set("LocId", lo);
+            e.model.set("WorkingDate", dte);
+            e.model.set("CCCode", lo);
+            //  setInterval(function () {
+            //      $("#LocId").data("kendoMultiColumnComboBox").trigger("change");
+            //        $('#WorkingDate').val(dte);
+            //}, 1000);
+
+            //clearTimeout(5000);
+
+        }
+        else {
+            $('#Description_feedback').html((text_max - $('#Description').val().length) + ' characters remaining');
+            e.model.dirty = true;
+        }
+    }
+        
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridExpense").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Error");
+            dia.content(message);
+            dia.open();
+        }
+        SetValue();
+    }
+    function filterCity() {
+        return {
+            CityId: $('#CityId').val() || 0
+        }
+    }
+    
+function formatNumber(value) {
+    return kendo.toString(value, '##,#')
+}
+
+    function SaveDoc() {
+        if (confirm("Are you sure?")) {
+            var TransLst = $('#gridExpense').data('kendoGrid').selectedKeyNames();
+            var dat = { "TransLst": TransLst };
+            if (TransLst.length > 0) {
+                $.ajax({
+                    url: '/Account/ExpenseVoucherPosting',
+                    type: 'POST',
+                    data: JSON.stringify(dat),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        if (data == true) {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Success");
+                            dia.content("Save Successfully");
+                            dia.open();
+                            loadGrid();
+                        }
+                        else {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Not Save Successfully");
+                            dia.open();
+                        }
+                    },
+                    error: function () {
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content("Not Save Successfully");
+                        dia.open();
+                    }
+                });
+            }
+            else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Validation");
+                dia.content("Please select Locations");
+                dia.open();
+            }
+        }
+    }
+</script>

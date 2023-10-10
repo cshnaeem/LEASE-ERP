@@ -1,0 +1,305 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Inventory  Complain";
+}
+    <script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Inventory Complain</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Inventory  Complain</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        @using (Ajax.BeginForm("InvComplain", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+        {
+            @Html.ValidationSummary()
+            <div class="col-sm-12">
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Location")
+                        @(Html.Kendo()
+                    .MultiColumnComboBox()
+                .Name("LocId")
+                .Placeholder("Select Locations ...")
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                .SelectedIndex(0)
+                .Columns(columns =>
+                {
+                    columns.Add().Field("LocCode").Width("100px");
+                    columns.Add().Field("LocName").Width("200px");
+                })
+                .FilterFields(new string[] { "LocCode", "LocName" })
+                .Filter(FilterType.Contains)
+                    .Events(e => e.Change("changeFLocation").DataBound("changeFLocation"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%",@required = true })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Type")
+                        @(Html.Kendo()
+                .DropDownList()
+                .Name("Type")
+                .SelectedIndex(0)
+                .BindTo(new List<SelectListItem>()
+                {
+                            new SelectListItem{Text = "Damage",Value = "D"},
+                            new SelectListItem{Text = "Service Center",Value = "S"},
+                })
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Fault")
+                        @Html.Kendo().TextBox().Name("Fault").HtmlAttributes(new { @style = "width:100%", @required = true, @maxlength = "50" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Communicator")
+                        @(Html.Kendo()
+                .DropDownList()
+                .Name("Salesman")
+                .OptionLabel("Select Salesman ...")
+                .SelectedIndex(0)
+                .DataValueField("EmpId")
+                .DataTextField("EmpName")
+                        ///.Suggest(true)
+                        .IgnoreCase(true)
+                .Filter(FilterType.Contains)
+                //.SyncValueAndText(true)
+                //.HighlightFirst(true)
+
+                //.CascadeFrom("LocId")
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("GetSalesmanList", "Sale").Data("filterSalesman"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Communicator CellNo")
+                        @Html.Kendo().MaskedTextBox().Name("CellNo").Mask("0000-0000000").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-9 col-sm-12">
+                        @Html.Label("Remarks")
+                        @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+                </div>
+                <hr />
+                <div class="row ihead">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Scan SerialNo")
+                        @(Html.Kendo()
+                .TextBox()
+                .Name("Serial")
+                .HtmlAttributes(new { @style = "width:100%", @onchange = "changeSerial()" })
+                        )
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("SKU")
+                        @(Html.Kendo().MultiColumnComboBox()
+                .Name("SKUId")
+                //.AutoBind(false)
+                .Placeholder("Select SKU...")
+                .DataTextField("SKUName")
+                .DataValueField("SKUId")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("SKUName").Width("300px");
+                    columns.Add().Field("Company").Width("150px");
+                    columns.Add().Field("Product").Width("150px");
+                })
+                .Suggest(true)
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "SKUName", "Company", "Product" })
+                //.MinLength(3)
+                .Events(e => e.Change("SKUChange"))
+                .DataSource(dataSource =>
+                {
+                    dataSource.Read(read => read.Action("SKUByLocList", "Setup").Data("filterSKU"));
+                })
+                //.CascadeFrom("LocId")
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Company")
+                        @(Html.Kendo()
+                .TextBox()
+                .Name("Company")
+                .Enable(false)
+                .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        @Html.Label("Product")
+                        @(Html.Kendo()
+                .TextBox()
+                .Name("Product")
+                .Enable(false)
+                .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        @Html.Label("SerialNo")
+                        @(Html.Kendo().ComboBox()
+                .Name("ItemId")
+                .AutoBind(false)
+                .Placeholder("Select Serial...")
+                .DataTextField("SerialNo")
+                .DataValueField("ItemId")
+                .Suggest(true)
+                .Filter(FilterType.StartsWith)
+                //.Events(e => e.Change("SrNoChange"))
+                .DataSource(dataSource =>
+                {
+                    dataSource.Read(read => read.Action("ItemBySKULoc", "Sale").Data("filterItem"));
+                })
+                //.CascadeFrom("SKUId")
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                        )
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-3" id="savebtn">
+                        <br />
+                        <button class="k-button margin-10" type="button" id="btnSave" onclick="SaveDoc()">
+                            <i class="fas fa-plus"></i>&nbsp; Save
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        }
+        </div>
+</div>
+
+<script>
+    var validatorM = $("#frm").kendoValidator().data("kendoValidator");
+    function filterSalesman() {
+        return {
+            LocId: $('#LocId').val(),
+            DesgId: 236
+        }
+    }
+
+    function SaveDoc() {
+        //var upload = $("#files").data("kendoUpload");
+        //var files = upload.getFiles();
+        //var fl = [];
+        //for (var i = 0; i < files.length; i++) {
+        //    fl.push(files[i].id);
+        //}
+        //$('#UploadedFiles').val(fl);
+        //if (fl.length > 0) {
+        if (!validatorM.validate()) {
+            e.preventDefault();
+            return;
+        }
+        $.confirm({
+            title: 'Confirmation',
+            content: 'Are you sure that you want to proceed?',
+            buttons: {
+                confirm: function () {
+                    kendo.ui.progress($('.card'), true);
+                    $('#savebtn').css('display', 'none');
+                    $('#frm').submit();
+                },
+                cancel: function () {
+                }
+            }
+        });
+        //}
+        //else {
+        //    kendo.alert("Please attach document");
+        //}
+    }
+
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+
+        if (result == true) {
+            dia.title("Msg");
+            dia.content("Save Successfully");
+            dia.open();
+            ClearAll();
+       
+            //var upload = $("#files").data("kendoUpload");
+            //upload.clearAllFiles();
+            //$('#savebtn').css('display', 'block');
+        }
+        else {
+            dia.title("Error");
+            dia.content("Not Save Successfully");
+            dia.open();
+        }
+        $('#savebtn').css('display', 'block');
+    }
+
+    function filterSKU() {
+        return {
+            LocId: $('#LocId').val(),
+            filterModel: $("#SKUId").data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+
+    function SKUChange() {
+        var LocId = $('#LocId').val() || 0;
+        var SKUId = $('#SKUId').val() || 0;
+        if (SKUId > 0 && LocId > 0) {
+            var modelData = $('#SKUId').data('kendoMultiColumnComboBox').dataItem();
+            $('#Company').val(modelData.Company);
+            $('#Product').val(modelData.Product);
+            $('#ItemId').data('kendoComboBox').dataSource.read();
+        }
+    }
+
+    function filterItem() {
+        return {
+            LocId: $('#LocId').val(),
+            SKUId: $('#SKUId').val()
+        }
+    }
+    
+    function ClearAll() {
+        $('#Fault').val("");
+        $('#ItemId').data('kendoComboBox').value("");
+        $('#SKUId').data('kendoMultiColumnComboBox').value("");
+        $('#Product').val("");
+        $('#Company').val("");
+        $('#Serial').val("");
+        $('#Remarks').val("");
+        $('#Salesman').data('kendoDropDownList').value("");
+        $('#CellNo').data('kendoMaskedTextBox').value("");
+    }
+
+    function changeFLocation() {
+        $("#SKUId").data("kendoMultiColumnComboBox").dataSource.read();
+        $('#Salesman').data('kendoDropDownList').dataSource.read();
+    }
+</script>
+

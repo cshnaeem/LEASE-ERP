@@ -1,0 +1,757 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Outstand";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+    .table td, .table th {
+        padding: 0.15rem;
+        /*vertical-align: top;*/
+        border-color: #939393;
+    }
+    .table thead th {
+        background-color: #dee2e6;
+        border-bottom: 1px solid #939393;
+    }
+    .k-action-buttons .k-button {
+        background: #939393;
+    }
+</style>
+@*<style>
+    th [role="listbox"] {
+        visibility: hidden;
+    }
+</style>*@
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Outstand</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Sale</a></li>
+                    <li class="breadcrumb-item active">Outstand</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("locChange").DataBound("locChange"))
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+
+                    @Html.Label("OutStand Month")
+                    @(Html.Kendo()
+                            .DatePicker()
+                            .Name("OSMonth")
+                            .Value(Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-01")))
+                            .Start(CalendarView.Year)
+                            .Depth(CalendarView.Year)
+                            .Format("MMM-yyyy")
+                            .Min(Convert.ToDateTime("2020-03-01"))
+                            .Max(Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-01")))
+                            .Events(e => e.Change("statusChange"))
+                            .HtmlAttributes(new { @style = "width:100%"})
+                        )
+
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Category")
+                    @(Html.Kendo().DropDownList().Name("Category")
+                    .BindTo(new List<SelectListItem>
+                    () {
+                    new SelectListItem() {
+                    Text = "Fresh",
+                    Value = "F"
+                    },
+                    new SelectListItem() {
+                    Text = "Regular",
+                    Value = "R"
+                    }
+                    })
+                    .Events(e => e.Change("loadGrid"))
+                    .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Status")
+                    @(Html.Kendo().DropDownList().Name("Status")
+                    .BindTo(new List<SelectListItem>
+                    () {
+                    new SelectListItem() {
+                    Text = "Issued",
+                    Value = "I"
+                    },
+                    new SelectListItem() {
+                    Text = "Cleared",
+                    Value = "C"
+                    },
+                    new SelectListItem() {
+                    Text = "Partial",
+                    Value = "P"
+                    }
+                    })
+                    .Events(e => e.Change("statusChange"))
+                    .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Type")
+                    @(Html.Kendo().DropDownList().Name("Assign")
+                    .BindTo(new List<SelectListItem>
+                    () {
+                    new SelectListItem() {
+                    Text = "All",
+                    Value = ""
+                    },
+                    new SelectListItem() {
+                    Text = "Assigned",
+                    Value = "A"
+                    },
+                    new SelectListItem() {
+                    Text = "Un-Assigned",
+                    Value = "U"
+                    }
+                    })
+                    .Events(e => e.Change("loadGrid"))
+                    .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Recovery Officer")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("RecoveryId")
+                    .Placeholder("Select Inspector ...")
+                    //.SelectedIndex(0)
+                    .DataValueField("EmpId")
+                    .DataTextField("EmpName")
+                    .Events(e => e.Change("recvChange"))
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("EmpId").Width("100px");
+                        columns.Add().Field("EmpName").Width("200px");
+                        columns.Add().Field("CNIC").Width("200px");
+                    })
+                    .Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "EmpId", "EmpName", "CNIC" })
+                    .IgnoreCase(true)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("EmpByRoleLoc", "Sale").Data("filterRecovery"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <br />
+                    <br />
+                    @(Html.Kendo().CheckBox().Name("IsAIC").Label("AIC (Office)").HtmlAttributes(new { @onchange = "changeAIC()" }))
+                </div>
+                <div class="col-md-3 col-sm-4 btnAss">
+                    <label>Assign Account #</label>
+                    @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("AccNo")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Events(e => e.Change("AccNoChange"))
+                            .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    @*<br />*@
+                    <a id="btnAssign" class="k-button margin-10 btnAssi" style="float:right;" onclick="Assign()">Assign Selected</a>
+                    <a id="btnLastMonth" class="k-button margin-10 btnAss" style="float:right;" onclick="LastMonth()">As Last Month</a>
+                    <a id="btnInquiry" class="k-button margin-10  btnAss" style="float:right;" onclick="Inquiry()">As Inquiry</a>
+                    <a class="k-button margin-10 btnAss" style="float:right;" onclick="LoadOutStand()">Load Out Stand</a>
+                    <a class="k-button margin-10 btnAss" style="float:right;" onclick="PrintSelected()">Print Selected</a>
+                    <a class="k-button margin-10 btnAss" style="float:right;" onclick="RetryPrint()">Retry Print</a>
+                    <br />
+                    <span class="btnAss" style="float:right;color:red;" id="printcount"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <table class="table table-bordered text-center">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Issued A/C's</th>
+                                <th colspan="2">Cleared A/C's</th>
+                                <th colspan="2">Partial A/C's</th>
+                                <th colspan="2">Pending A/C's</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="IssueQty">0</td>
+                                <td id="IssueAmt">0</td>
+                                <td id="ClearQty">0</td>
+                                <td id="ClearAmt">0</td>
+                                <td id="PartialQty">0</td>
+                                <td id="PartialAmt">0</td>
+                                <td id="PendingQty">0</td>
+                                <td id="PendingAmt">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            @*<div class="col-md-3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span>Issued A/C's</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span id="IssueQty">0</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span id="IssueAmt">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span>Cleared A/C's</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span id="ClearQty">0</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span id="ClearAmt">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span>Partial A/C's</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span id="PartialQty">0</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span id="PartialAmt">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span>Pending A/C's</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span id="PendingQty">0</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span id="PendingAmt">0</span>
+                        </div>
+                    </div>
+                </div>*@
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-12">
+            <span>Press Ctrl Key while selecting Accounts</span>
+            @(Html.Kendo()
+        .Grid<OutStandVM>()
+        .Name("gridOutStand")
+        .Columns(columns =>
+        {
+            columns.Select().Width(50);
+            columns.Bound(c => c.AccNo).Width(110).Filterable(false);
+            columns.Bound(c => c.OldAccNo).Width(110).Filterable(false);
+            columns.Bound(c => c.OutStandDate).Format("{0: dd/MM/yyyy}").Title("Date").Width(100).Filterable(false);
+            columns.Bound(c => c.Customer).Width(200);
+            columns.Bound(c => c.RecoveryId).Hidden().Filterable(false);
+            columns.Bound(c => c.Recovery).Width(200);
+            columns.Bound(c => c.Inst).Filterable(false);
+            columns.Bound(c => c.OutStandAmt).Title("Due").Filterable(false);
+            columns.Bound(c => c.RecvAmt).Title("Recv").Filterable(false);
+            columns.Bound(c => c.Remaning).Title("Remain").Filterable(false);
+        })
+        .Sortable()
+        .PersistSelection()
+        .ToolBar(t => { t.Search(); })
+        .Filterable(f => f.Mode(GridFilterMode.Menu).Extra(false).Operators(operators =>
+        {
+            operators.ForString(str => str.Clear().Contains("Contains"));
+            //operators.ForNumber(str => str.Clear().IsEqualTo("IsEqualTo"));
+        }))
+        .Search(s => { s.Field(a => a.OldAccNo); s.Field(a => a.AccNo); })
+        .Scrollable()
+        .AutoBind(true)
+        .Navigatable()
+        //.Events(e => e.DataBound("SelectTheRows"))
+        .Selectable(x => x.Mode(GridSelectionMode.Multiple).Type(GridSelectionType.Row))
+        .HtmlAttributes(new { style = "height:300px;font-size:12px;" })
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .ServerOperation(false)
+        .Model(model =>
+        {
+            model.Id(m => m.TransId);
+        })
+        .Read(read => read.Action("OutStand_Read", "Sale").Data("filterOutStand"))
+        ))
+        </div>
+    </div>
+</div>
+
+    <form action="/Report/CustomerAccMulti" method="post" target="_blank" id="rptForm" hidden="hidden">
+        @Html.AntiForgeryToken()
+        @Html.Hidden("rpt")
+        @Html.Hidden("AccNos")
+    </form>
+
+    <script>
+        var gridElement = $("#gridOutStand");
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridOutStand").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            //setTimeout(locChange(), 500);
+            //locChange();
+            resizeGrid();
+        });
+        Array.prototype.remove = function (from, to) {
+            var rest = this.slice((to || from) + 1 || this.length);
+            this.length = from < 0 ? this.length + from : from;
+            return this.push.apply(this, rest);
+        };
+        var arr = [];
+        function PrintSelected() {
+            var f = navigator.userAgent.search("Firefox");
+            if (f > -1) {
+                var nAgt = navigator.userAgent;
+                var fullVersion = nAgt.substring(f + 8);
+                if (fullVersion >= 53) {
+                    var AccLst = $('#gridOutStand').data('kendoGrid').selectedKeyNames();
+                    if (confirm("Are you sure to you want to print " + AccLst.length + " Accounts?")) {
+                        var ar = [];
+                        for (var i = 0; i < AccLst.length; i++) {
+                            ar.push(AccLst[i]);
+                        }
+                        arr = ar.sort();
+                        printpd();
+                        $('#printcount').text("Please wait " + arr.length + " print remaining");
+                    }
+                }
+                else {
+                    kendo.alert('Please use latest version of Firefox Browser');
+                }
+            }
+            else {
+                var AccLst = $('#gridOutStand').data('kendoGrid').selectedKeyNames();
+                if (confirm("Are you sure to you want to print " + AccLst.length + " Accounts?")) {
+                    $('#AccNos').val(AccLst.join(','));
+                    $("#rptForm").submit();
+                }
+            }
+        }
+
+        function printpd() {
+            if (arr.length > 0) {
+                var AccNo = arr[0];
+                document.getElementById("pdfPage").src = '/Report/ReportPDF?TransId=' + AccNo;
+                $('#printcount').text("Please wait " + arr.length + " print remaining");
+            }
+            else {
+                $('#printcount').text("");
+            }
+        }
+        function RetryPrint() {
+            printpd();
+        }
+        function printt() {
+            var canv = document.getElementById("pdfPage");
+            if (arr.length > 0) {
+                setTimeout(function () {
+                    canv.focus();
+                    canv.contentWindow.print();
+                    arr.remove(0);
+                    printpd(arr);
+                }, 2000);
+            }
+        }
+        function changeAIC() {
+            var aa = $('#IsAIC').prop('checked');
+            if (aa == true) {
+                $('#RecoveryId').data('kendoMultiColumnComboBox').value("");
+            }
+        }
+        function recvChange() {
+            var aa = $('#RecoveryId').val() || 0;
+            if (aa > 0) {
+                $('#IsAIC').prop('checked', false);
+            }
+        }
+        function filterRecovery() {
+            return {
+                LocId: $('#LocId').val(),
+                RoleId: 3
+            }
+        }
+        function SelectTheRows(e) {
+            debugger;
+            var grid = $("#gridOutStand").data("kendoGrid");
+            var rows = grid.items();
+            $(rows).each(function (e) {
+                var row = this;
+                var dataItem = grid.dataItem(row);
+
+                if (dataItem.IsSelected) {
+                    grid.select(row);
+                }
+            });
+        }
+        function LoadOutStand() {
+            if (confirm("Are you sure to Load Outstands?")) {
+                var locId = $('#LocId').val()
+                if (locId > 0) {
+                    var dat = filterOutStand();
+                    $.getJSON("/Sale/LoadOutStand?LocId=" + dat.LocId + "&Category=" + dat.Category, function (data) {
+                        if (data == true) {
+                            loadGrid();
+                        }
+                    });
+
+                }
+            }
+        }
+        function LoadOutStandSummary() {
+            var dat = filterOutStand();
+            if (dat.LocId > 0) {
+                //var dat = { "LocId": locId, "OSMonth": OSMonth };
+                //debugger;
+                //$.ajax({
+                //    url: '/Sale/GetOutStandSummary',
+                //    type: 'GET',
+                //    data: JSON.stringify(dat),
+                //    //contentType: 'application/json; charset=utf-8',
+                //    success: function (data) {
+                $.getJSON("/Sale/GetOutStandSummary?LocId=" + dat.LocId + "&Category=" + dat.Category + "&OSMonth=" + $('#OSMonth').val(), function (data) {
+                    if (data != null) {
+                        $('#IssueQty').text(data.IssueQty);
+                        $('#IssueAmt').text(data.IssueAmt);
+                        $('#ClearQty').text(data.ClearQty);
+                        $('#ClearAmt').text(data.ClearAmt);
+                        $('#PartialQty').text(data.PartialQty);
+                        $('#PartialAmt').text(data.PartialAmt);
+                        $('#PendingQty').text(data.PendingQty);
+                        $('#PendingAmt').text(data.PendingAmt);
+                    }
+                    //}
+                });
+            }
+        }
+        function locChange() {
+            $('#RecoveryId').data('kendoMultiColumnComboBox').dataSource.read();
+            loadGrid();
+        }
+        function filterOutStand() {
+            return {
+                LocId: $('#LocId').val() || 0,
+                Category: $('#Category').val(),
+                Status: $('#Status').val(),
+                Assign: $('#Assign').val(),
+                OSMonth: $('#OSMonth').data('kendoDatePicker').value()
+            }
+        }
+        function loadGrid() {
+            var dat = filterOutStand();
+            if (dat.LocId > 0) {
+                $("#gridOutStand").data("kendoGrid").dataSource.read();
+                $('#gridOutStand').data('kendoGrid')._selectedIds = {};
+                $('#gridOutStand').data('kendoGrid').clearSelection();
+                LoadOutStandSummary();
+            }
+        }
+
+
+        function statusChange() {
+            var sta = $('#Status').val();
+            if (sta == "C") {
+                $('.btnAss').hide();
+                $('.btnAssi').hide();
+            }
+            else {
+                $('.btnAss').show();
+                $('.btnAssi').show();
+
+                var OSMonth = $('#OSMonth').data('kendoDatePicker').value();
+                var dt = new Date((new Date()).getFullYear(), (new Date()).getMonth(), 1);
+                if (OSMonth < dt) {
+                    $('.btnAss').hide();
+                }
+                else {
+                    $('.btnAss').show();
+                }
+            }
+            loadGrid();
+        }
+        function Inquiry() {
+            if (confirm("Are you sure to assign as Inquiry?")) {
+                var locId = $('#LocId').val()
+                if (locId > 0) {
+                    var dat = { "LocId": locId, "Category": $('#Category').val() };
+                    $.ajax({
+                        url: '/Sale/SaveOutStandAsInquiry',
+                        type: 'POST',
+                        data: JSON.stringify(dat),
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            if (data == true) {
+                                var dia = $("#msgBox").data("kendoDialog");
+                                dia.title("Success");
+                                dia.content("Save Successfully");
+                                dia.open();
+                                loadGrid();
+                            }
+                            else {
+                                var dia = $("#msgBox").data("kendoDialog");
+                                dia.title("Error");
+                                dia.content("Not Save Successfully");
+                                dia.open();
+                            }
+                        },
+                        error: function () {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Not Save Successfully");
+                            dia.open();
+                        }
+                    });
+                }
+                else {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Validation");
+                    dia.content("Please Location");
+                    dia.open();
+                }
+            }
+        }
+        function LastMonth() {
+            if (confirm("Are you sure to assign as Last Month?")) {
+                var locId = $('#LocId').val()
+                if (locId > 0) {
+                    var dat = { "LocId": locId, "Category": $('#Category').val() };
+                    $.ajax({
+                        url: '/Sale/SaveOutStandAsLastMonth',
+                        type: 'POST',
+                        data: JSON.stringify(dat),
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            if (data == true) {
+                                var dia = $("#msgBox").data("kendoDialog");
+                                dia.title("Success");
+                                dia.content("Save Successfully");
+                                dia.open();
+                                loadGrid();
+                            }
+                            else {
+                                var dia = $("#msgBox").data("kendoDialog");
+                                dia.title("Error");
+                                dia.content("Not Save Successfully");
+                                dia.open();
+                            }
+                        },
+                        error: function () {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Not Save Successfully");
+                            dia.open();
+                        }
+                    });
+                }
+                else {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Validation");
+                    dia.content("Please Location");
+                    dia.open();
+                }
+            }
+        }
+        function Assign() {
+            if (confirm("Are you sure to assign selected Accounts?")) {
+                var RecId = $('#RecoveryId').val() || 0;
+                var isAIC = $('#IsAIC').prop('checked');
+                debugger;
+                var AccLst = $('#gridOutStand').data('kendoGrid').selectedKeyNames();
+                var dat = { "RecId": RecId, "AccLst": AccLst, "IsAIC": isAIC };
+                if (AccLst.length > 0 && (RecId > 0 || isAIC == true)) {
+                    $.ajax({
+                        url: '/Sale/SaveOutStand',
+                        type: 'POST',
+                        data: JSON.stringify(dat),
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            if (data == true) {
+                                var dia = $("#msgBox").data("kendoDialog");
+                                dia.title("Success");
+                                dia.content("Save Successfully");
+                                dia.open();
+                                loadGrid();
+                            }
+                            else {
+                                var dia = $("#msgBox").data("kendoDialog");
+                                dia.title("Error");
+                                dia.content("Not Save Successfully");
+                                dia.open();
+                            }
+                        },
+                        error: function () {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Not Save Successfully");
+                            dia.open();
+                        }
+                    });
+                }
+                else {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Validation");
+                    dia.content("Please select Recovery Officer and Accounts");
+                    dia.open();
+                }
+            }
+        }
+
+        function AccNoChange() {
+
+            if (confirm("Are you sure to assign Account?")) {
+                var RecId = $('#RecoveryId').val() || 0;
+                var isAIC = $('#IsAIC').prop('checked');
+                var AccNo = $('#AccNo').data("kendoNumericTextBox").value();
+                var locId = $('#LocId').val();
+                debugger;
+                var dat = { "RecId": RecId, "AccNo": AccNo, "LocId": locId, "IsAIC": isAIC };
+                if (AccNo > 0 && (RecId > 0 || isAIC == true)) {
+                    $.ajax({
+                        url: '/Sale/SaveOutStandAcc',
+                        type: 'POST',
+                        data: JSON.stringify(dat),
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            if (data == true) {
+                                var dia = $("#msgBox").data("kendoDialog");
+                                dia.title("Success");
+                                dia.content("Save Successfully");
+                                dia.open();
+                                loadGrid();
+                            }
+                            else {
+                                var dia = $("#msgBox").data("kendoDialog");
+                                dia.title("Error");
+                                dia.content("Not Save Successfully");
+                                dia.open();
+                            }
+                        },
+                        error: function () {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Not Save Successfully");
+                            dia.open();
+                        }
+                    });
+                }
+                else {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Validation");
+                    dia.content("Please select Recovery Officer and Enter Account #");
+                    dia.open();
+                }
+            }
+        }
+    </script>
+    @*<script>
+            var arr = [];
+            function PrintSelected() {
+                var AccLst = $('#gridOutStand').data('kendoGrid').selectedKeyNames();
+                if (confirm("Are you sure to you want to print " + AccLst.length + " Accounts?")) {
+                    //$('#AccNos').val(AccLst.join(','));
+                    //$("#rptForm").submit();
+                    var ar = [];
+                    for (var i = 0; i < AccLst.length; i++) {
+                        ar.push(AccLst[i]);
+                    }
+                    arr = ar;
+                    printpd(arr);
+                }
+            }
+
+            function printpd(arr) {
+                console.log(arr);
+                if (arr.length > 0) {
+                    var AccNo = arr[0];
+                    document.getElementById("pdfPage").src = '/Report/ReportPDF?TransId=' + AccNo;
+                    //$("#pdfPage").load('/Report/ReportPDF?TransId=' + AccNo);
+                }
+            }
+            function printt() {
+                console.log(arr);
+                var canv = document.getElementById("pdfPage");
+                if (arr.length > 0) {
+                    setTimeout(function () {
+                        canv.focus();
+                        canv.contentWindow.print();
+                        arr.remove(0);
+                        printpd(arr);
+                    }, 500);
+                }
+            }
+        </script>*@
+    @section scripts{
+        <iframe hidden="hidden" src="" id="pdfPage" onload="printt()" />
+    }

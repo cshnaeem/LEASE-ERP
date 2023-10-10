@@ -1,0 +1,304 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Tutorial";
+}
+
+<div class="demo-section k-content wide">
+    @(Html.Kendo().MediaPlayer()
+        .Name("mediaPlayer")
+        .AutoPlay(true)
+    //.HtmlAttributes(new { style = "height:360px" })
+    )
+
+    <div class="k-list-container playlist">
+        @(Html.Kendo().ListView<Video>()
+            .Name("listView")
+            .TagName("ul")
+            .ClientTemplateId("template")
+            .DataSource(dataSource => dataSource
+                    .ServerOperation(false)
+                )
+
+            .Selectable()
+            .BindTo(new List<Video>() {
+             new Video()
+            {
+                title = "Damage Stock",
+                poster = "../Content/video/DamageStock.png",
+                source = "../Content/video/DamageStock.mp4"
+            },
+                         new Video()
+            {
+                title = "Inventory Manager",
+                poster = "../Content/video/InventoryManager.png",
+                source = "../Content/video/InventoryManager.mp4"
+            },
+                     new Video()
+            {
+                title = "FIFO",
+                poster = "../Content/video/FIFO.png",
+                source = "../Content/video/FIFO.mp4"
+            },
+                 new Video()
+            {
+                title = "MTR",
+                poster = "../Content/video/MTR.png",
+                source = "../Content/video/MTR.mp4"
+            },
+               new Video()
+            {
+                title = "Cash Sale New Updates",
+                poster = "../Content/video/CashSaleNewUpdate.png",
+                source = "../Content/video/CashSaleNewUpdate.mp4"
+            },new Video()
+            {
+                title = "Advance Cash",
+                poster = "../Content/video/AdvanceCash.png",
+                source = "../Content/video/AdvanceCash.mp4"
+            },new Video()
+            {
+                title = "Cash Sale Cart",
+                poster = "../Content/video/CashSaleCart.png",
+                source = "../Content/video/CashSaleCart.mp4"
+            },    new Video()
+            {
+                title = "CRM (Admin)",
+                poster = "../Content/video/Admin.png",
+                source = "../Content/video/Admin.mp4"
+            },   new Video()
+            {
+                title = "GRN VIA MOBILE",
+                poster = "../Content/video/GRNVIAMOBILE.png",
+                source = "../Content/video/GRNVIAMOBILE.mp4"
+            },   new Video()
+            {
+                title = "Sale Order",
+                poster = "../Content/video/SaleOrder.png",
+                source = "../Content/video/SaleOrder.mp4"
+            },
+                new Video()
+            {
+                title = "Local PO",
+                poster = "../Content/video/LocalPO.png",
+                source = "../Content/video/LocalPO.mp4"
+            },
+                new Video()
+            {
+                title = "Installment Plan",
+                poster = "../Content/video/Plan.png",
+                source = "../Content/video/Plan.mp4"
+            },
+            new Video()
+            {
+                title = "Cash Sale and Return",
+                poster = "../Content/video/CashSaleandReturn.png",
+                source = "../Content/video/CashSaleandReturn.mp4"
+            },
+            new Video()
+            {
+                title = "Lease Sale",
+                poster = "../Content/video/LeaseSale.png",
+                source = "../Content/video/LeaseSale.mp4"
+            },
+            new Video()
+            {
+                title = "Installment",
+                poster = "../Content/video/Installment.png",
+                source = "../Content/video/Installment.mp4"
+            },
+            new Video()
+            {
+                title = "VPN",
+                poster = "../Content/video/VPN.png",
+                source = "../Content/video/VPN.mp4"
+            },
+            new Video()
+            {
+                title = "Outstand",
+                poster = "../Content/video/Outstand.png",
+                source = "../Content/video/Outstand.mp4"
+            },
+            new Video()
+            {
+                title = "Credit Sale",
+                poster = "../Content/video/CreditSale.png",
+                source = "../Content/video/CreditSale.mp4"
+            },
+            new Video()
+            {
+                title = "Pending Recovery",
+                poster = "../Content/video/PendingRecovery.png",
+                source = "../Content/video/PendingRecovery.mp4"
+            },
+             new Video()
+            {
+                title = "Closing Voucher",
+                poster = "../Content/video/ClosingVoucher.png",
+                source = "../Content/video/ClosingVoucher.mp4"
+            },
+                                                                                                                                                                                                                                                                                                                                                                              new Video()
+            {
+                title = "Local Purchase",
+                poster = "../Content/video/LocalPurchase.png",
+                source = "../Content/video/LocalPurchase.mp4"
+            },
+                new Video()
+            {
+                title = "Stock",
+                poster = "../Content/video/Stock.png",
+                source = "../Content/video/Stock.mp4"
+            },
+                    new Video()
+            {
+                title = "Expense",
+                poster = "../Content/video/Expense.png",
+                source = "../Content/video/Expense.mp4"
+            },
+                            new Video()
+            {
+                title = "Branch HR",
+                poster = "../Content/video/BranchHR.png",
+                source = "../Content/video/BranchHR.mp4"
+            },
+                                    new Video()
+            {
+                title = "Attendance",
+                poster = "../Content/video/Attendance.png",
+                source = "../Content/video/Attendance.mp4"
+            },
+            new Video()
+            {
+                title = "Introduction",
+                poster = "../Content/video/intro.png",
+                source = "../Content/video/AfzalSoftware.mp4"
+            },
+            new Video()
+            {
+                title = "ERP Intro",
+                poster = "../Content/video/erpintro.png",
+                source = "../Content/video/erpintro.mp4"
+            },
+            //new Video()
+            //{
+            //    title = "ERP Intro 1",
+            //    poster = "../Content/video/erpintro1.png",
+            //    source = "../Content/video/erpintro1.mp4"
+            //},
+            //new Video()
+            //{
+            //    title = "App Intro",
+            //    poster = "../Content/video/appintro.png",
+            //    source = "../Content/video/appintro.mp4"
+            //},
+            //new Video()
+            //{
+            //    title = "App RO Intro",
+            //    poster = "../Content/video/appro.png",
+            //    source = "../Content/video/appro.mp4"
+            //},
+            //new Video()
+            //{
+            //    title = "Firefox Installation",
+            //    poster = "../Content/video/firefox.png",
+            //    source = "../Content/video/firefox.mp4"
+            //},
+            new Video()
+            {
+                title = "Outstand Print",
+                poster = "../Content/video/OutstandPrint.png",
+                source = "../Content/video/OutstandPrint.mp4"
+            }
+            })
+            .Events(e => e
+                .Change("onChange")
+                .DataBound("onDataBound")
+                )
+        )
+    </div>
+</div>
+
+<script>
+    function onChange() {
+        var index = this.select().index();
+        var dataItem = this.dataSource.view()[index];
+        $("#mediaPlayer").data("kendoMediaPlayer").media(dataItem);
+    }
+
+    function onDataBound() {
+        this.select(this.element.children().first());
+    }
+</script>
+
+<script type="text/x-kendo-template" id="template">
+    <li class="k-item k-state-default" onmouseover="$(this).addClass('k-state-hover')"
+        onmouseout="$(this).removeClass('k-state-hover')">
+        <span>
+            <img src="#:poster#" />
+            <p>#:title#</p>
+        </span>
+    </li>
+</script>
+
+<style>
+
+    .k-mediaplayer {
+        float: left;
+        box-sizing: border-box;
+        width: 70%;
+    }
+
+    .playlist {
+        float: left;
+        /*height: 360px;*/
+        overflow: auto;
+        width: 30%;
+    }
+
+    @@media(max-width: 800px) {
+        .playlist,
+        .k-mediaplayer {
+            width: 100%;
+        }
+    }
+
+    .playlist ul, .playlist li {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .playlist .k-item {
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        padding: 14px 15px;
+    }
+
+        .playlist .k-item:last-child {
+            border-bottom-width: 0;
+        }
+
+    .playlist span {
+        cursor: pointer;
+        display: block;
+        overflow: hidden;
+        text-decoration: none;
+    }
+
+        .playlist span img {
+            border: 0 none;
+            display: block;
+            height: 56px;
+            object-fit: cover;
+            width: 100px;
+            float: left;
+        }
+
+    .playlist h5 {
+        display: block;
+        font-weight: normal;
+        margin: 0;
+        overflow: hidden;
+        padding-left: 10px;
+        text-align: left;
+    }
+</style>

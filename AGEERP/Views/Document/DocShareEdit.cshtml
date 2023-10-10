@@ -1,0 +1,646 @@
+﻿@using AGEERP.Models
+@model AGEERP.Models.EmployeeLeaveVM
+@{
+    ViewBag.Title = "Employee Leave";
+}
+<style>
+    .box-approval {
+        border: 1px solid #b5b5b5 !important;
+        margin: 20px !important;
+        padding: 20px !important;
+    }
+
+    .form-check {
+        width: 125px !important;
+    }
+</style>
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Employee Leave List</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Employee Leave List</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <form id="frm">
+
+            <div class="col-sm-12">
+                @{
+                    string hcolour = "";
+                    if (Model.LeaveStatus == "P")
+                    {
+                        hcolour = "warning";
+                    }
+                    else if (Model.LeaveStatus == "A")
+                    {
+                        hcolour = "success";
+                    }
+                    else if (Model.LeaveStatus == "R")
+                    {
+                        hcolour = "danger";
+                    }
+                    else
+                    {
+                        hcolour = "warning";
+                    }
+                }
+                @if (Model.LeaveId > 0)
+                {
+
+
+
+
+                    <div class="card card-outline card-@(hcolour)">
+                        <div class="card-header">
+                            <h3 class="card-title">Leave Details</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Employee")
+                                    <h3 class="profile-username text-center">@Model.EmpName</h3>
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Leave Type")
+                                    @(Html.Kendo()
+                                                            .DropDownList()
+                                                            .Name("LeaveTypeId")
+                                                            .OptionLabel("Select Leave Type ...")
+                                                            .DataValueField("LeaveTypeId")
+                                                            .DataTextField("LeaveType")
+                                                            .Enable(false)
+                                                            .Filter(FilterType.Contains)
+                                                            .DataSource(ds =>
+                                                            {
+                                                                ds.Read(read => read.Action("GetLeaveTypes", "Employee"));
+                                                            })
+                                                            .HtmlAttributes(new { @style = "width:100%;", @required = "required", @validationMessage = "Leave Type is required" })
+                                    )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Leave Category")
+                                    @(Html.Kendo()
+                                                            .DropDownList()
+                                                            .Name("LeaveCatId")
+                                                            .OptionLabel("Select Leave Category ...")
+                                                            .DataValueField("LeaveCatId")
+                                                            .DataTextField("LeaveCat")
+                                                            .Enable(false)
+                                                            .Filter(FilterType.Contains)
+                                                            .Events(x => x.Change("SetDateType"))
+                                                            .DataSource(ds =>
+                                                            {
+                                                                ds.Read(read => read.Action("GetLeaveCategory", "Employee"));
+                                                            })
+                                                            .HtmlAttributes(new { @style = "width:100%;", @required = "required", @validationMessage = "Leave Category is required" })
+                                    )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Leave Reason")
+                                    @Html.Kendo().TextBox().Name("LeaveReason").Enable(false).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "Leave Reason is required" })
+                                </div>
+                            </div>
+
+                            @if (Model.LeaveCatId == "S")
+                            {
+                                <div class="row" id="datefromto" style="display: none;">
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("From Date")
+                                        @Html.Kendo().DatePicker().Name("LeaveFromDate").Format("MM/dd/yyyy").Value(DateTime.Now.Date).Enable(false).HtmlAttributes(new { @style = "width:100%", @required = "required" })
+                                    </div>
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("To Date")
+                                        @Html.Kendo().DatePicker().Name("LeaveToDate").Format("MM/dd/yyyy").Value(DateTime.Now.Date).Enable(false).HtmlAttributes(new { @style = "width:100%", @required = "required" })
+                                    </div>
+                                </div>
+                                <div class="row" id="datetimefromto">
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("From Date")
+                                        @Html.Kendo().DateTimePicker().Name("LeaveFromDateTime").Format("MM/dd/yyyy HH:mm").Enable(false).Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "From Date Time is required" })
+                                    </div>
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("To Date")
+                                        @Html.Kendo().DateTimePicker().Name("LeaveToDateTime").Format("MM/dd/yyyy HH:mm").Enable(false).Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "To Date Time is required" })
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="row" id="datefromto">
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("From Date")
+                                        @Html.Kendo().DatePicker().Name("LeaveFromDate").Format("MM/dd/yyyy").Enable(false).Value(Model.LeaveFromDate).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "From Date is required" })
+                                    </div>
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("To Date")
+                                        @Html.Kendo().DatePicker().Name("LeaveToDate").Format("MM/dd/yyyy").Enable(false).Value(Model.LeaveToDate).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "To Date is required" })
+                                    </div>
+                                </div>
+                                <div class="row" id="datetimefromto" style="display:none;">
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("From Date")
+                                        @Html.Kendo().DateTimePicker().Name("LeaveFromDateTime").Enable(false).Format("MM/dd/yyyy HH:mm").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "From Date Time is required" })
+                                    </div>
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("To Date")
+                                        @Html.Kendo().DateTimePicker().Name("LeaveToDateTime").Enable(false).Format("MM/dd/yyyy HH:mm").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "To Date Time is required" })
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+
+                    <div class="card card-outline card-@(hcolour)">
+                        <div class="card-header">
+                            <h3 class="card-title">Leave Details</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Employee")
+                                    @if (ViewBag.IsReporting == "true")
+                                    {
+                                        @Html.Label("Employee")
+                                        @(Html.Kendo().MultiColumnComboBox()
+                                                    .Name("EmpId")
+                                                    .Placeholder("Search Employee")
+                                                    .DataValueField("EmpId")
+                                                    .DataTextField("EmpName")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Add().Field("EmpId").Width("100px");
+                                                        columns.Add().Field("EmpName").Width("200px");
+                                                        columns.Add().Field("DeptName").Width("200px");
+                                                        columns.Add().Field("DesgName").Width("200px");
+
+                                                    })
+                                                    .AutoBind(false)
+                                                    .Filter(FilterType.Contains)
+                                                    .FilterFields(new string[] { "EmpName", "DeptName", "EmpId", "DesgName" })
+                                                    //.Events(e => e.Change("EmpChange"))
+                                                    .MinLength(3)
+                                                    .DataSource(dataSource =>
+                                                    {
+                                                        dataSource.Read(read => read.Action("EmployeeListRptToLeave", "Employee").Data("filterEmp")).ServerFiltering(true);
+                                                    })
+                                                    .IgnoreCase(true)
+                                                    .HtmlAttributes(new { @style = "width:100%" })
+                                        )
+                                    }
+                                    else
+                                    {
+                                        <h3 class="profile-username text-center">@ViewBag.EmpName</h3>
+                                        <input type="hidden" id="EmpId" name="EmpId" value="@ViewBag.EmpId" />
+                                    }
+
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Leave Type")
+                                    @(Html.Kendo()
+                                                            .DropDownList()
+                                                            .Name("LeaveTypeId")
+                                                            .OptionLabel("Select Leave Type ...")
+                                                            .DataValueField("LeaveTypeId")
+                                                            .DataTextField("LeaveType")
+                                                            .Filter(FilterType.Contains)
+                                                            .DataSource(ds =>
+                                                            {
+                                                                ds.Read(read => read.Action("GetLeaveTypes", "Employee"));
+                                                            })
+                                                            .HtmlAttributes(new { @style = "width:100%;", @required = "required", @validationMessage = "Leave Type is required" })
+                                    )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Leave Category")
+                                    @(Html.Kendo()
+                                                            .DropDownList()
+                                                            .Name("LeaveCatId")
+                                                            .OptionLabel("Select Leave Category ...")
+                                                            .DataValueField("LeaveCatId")
+                                                            .DataTextField("LeaveCat")
+                                                            .Filter(FilterType.Contains)
+                                                            .Events(x => x.Change("SetDateType"))
+                                                            .DataSource(ds =>
+                                                            {
+                                                                ds.Read(read => read.Action("GetLeaveCategory", "Employee"));
+                                                            })
+                                                            .HtmlAttributes(new { @style = "width:100%;", @required = "required", @validationMessage = "Leave Category is required" })
+                                    )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Leave Reason")
+                                    @Html.Kendo().TextBox().Name("LeaveReason").HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "Leave Reason is required" })
+                                </div>
+                            </div>
+                            @if (Model.LeaveCatId == "S")
+                            {
+                                <div class="row" id="datefromto" style="display:none;">
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("From Date")
+                                        @Html.Kendo().DatePicker().Name("LeaveFromDate").Format("MM/dd/yyyy").HtmlAttributes(new { @style = "width:100%", @required = "required" })
+                                    </div>
+                                    <div class="col-md-3 col-sm-4">
+                                        @Html.Label("To Date")
+                                        @Html.Kendo().DatePicker().Name("LeaveToDate").Format("MM/dd/yyyy").HtmlAttributes(new { @style = "width:100%", @required = "required" })
+                                    </div>
+                                </div>
+                                <div class="row" id="datetimefromto">
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("From Date")
+                                        @Html.Kendo().DateTimePicker().Name("LeaveFromDateTime").Format("MM/dd/yyyy HH:mm").HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "From Date Time is required" })
+                                    </div>
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("To Date")
+                                        @Html.Kendo().DateTimePicker().Name("LeaveToDateTime").Format("MM/dd/yyyy HH:mm").HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "To Date Time is required" })
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="row" id="datefromto">
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("From Date")
+                                        @Html.Kendo().DatePicker().Name("LeaveFromDate").Format("MM/dd/yyyy").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "From Date is required" })
+                                    </div>
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("To Date")
+                                        @Html.Kendo().DatePicker().Name("LeaveToDate").Format("MM/dd/yyyy").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "To Date is required" })
+                                    </div>
+                                </div>
+                                <div class="row" id="datetimefromto" style="display:none;">
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("From Date")
+                                        @Html.Kendo().DateTimePicker().Name("LeaveFromDateTime").Format("MM/dd/yyyy HH:mm").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "From Date Time is required" })
+                                    </div>
+                                    <div class="col-md-3 col-sm-4" style="float:left;">
+                                        @Html.Label("To Date")
+                                        @Html.Kendo().DateTimePicker().Name("LeaveToDateTime").Format("MM/dd/yyyy HH:mm").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = "required", @validationMessage = "To Date Time is required" })
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+
+                @if (Model.LeaveId > 0)
+                {
+                    <div class="row">
+                        @{if (Model.ApprovedDate == null && ViewBag.HeadApproval == true && ViewBag.UseId == "False" && Model.LeaveStatus != "R")
+                            {
+                                <div class="col-md-6">
+                                    <div class="card card-outline card-@(hcolour)">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Head Approval</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <div class="form-check" style="float:left;">
+                                                        @Html.Kendo().CheckBoxFor(x => x.ApprovedHead).Name("ApprovedHead").HtmlAttributes(new { @style = "width:35%;padding: 15px;margin:1px;", @class = "form-check-input head" })
+                                                        <label class="form-check-label"><b>Approve</b></label>
+                                                    </div>
+                                                    <div class="form-check" style="float:left;">
+                                                        @Html.Kendo().CheckBoxFor(x => x.RejectedHead).Name("RejectedHead").HtmlAttributes(new { @style = "width:35%;padding: 15px;margin:1px;", @class = "form-check-input head" })
+                                                        <label class="form-check-label"><b>Reject</b></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                @Html.Label("Head Remarks ")
+                                                @Html.TextAreaFor(x => x.Remarks, new { @style = "width:100%", @rows = "5", @cols = "20", @name = "Remarks" })
+                                            </div>
+                                        </div>
+
+                                        @*<label for="@Model.ApprovedHead">&nbsp;Approve:</label>*@
+
+                                        @*<label for="@Model.RejectedHead">&nbsp;Rejected:</label>*@
+
+                                    </div>
+
+                                </div>
+                            }
+                            else if (Model.ApprovedDate != null)
+                            {
+                                <div class="col-md-6">
+                                    <div class="card card-outline card-success">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Head Approval</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                @Html.HiddenFor(x => x.ApprovedBy)
+                                                @Html.Label("Approved By ")
+                                                @Html.Kendo().TextBoxFor(x => x.ApprovedByName).Enable(false).Name("ApprovedByName").HtmlAttributes(new { @style = "width:100%" })
+                                            </div>
+                                            <div class="row">
+                                                @Html.Label("Head Remarks ")
+                                                @Html.Kendo().TextBoxFor(x => x.Remarks).Enable(false).Name("Remarks").HtmlAttributes(new { @style = "width:100%" })
+                                            </div>
+                                            <div class="row">
+                                                @Html.Label("Approval Date ")
+                                                @Html.Kendo().TextBoxFor(x => x.ApprovedDate).Enable(false).Name("ApprovedDate").HtmlAttributes(new { @style = "width:100%" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else if (Model.LeaveStatus == "R")
+                            {
+                                <div class="col-md-6">
+                                    <div class="card card-outline card-danger">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Head Approval</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                @Html.Label("Rejection Remarks")
+                                                @Html.Kendo().TextBoxFor(x => x.Remarks).Enable(false).Name("Remarks").HtmlAttributes(new { @style = "width:100%" })
+                                            </div>
+                                            <div class="row">
+                                                @Html.Label("Leave Status")
+                                                @Html.Kendo().TextBox().Enable(false).Name("Remarks").Value("Rejected").HtmlAttributes(new { @style = "width:100%" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+                            if (Model.ApprovedDateHR == null && ViewBag.HRApproval == true && ViewBag.UseId == "False" && Model.LeaveStatus != "R")
+                            {
+                                <div class="col-md-6">
+                                    <div class="card card-outline card-@(hcolour)">
+                                        <div class="card-header">
+                                            <h3 class="card-title">HR Approval</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <div class="form-check" style="float:left;">
+                                                        @Html.Kendo().CheckBoxFor(x => x.ApprovedHR).Name("ApprovedHR").HtmlAttributes(new { @style = "width:35%;padding: 15px;margin:1px;", @class = "form-check-input hrs" })
+                                                        <label class="form-check-label"><b>Approve</b></label>
+                                                    </div>
+                                                    <div class="form-check" style="float:left;">
+                                                        @Html.Kendo().CheckBoxFor(x => x.RejectedHR).Name("RejectedHR").HtmlAttributes(new { @style = "width:35%;padding: 15px;margin:1px;", @class = "form-check-input hrs" })
+                                                        <label class="form-check-label"><b>Reject</b></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                @Html.Label("HR Remarks ")
+                                                @Html.TextAreaFor(x => x.Remarks, new { @style = "width:100%", @rows = "5", @cols = "20", @name = "RemarksByHR" })
+                                                @*@Html.Kendo().TextBoxFor(x => x.RemarksByHR).Name("RemarksByHR").HtmlAttributes(new { @style = "width:100%" })*@
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            }
+                            else if (Model.ApprovedDateHR != null)
+                            {
+                                <div class="col-md-6">
+                                    <div class="card card-outline card-success">
+                                        <div class="card-header">
+                                            <h3 class="card-title">HR Approval</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                @Html.Label("HR Approval ")
+                                                @Html.Kendo().TextBoxFor(x => x.ApprovedByHRName).Enable(false).Name("ApprovedByHR").HtmlAttributes(new { @style = "width:100%" })
+                                            </div>
+                                            <div class="row">
+                                                @Html.Label("HR Remarks ")
+                                                @Html.Kendo().TextBoxFor(x => x.RemarksByHR).Enable(false).Name("RemarksByHR").HtmlAttributes(new { @style = "width:100%" })
+                                            </div>
+                                            <div class="row">
+                                                @Html.Label("Approval Date ")
+                                                @Html.Kendo().TextBoxFor(x => x.ApprovedDateHR).Enable(false).Name("ApprovedDateHR").HtmlAttributes(new { @style = "width:100%" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else if (Model.LeaveStatus == "R")
+                            {
+                                <div class="col-md-6">
+                                    <div class="card card-outline card-danger">
+                                        <div class="card-header">
+                                            <h3 class="card-title">HR Approval</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                @Html.Label("Rejection Remarks ")
+                                                @Html.Kendo().TextBoxFor(x => x.RemarksByHR).Enable(false).Name("RemarksByHR").HtmlAttributes(new { @style = "width:100%" })
+                                            </div>
+                                            <div class="row">
+                                                @Html.Label("Leave Status ")
+                                                @Html.Kendo().TextBox().Enable(false).Name("Remarks").Value("Rejected").HtmlAttributes(new { @style = "width:100%" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+
+                    </div>
+
+                }
+                @(Model.ApprovedDate != null ? Html.Hidden("AlreadyApprovedHead", true) : Html.Hidden("AlreadyApprovedHead", false))
+                @(Model.ApprovedDateHR != null ? Html.Hidden("AlreadyApprovedHR", true) : Html.Hidden("AlreadyApprovedHR", false))
+                @Html.HiddenFor(x => x.LeaveId)
+                @Html.HiddenFor(x => x.ApprovedBy)
+                @Html.HiddenFor(x => x.ApprovedByHR)
+
+                @*<div class="row float-right" style="margin: 10px;">
+                    <br />
+                    @*<button class="mb-6 btn waves-effect waves-light cyan" type="submit">Save</button>*@
+                @*<a class="k-button k-bg-warning" href="/Employee/EmployeeLeaveList">Cancel</a>*@
+                @*<a class="k-button" onclick="Save()"><i class="fas fa-check"></i>&nbsp; Save Changes</a>*@
+                @*</div>*@
+
+            </div>
+        </form>
+    </div>
+    <div class="card-footer">
+        @if (Model.LeaveStatus != "R" && Model.LeaveStatus != "A" && Model.LeaveId == 0)
+        {
+            <a class="k-button float-right" onclick="Save()"><i class="fas fa-check"></i>&nbsp; Save Changes</a>
+        }
+        else if (Model.LeaveStatus != "R" && Model.LeaveStatus != "A" && ViewBag.UseId == "False")
+        {
+            <a class="k-button float-right" onclick="Save()"><i class="fas fa-check"></i>&nbsp; Save Changes</a>
+        }
+    </div>
+</div>
+
+
+
+
+@section scripts
+{
+
+    <script>
+        $(document).ready(function () {
+            //$('#m_18000000').addClass('active');
+            //$('#d_18000000').css("display", "block");
+            //$('#m_18050000').addClass('active');
+            //$('#d_18050000').css("display", "block");
+            //$('#m_18050100').addClass('active');
+            //$('#a_18050100').addClass('active');
+            $('.head').on('change', function () {
+                $('.head').not(this).prop('checked', false);
+            });
+            $('.hrs').on('change', function () {
+                $('.hrs').not(this).prop('checked', false);
+            });
+        });
+        var validator = $("#frm").kendoValidator().data("kendoValidator");
+        function Save() {
+            if (validator.validate()) {
+                SaveData();
+            }
+        }
+
+        function filterEmp() {
+            return {
+                //DeptId: $('#DeptId').val(),
+                str: $('#EmpId').data("kendoMultiColumnComboBox").input.val() || ""
+            }
+        }
+        function SetDateType() {
+            var LeaveCat = $('#LeaveCatId').val();
+            if (LeaveCat == 'S') {
+                $('#datetimefromto').css('display', 'block');
+                $('#datefromto').css('display', 'none');
+            }
+            else {
+                $('#datetimefromto').css('display', 'none');
+                $('#datefromto').css('display', 'block');
+            }
+        }
+        function SaveData() {
+            $('.windows').show();
+            var LeaveDtFrom;
+            var LeaveDtTo;
+
+            if ($('#LeaveCatId').val() == 'S') {
+                LeaveDtFrom = $('#LeaveFromDateTime').val();
+                LeaveDtTo = $('#LeaveToDateTime').val();
+            }
+            else {
+                LeaveDtFrom = $('#LeaveFromDate').val();
+                LeaveDtTo = $('#LeaveToDate').val();
+            }
+            var obj = {
+                LeaveTypeId: $('#LeaveTypeId').val(),
+                empId: $('#EmpId').val(),
+                LeaveCatId: $('#LeaveCatId').val(),
+                LeaveFromDate: LeaveDtFrom,
+                LeaveToDate: LeaveDtTo,
+                AlreadyApprovedHead: $('#AlreadyApprovedHead').val(),
+                AlreadyApprovedHR: $('#AlreadyApprovedHR').val(),
+                LeaveReason: $('#LeaveReason').val(),
+                ApprovedHead: $('#ApprovedHead').prop('checked'),
+                ApprovedHR: $('#ApprovedHR').prop('checked'),
+                ApprovedDate: $('#ApprovedDate').val(),
+                ApprovedDateHR: $('#ApprovedDateHR').val(),
+                LeaveId: $('#LeaveId').val(),
+                Remarks: $('#Remarks').val(),
+                RemarksByHR: $('#RemarksByHR').val(),
+                ApprovedBy: $('#ApprovedBy').val(),
+                ApprovedByHR: $('#ApprovedByHR').val(),
+                RejectedHead: $('#RejectedHead').prop('checked'),
+                RejectedHR: $('#RejectedHR').prop('checked')
+            };
+            $.ajax({
+                type: "POST",
+                data: { mod: obj },
+                url: "/Employee/EmployeeLeaveUpdate",
+                success: function (msg) {
+                    $('.windows').hide();
+                    if (msg == 0) {
+
+                        $.confirm({
+                            title: 'Server Error',
+                            content: '',
+                            type: 'red',
+                            typeAnimated: true,
+                            icon: 'fas fa-check',
+                            buttons: {
+                                Ok: function () {
+                                    window.location.href = "/Employee/EmployeeLeaveList";
+                                }
+                            }
+                        });
+                    }
+                    if (msg == 1) {
+
+                        $.confirm({
+                            title: 'Saved Successfully!',
+                            content: '',
+                            type: 'red',
+                            typeAnimated: true,
+                            icon: 'fas fa-check',
+                            buttons: {
+                                Ok: function () {
+                                    window.location.href = "/Employee/EmployeeLeaveList";
+                                }
+                            }
+                        });
+                    }
+                    if (msg == 2) {
+
+                        $.confirm({
+                            title: 'Leave already marked On the Specified date.',
+                            content: '',
+                            type: 'red',
+                            typeAnimated: true,
+                            icon: 'fas fa-check',
+                            buttons: {
+                                Ok: function () {
+                                    window.location.href = "/Employee/EmployeeLeaveList";
+                                }
+                            }
+                        });
+                    }
+                    if (msg == 3) {
+
+                        $.confirm({
+                            title: 'You cannot mark leave on previous date',
+                            content: '',
+                            type: 'red',
+                            typeAnimated: true,
+                            icon: 'fas fa-check',
+                            buttons: {
+                                Ok: function () {
+                                    window.location.href = "/Employee/EmployeeLeaveList";
+                                }
+                            }
+                        });
+                    }
+
+                }
+            });
+        }
+
+
+
+
+
+
+    </script>
+
+}

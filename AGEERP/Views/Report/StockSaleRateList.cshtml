@@ -1,0 +1,131 @@
+﻿
+@{
+    ViewBag.Title = "StockSaleRateList";
+}
+@using (Html.BeginForm("StockSaleRateList", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+
+            <div class="card-header">
+                <h3 class="card-title">Sale Rate List</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Report</a></li>
+                        <li class="breadcrumb-item active">SaleRateList</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    //.SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-xs-12">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("ComId")
+                .OptionLabel("All")
+                .DataValueField("ComId")
+                .DataTextField("ComName")
+                .Filter(FilterType.Contains)
+                .Events(e => e.Change("loadModel"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CompanyList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                </div>
+                <div class="col-md-3 col-xs-4">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("ProductId")
+                .OptionLabel("All")
+                .DataValueField("ProductId")
+                .DataTextField("Name")
+                .Filter(FilterType.Contains)
+                .Events(e => e.Change("loadModel"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("ProductList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                </div>
+                <div class="col-md-3 col-xs-4">
+                    @Html.Label("Model")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("ModelId")
+                .OptionLabel("All")
+                .DataValueField("ModelId")
+                .DataTextField("Model")
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("ModelByComProList", "Setup").Data("filterModel"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                </div>
+                <div class="col-md-5">
+                    <br /><br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Stock Sale Rate List").Value("StockSaleRate").Checked(true)
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Stock Installment Plan List").Value("StockInstPlan")
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Installment Plan List").Value("InstPlanHO")
+                </div>
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+        }
+<script>
+    function filterModel() {
+        return {
+            ComId: $('#ComId').val() || 0,
+            ProductId: $('#ProductId').val() || 0
+        }
+    }
+    function loadModel() {
+        $('#ModelId').data('kendoDropDownList').dataSource.read();
+    }
+    //$(document).on("change", "input[type='radio']", function () {
+    //    if (this.value == "StockSaleRate") {
+    //        $('#dur').css('display', 'none');
+    //    }
+    //    else {
+    //        $('#dur').css('display', 'block');
+    //    }
+    //});
+
+</script>

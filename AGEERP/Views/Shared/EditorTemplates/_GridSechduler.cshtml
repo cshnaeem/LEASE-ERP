@@ -1,0 +1,77 @@
+﻿@using AGEERP.Models
+@model LeaveRosterVM
+
+@{
+    //required in order to render validation attributes
+    ViewContext.FormContext = new FormContext();
+}
+<style>
+    .k-widget .k-datepicker {
+        display: block !important;
+    }
+</style>
+@functions{
+    public Dictionary<string, object> generateDatePickerAttributes(
+           string elementId,
+           string fieldName,
+           string dataBindAttribute,
+           Dictionary<string, object> additionalAttributes = null)
+    {
+
+        Dictionary<string, object> datePickerAttributes = additionalAttributes != null ? new Dictionary<string, object>(additionalAttributes) : new Dictionary<string, object>();
+
+        datePickerAttributes["id"] = elementId;
+        datePickerAttributes["name"] = fieldName;
+        datePickerAttributes["data-bind"] = dataBindAttribute;
+        datePickerAttributes["required"] = "required";
+        datePickerAttributes["style"] = "z-index: inherit;display:block;width:100%";
+
+        return datePickerAttributes;
+    }
+}
+
+
+
+<div class="row">
+
+    <div class="col-md-12">
+        @(Html.Label("Leave Date"))
+        @(Html.Kendo().DatePickerFor(model => model.Start)
+             .Format("MM/dd/yyyy").HtmlAttributes(generateDatePickerAttributes("startDate", "start", "value:start,visible:isAllDay")))
+        <span data-bind="text: startTimezone"></span>
+        <span data-for="start" class="k-invalid-msg"></span>
+    </div>
+
+</div>
+<div class="row">
+
+    <div class="col-md-12">
+        @(Html.Label("Employee"))
+        @(Html.Kendo()
+                                                                    .DropDownList()
+                                                                    .Name("EmpId")
+                                                                    .SelectedIndex(0)
+                                                                    .Filter(FilterType.Contains)
+                                                                    //.BindTo((List<SelectListItem>)ViewBag.GenderSL)
+                                                                    .DataValueField("EmpId")
+                                                                    .DataTextField("EmpName")
+                                                                    .DataSource(dataSource =>
+                                                                    {
+                                                                        dataSource.Read(read => read.Action("EmployeeListRptTo", "Employee"));
+                                                                    })
+                                                                    .HtmlAttributes(new { @style = "width:100%" })
+        )
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+@{
+    ViewContext.FormContext = null;
+}

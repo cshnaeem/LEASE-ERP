@@ -1,0 +1,123 @@
+﻿
+@{
+    ViewBag.Title = "Salary Sheet Audit";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Salary Sheet Audit</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Salary</a></li>
+                    <li class="breadcrumb-item active">Salary Sheet Audit</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        @using (Html.BeginForm("MonthlySalarySheetAudit", "Report", FormMethod.Post, new { target = "_blank" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("Month")
+                    @Html.Kendo().DatePicker().Name("Month").Depth(CalendarView.Year).Start(CalendarView.Year).Events(ev => ev.Change("onChange")).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Head Deparment")
+                    @(Html.Kendo()
+                                                             .DropDownList()
+                                                             .Name("HDeptId")
+                                                             .OptionLabel("All Head Department ...")
+                                                             .SelectedIndex(0)
+                                                             .DataValueField("HDeptId")
+                                                             .DataTextField("HDeptName")
+                                                             //.Suggest(true)
+                                                             //.Filter(FilterType.Contains)
+                                                              .Events(e => e.Change("OnHDeptChange"))
+                                                             .DataSource(x => x.Read("HDepartmentList", "Employee"))
+                                                             .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3" id="CityDiv">
+                    @Html.Label("City")
+                    @(Html.Kendo()
+     .DropDownList()
+     .Name("CityId")
+     //.Placeholder("Select City ...")
+     //.SelectedIndex(0)
+     .OptionLabel("All")
+     .DataValueField("CityId")
+     .DataTextField("City")
+     .Filter(FilterType.Contains)
+    
+     //.Suggest(true)
+     .DataSource(ds =>
+     {
+     ds.Read(read => read.Action("CityList", "Setup"));
+     })
+     .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                @*<div class="col-md-3">
+                        @Html.Label("Department")
+                        @(Html.Kendo()
+                                                                        .DropDownList()
+                                                                        .Name("DeptId")
+                                                                        //.OptionLabel("All Department ...")
+                                                                        .DataValueField("DeptId")
+                                                                        .DataTextField("Department")
+                                                                        .Filter(FilterType.Contains)
+                                                                        .DataSource(ds =>
+                                                                        {
+                                                                            ds.Read(read => read.Action("GetDeptList", "Employee"));
+                                                                        })
+                                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+                        )
+                    </div>*@
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i> Show
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        //$('#m_17000000').addClass('active');
+        //$('#d_17000000').css("display", "block");
+        //$('#m_17040000').addClass('active');
+        //$('#d_17040000').css("display", "block");
+        //$('#m_17040200').addClass('active');
+        //$('#a_17040200').addClass('active');
+          $('#CityDiv').attr("style", "visibility: hidden")
+    });
+
+    function OnHDeptChange() {
+        var vl = $('#HDeptId').val();
+        if (vl == 1) {
+            $('#CityDiv').attr("style", "visibility: hidden")
+        }
+        else {
+             $('#CityDiv').attr("style", "visibility: none")
+        }
+    }
+    var lastday = function (y, m) {
+            return new Date(y, m + 1, 0).getDate();
+        }
+         function onChange(e) {
+            var date = this.value();
+            date = new Date(date.getFullYear(), date.getMonth(), lastday(date.getFullYear(), date.getMonth()));
+            this.value(date);  
+        }
+   
+</script>

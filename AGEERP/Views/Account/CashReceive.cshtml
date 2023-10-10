@@ -1,0 +1,208 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Cash Receive";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Cash Receive</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">Cash Receive</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("OnLocChange"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    @Html.Label("Cash Receive")
+                    @(Html.Kendo()
+                    .Grid<CashTransferVM>()
+                    .Name("gridCashReceive")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.TransId).Hidden();
+                        columns.Bound(c => c.Location);
+                        columns.Bound(c => c.TransferedCash);
+                        columns.Bound(c => c.Remarks);
+                        columns.Command(c => c.Custom("Receive").Click("Receive"));
+                        columns.Command(c => c.Custom("Cancel").Click("Cancel"));
+                        //columns.ForeignKey(p => p.Status, (System.Collections.IEnumerable)ViewData["StatusVD"], "Value", "Text").Title("Status").Width(200);
+                    })
+                    //.Pageable()
+                    .Sortable()
+                    .Scrollable()
+                    .AutoBind(false)
+                    
+                    //.Selectable()
+                    //.Navigatable()
+                    //.ToolBar(t => t.Save())
+                    .Editable(e => e.Mode(GridEditMode.InLine))
+                    .HtmlAttributes(new { style = "height:300px;" })
+                    //.PersistSelection()
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .StringifyDates(true)
+                    //.Batch(true)
+                    .Events(e => e.Error("error_handler")/*.Change("OnSrNoChange")*/)
+                    .Model(model =>
+                    {
+                        model.Id(m => m.TransId);
+                        model.Field(m => m.Location).Editable(false);
+                        model.Field(m => m.TransferedCash).Editable(false);
+                        model.Field(m => m.Remarks).Editable(false);
+                        model.Field(m => m.Status);
+                    })
+                    .Read(read => read.Action("CashReceive_Read", "Account").Data("filterCashReceive"))
+                    .Create(read => read.Action("CashReceive_Create", "Account"))
+                    .Update(read => read.Action("CashReceive_Update", "Account"))
+                    .Destroy(read => read.Action("CashReceive_Update", "Account"))
+                    ))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalWindow">
+    <h4 id="message">Do you want to proceed?</h4>
+    <button id="yes" class="k-button">Yes</button>
+    <button id="no" class="k-button">No</button>
+</div>
+<script>
+    var wnd;
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_19000000').addClass('active');
+        //$('#d_19000000').css("display", "block");
+        //$('#m_19040000').addClass('active');
+        //$('#a_19040000').addClass('active');
+        wnd = $("#modalWindow").kendoWindow({
+            title: "Confirmation",
+            modal: true,
+            visible: false,
+            resizable: false,
+            width: 400
+        }).data("kendoWindow");
+        OnLocChange();
+    });
+    var gridElement = $("#gridCashReceive");
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridCashReceive").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    function filterCashReceive() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+    function OnLocChange() {
+        $("#gridCashReceive").data("kendoGrid").dataSource.read();
+    }
+    function Receive(e) {
+        e.preventDefault();
+        var grid = this;
+        var row = $(e.currentTarget).closest("tr");
+        var data = this.dataItem(row);
+        $("#message").text("Do you want Receive?");
+        wnd.center().open();
+        $("#yes").click(function () {
+            data.Status = "R";
+            console.log(data);
+            grid.dataSource.remove(data);
+            grid.dataSource.sync();
+            wnd.close();
+        });
+        $("#no").click(function () {
+            wnd.close();
+        });
+    }
+    function Cancel(e) {
+        e.preventDefault();
+        var grid = this;
+        var row = $(e.currentTarget).closest("tr");
+        var data = this.dataItem(row);
+        $("#message").text("Do you want Cancel?");
+        wnd.center().open();
+        $("#yes").click(function () {
+            data.Status = "C";
+            grid.dataSource.remove(data);
+            grid.dataSource.sync();
+            wnd.close();
+        });
+        $("#no").click(function () {
+            wnd.close();
+        });
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message.indexOf("Saved") > -1) {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Success");
+                dia.content(message);
+                dia.open();
+                OnLocChange();
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+</script>

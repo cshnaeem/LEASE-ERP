@@ -1,0 +1,139 @@
+﻿@using AGEERP.Models
+@model AGEERP.Models.SuppPaymentVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.TransId)
+
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Supplier Name")
+            @(Html.Kendo().TextBoxFor(x => x.SuppName).HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("ClosingBalance")
+            @(Html.Kendo().NumericTextBoxFor(x => x.ClosingBalance).HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Proposed")
+            @(Html.Kendo().NumericTextBoxFor(x => x.Proposed).Spinners(false).HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Cash Amount")
+            @(Html.Kendo().NumericTextBoxFor(x => x.CashAmount).Spinners(false).HtmlAttributes(new { @style = "width:100%", @class = "CashAmount" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Bank Amount")
+            @(Html.Kendo().NumericTextBoxFor(x => x.BankAmount).Spinners(false).HtmlAttributes(new { @style = "width:100%", @class = "BankAmount" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Total Payment")
+            @(Html.Kendo().NumericTextBoxFor(x => x.Payment).Spinners(false).HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Bank Account")
+            @(Html.Kendo()
+                .DropDownListFor(m => m.BankAccId)
+                //.OptionLabel("NA")
+                .SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Events(e => e.Change("loadCheque").DataBound("loadCheque"))
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SubCodeBankList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+            )
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Instrument")
+            @(Html.Kendo()
+         .DropDownListFor(x => x.Instrument)
+         .DataTextField("Text")
+         .DataValueField("Value")
+         .OptionLabel("Select Instrument")
+         .ValuePrimitive(true)
+         .Events(x => x.Change("CheckType"))
+         .BindTo(SelectListVM.InstrumentType)
+         .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+            )
+        </div>
+        @*<div class="col-md-4">
+            @Html.Label("Instrument")
+            @(Html.Kendo().TextBoxFor(x => x.Instrument).HtmlAttributes(new { @style = "width:100%" }))
+        </div>*@
+        
+
+        <div class="col-md-4 IN" style="display:none;">
+            @Html.Label("Instrument No")
+            @(Html.Kendo().TextBoxFor(x=>x.InstrumentNo).Format("##").HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        @*<div class="col-md-4">
+            @Html.Label("InstrumentNo")
+            @(Html.Kendo().TextBoxFor(x => x.InstrumentNo).HtmlAttributes(new { @style = "width:100%" }))
+        </div>*@
+    </div>
+    <div class="row">
+        <div class="col-md-4 CN" style="display:none;">
+            @Html.Label("Cheque No")
+            @(Html.Kendo()
+            .DropDownListFor(x=>x.ChequeNo)
+            .OptionLabel("Select Cheque No")
+            .DataValueField("ChequeNo")
+            .DataTextField("ChequeNo")
+            .ValuePrimitive(true)
+            .AutoBind(false)
+            .Filter(FilterType.Contains)
+            .DataSource(ds =>
+            {
+                ds.Read(read => read.Action("ChequeByAccTrans", "Account").Data("GetAcc"));
+            })
+            .HtmlAttributes(new { @style = "width:100%" })
+            )
+        </div>
+        @*<div class="col-md-4">
+            @Html.Label("ChequeNo")
+            @(Html.Kendo().TextBoxFor(x => x.ChequeNo).HtmlAttributes(new { @style = "width:100%" }))
+        </div>*@
+        <div class="col-md-4">
+            @Html.Label("Paid Date")
+            @(Html.Kendo().DatePickerFor(x => x.PaidDate).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Remarks")
+            @(Html.Kendo().TextBoxFor(x => x.Remarks).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+    <script>
+        
+        
+        $(document).on('keyup', '#CashAmount', function () {
+            console.log('b');
+            $("#Payment").data('kendoNumericTextBox').value(parseInt($("#BankAmount").val()) + parseInt($("#CashAmount").val()));
+        });
+        $(document).ready(function () {
+            $("#BankAmount").keyup(function () {
+                console.log('a');
+                $("#Payment").data('kendoNumericTextBox').value(parseInt($("#BankAmount").val()) + parseInt($("#CashAmount").val()));
+            });
+        });
+    </script>
+
+}
+

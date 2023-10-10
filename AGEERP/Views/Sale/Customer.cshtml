@@ -1,0 +1,126 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Customer";
+    ViewBag.Parent = "Setup";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Customer</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Customer</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @(Html.Kendo()
+           .Grid<CustomerDetailVM>()
+           .Name("gridCustomer")
+           .Columns(columns =>
+           {
+               columns.Bound(c => c.CustId).Filterable(false).Hidden();
+               columns.Bound(c => c.CustName).Title("Customer Name");
+               columns.Bound(c => c.Mobile);
+               columns.Bound(c => c.GLCode);
+               columns.Command(c => { c.Edit(); c.Destroy(); }).Width(250);
+           })
+           .Pageable()
+           .Sortable()
+                .ToolBar(t => { t.Search(); })
+                    .Search(s => { s.Field(a => a.CustName); })
+           .Scrollable()
+              .Search(s => s.Field(a => a.CustName))
+//  .Filterable(ftb => ftb.Mode(GridFilterMode.Row).Extra(false)
+//  .Operators(operators => operators
+//  .ForString(str => str.Clear()
+//  .Contains("Contains"))))
+    @*.ToolBar(toolBar =>
+    {
+    toolBar.Template(@<text> <div class="col-sm-2">@item.CreateButton() </div> <div class="col-sm-4 col-sm-push-7"><span>Search</span> &nbsp;&nbsp; <input class='k-textbox' value="Search..." onfocus="if (this.value==='Search...') this.value='';" onblur="this.value = this.value===''?'Search...':this.value;" id='searchbox' /></div></text>);
+    })*@
+.ToolBar(t => t.Create())
+.Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_Customer"))
+.HtmlAttributes(new { style = "height:400px;font-size:12px;" })
+.DataSource(dataSource => dataSource
+.Ajax()
+.PageSize(20)
+.Events(e => e.Error("error_handler"))
+.Model(model =>
+{
+model.Id(m => m.CustId);
+//model.Field(m => m.CustName);
+//model.Field(m => m.Address);
+//model.Field(m => m.Email);
+//model.Field(m => m.Mobile);
+//model.Field(m => m.GLCode);
+//model.Field(m => m.DaysLimit);
+//model.Field(m => m.ChequeNo);
+//model.Field(m => m.BankName);
+//model.Field(m => m.AccountTitle);
+//model.Field(m => m.BusinessRelation);
+})
+.Read(read => read.Action("Customer_Read", "Sale"))
+.Create(create => create.Action("Customer_Create", "Sale"))
+.Update(update => update.Action("Customer_Update", "Sale"))
+.Destroy(update => update.Action("Customer_Destroy", "Sale"))
+))
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        var gridElement = $("#gridCustomer");
+        $(document).ready(function () {
+            resizeGrid();
+            //$('#m_14000000').addClass('active');
+            //$('#d_14000000').css("display", "block");
+            //$('#m_14010000').addClass('active');
+            //$('#a_14010000').addClass('active');
+        });
+
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridCustomer").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    </script>
+    <style>
+        th [role="listbox"] {
+            visibility: hidden;
+        }
+
+        .k-filtercell, .k-filtercell .k-widget, .k-filtercell > span {
+            display: table-row;
+        }
+    </style>
+}

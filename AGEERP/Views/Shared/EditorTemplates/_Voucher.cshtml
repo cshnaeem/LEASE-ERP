@@ -1,0 +1,155 @@
+﻿@using AGEERP.Models
+@model VoucherDetailVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <div class="row">
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("A/C")
+            @(Html.Kendo()
+                .MultiColumnComboBoxFor(m => m.AccId)
+                .Name("AccId")
+                .Placeholder("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("200px");
+                    columns.Add().Field("Name").Width("200px");
+                })
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                .MinLength(3)
+                //.Events(e => e.Change("loadGrid"))
+                .AutoBind(true)
+                .BindTo((System.Collections.IEnumerable)ViewData["COA"])
+                //.DataSource(ds =>
+                //{
+                // ds.Read(read => read.Action("Code4List", "Account"));
+                // //.ServerFiltering(true);
+                // })
+                .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+        </div>
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Subsidiary A/C")
+            @(Html.Kendo()
+            .MultiColumnComboBoxFor(m => m.SubId)
+            .Name("SubId")
+            .Placeholder("Select COA ...")
+            //.SelectedIndex(0)
+            .DataValueField("Id")
+            .DataTextField("Name")
+            .Columns(columns =>
+            {
+                columns.Add().Field("Code").Width("200px");
+                columns.Add().Field("Name").Width("200px");
+            })
+            //.Suggest(true)
+            .Filter(FilterType.Contains)
+            .FilterFields(new string[] { "Code", "Name" })
+            .MinLength(3)
+            //.CascadeFrom("Code")
+            //.Events(e => e.Change("loadGrid"))
+            .AutoBind(true)
+            //.BindTo(ViewBag.COA4)
+            .DataSource(ds =>
+            {
+                ds.Read(read => read.Action("SubsidaryCodeList", "Account").Data("filterSubsidaryCode"))
+                .ServerFiltering(true);
+            })
+            .IgnoreCase(true)
+            .HtmlAttributes(new { @style = "width:100%" })
+                )
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Particulars")
+            @(Html.Kendo()
+                .TextBoxFor(m => m.Particulars)
+                .Name("Particulars")
+                .HtmlAttributes(new { @style = "width:100%" })
+                    )
+        </div>
+        <div class="col-md-3 col-sm-3">
+            @Html.Label("Dr")
+            @(Html.Kendo()
+                .NumericTextBoxFor(m => m.Dr)
+                .Name("Dr")
+                .Value(0)
+                .Min(0)
+                //.Max(18)
+                .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+        </div>
+        <div class="col-md-3 col-sm-3">
+            @Html.Label("Cr")
+            @(Html.Kendo()
+                .NumericTextBoxFor(m => m.Cr)
+                .Name("Cr")
+                .Value(0)
+                .Min(0)
+                //.Max(18)
+                .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Profit Center")
+            @(Html.Kendo()
+                    .DropDownListFor(m => m.PCCode)
+                    .Name("PCCode")
+                    .OptionLabel("NA")
+                    .SelectedIndex(0)
+                    .DataValueField("PCCode")
+                    .DataTextField("PCDesc")
+                    //.Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("ProfitCentersList", "Account"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+        </div>
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Cost Center")
+            @(Html.Kendo()
+                    .DropDownListFor(m => m.CCCode)
+                    .Name("CCCode")
+                    .SelectedIndex(0)
+                    .OptionLabel("NA")
+                    .DataValueField("CCCode")
+                    .DataTextField("CCDesc")
+                    //.Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("CostCentersList", "Account"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+        </div>
+        @*<div class="col-md-2 col-sm-4">
+                @Html.Label("ChequeNo")
+                @(Html.Kendo().TextBoxFor(m => m.ChequeNo).Name("ChequeNo").HtmlAttributes(new { @style = "width:100%" }))
+            </div>*@
+    </div>
+}
+<script>
+    $(document).ready(function () {
+        $('#SubId').data("kendoMultiColumnComboBox").dataSource.read();
+    });
+</script>

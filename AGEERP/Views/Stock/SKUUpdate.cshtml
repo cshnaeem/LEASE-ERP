@@ -1,0 +1,171 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "SKU Update";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">SKU Update</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Stock</a></li>
+                    <li class="breadcrumb-item active">SKU Update</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                        .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="search()">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-xs-12">
+                @(Html.Kendo()
+                    .Grid<ItemDetailVM>()
+                    .Name("gridItemDetail")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.ItemId).Hidden();
+
+                        columns.Bound(c => c.Location);
+
+                        //columns.Bound(c => c.Model);
+                        //columns.Bound(c => c.Type);
+                        //columns.Bound(c => c.Product);
+                        //columns.Bound(c => c.Company);
+                        columns.Bound(c => c.Supplier);
+                        columns.Bound(c => c.Status);
+                        columns.Bound(c => c.SerialNo);
+                        columns.ForeignKey(c => c.SKUId, (System.Collections.IEnumerable)ViewData["SKUVD"], "SKUId", "SKUName").Title("SKU").Width(250);
+                        columns.Bound(c => c.Remarks);
+                        columns.Command(c => { c.Edit(); }).Width(100);
+                    })
+                    .Pageable()
+                    .Sortable()
+                    .Scrollable()
+                    .ToolBar(t => { t.Search(); })
+                    .Search(s =>
+                    {
+                        s.Field(c => c.SerialNo);
+                        //s.Field(c => c.Model);
+                        //s.Field(c => c.Type);
+                        //s.Field(c => c.Product);
+                        //s.Field(c => c.Company);
+                        s.Field(c => c.Supplier);
+                        s.Field(c => c.SKUName);
+                        s.Field(c => c.Status);
+                    })
+            .Editable(e => e.Mode(GridEditMode.InLine))
+            .HtmlAttributes(new { style = "height:400px;font-size:12px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(20)
+            .Events(e => e.Error("error_handler"))
+            .Model(model =>
+            {
+                model.Id(m => m.ItemId);
+                model.Field(m => m.Location).Editable(false);
+                model.Field(m => m.SerialNo).Editable(false);
+                //model.Field(m => m.Model).Editable(false);
+                //model.Field(m => m.Type).Editable(false);
+                //model.Field(m => m.Company).Editable(false);
+                //model.Field(m => m.Product).Editable(false);
+                model.Field(m => m.Supplier).Editable(false);
+                model.Field(m => m.SKUName).Editable(false);
+                model.Field(m => m.Status).Editable(false);
+            })
+            .Read(read => read.Action("SKUUpdate_Read", "Stock").Data("filterLocation"))
+              .Create(create => create.Action("SKUUpdate_Create", "Stock"))
+              .Update(update => update.Action("SKUUpdate_Update", "Stock"))
+      ))
+            </div>
+        </div>
+    </div>
+        </div>
+
+        @section scripts
+{
+            <script ItemDetail="text/javascript">
+                var gridElement = $("#gridItemDetail");
+                $(document).ready(function () {
+                    resizeGrid();
+                    //$('#m_10000000').addClass('active');
+                    //$('#d_10000000').css("display", "block");
+                    //$('#m_10010000').addClass('active');
+                    //$('#d_10010000').css("display", "block");
+                    //$('#m_10011200').addClass('active');
+                    //$('#a_10011200').addClass('active');
+                });
+
+                function resizeGrid() {
+                    var height = $(window).innerHeight() - $('header').innerHeight() - 120;
+                    if (height < 200) {
+                        height = 200;
+                    }
+                    else if (height > 910) {
+                        height = 910;
+                    }
+                    $("#gridItemDetail").css("height", height);
+                    gridElement.data("kendoGrid").resize();
+                }
+
+                $(window).resize(function () {
+                    resizeGrid();
+                });
+                function error_handler(e) {
+                    if (e.errors) {
+                        var message = "Errors:\n";
+                        $.each(e.errors, function (key, value) {
+                            if ('errors' in value) {
+                                $.each(value.errors, function () {
+                                    message += this + "\n";
+                                });
+                            }
+                        });
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content(message);
+                        dia.open();
+                    }
+                }
+                function filterLocation() {
+                    return {
+                        LocId: $('#LocId').val()
+                    }
+                }
+                function search() {
+                    gridElement.data('kendoGrid').dataSource.read();
+                }
+                function reqEnd(e) {
+                    console.log(e);
+                }
+            </script>
+        }

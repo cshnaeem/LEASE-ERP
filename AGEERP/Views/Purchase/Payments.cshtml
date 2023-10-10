@@ -1,0 +1,137 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "SupplierPayment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Supplier Payments</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">Supplier Payments</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row ">
+            <div class="col-md-6 col-sm-6">
+                @Html.Label("Supplier A/C")
+                @(Html.Kendo()
+                        .MultiColumnComboBox()
+                        .Name("Code")
+                        .Placeholder("Select COA ...")
+                        //.SelectedIndex(0)
+                        .DataValueField("Id")
+                        .DataTextField("Name")
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("Code").Width("150px");
+                            columns.Add().Field("Name").Width("350px");
+                        })
+                        //.Suggest(true)
+                        //.Filter(FilterType.Contains)
+                        //.FilterFields(new string[] { "Code", "Name" })
+                        //.MinLength(3)
+                        //.Events(e => e.Change("loadGrid"))
+                        //.AutoBind(false)
+                        .BindTo(ViewBag.COA4)
+                        //.DataSource(ds =>
+                        //{
+                        //    ds.Read(read => read.Action("SubCodeList", "Account").Data("filterSubCode"))
+                        //    .ServerFiltering(true);
+                        //})
+                        //.IgnoreCase(true)
+                        .HtmlAttributes(new { @style = "width:100%;", @required = true })
+                        )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            @Html.Label("Supplier Payments")
+            @(Html.Kendo()
+            .Grid<SuppPaymentVM>()
+            .Name("gridOrderSearch")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.TransId).Hidden();
+                columns.Bound(c => c.SuppId).Width(50);
+                columns.Bound(c => c.SuppName);
+                columns.Bound(c => c.ClosingBalance).Format("{0:n0}");
+                //columns.Bound(c => c.Proposed);
+                columns.Bound(c => c.CashAmount).Format("{0:n0}");
+                columns.Bound(c => c.BankAmount).Format("{0:n0}");
+                columns.ForeignKey(c => c.BankAccId, (System.Collections.IEnumerable)ViewData["Bank"], "Id", "Name").Title("Bank").Width(200);
+                columns.ForeignKey(c => c.LocId, (System.Collections.IEnumerable)ViewData["LocVD"], "LocId", "LocCode").Title("Location");
+                columns.Bound(c => c.Remarks);
+            })
+            .Sortable()
+            .Scrollable()
+            .AutoBind(false)
+            .Navigatable()
+            .ToolBar(t => t.Save())
+            .Editable(e => e.Mode(GridEditMode.InCell))
+            .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .Batch(true)
+            .Events(e =>
+            {
+                e.RequestEnd("onRequestEnd");
+            })
+            .Model(model =>
+            {
+                model.Id(m => m.TransId);
+                model.Field(m => m.SuppId).Editable(false);
+                model.Field(m => m.SuppName).Editable(false);
+                model.Field(m => m.ClosingBalance).Editable(false);
+            })
+            .Read(read => read.Action("Payments_Read", "Purchase").Data("MasterData"))
+            .Create(create => create.Action("Payments_Create", "Purchase").Data("MasterData"))
+            .Update(update => update.Action("Payments_Create", "Purchase").Data("MasterData"))
+            ))
+        </div>
+    </div>
+</div>
+<script>
+    function MasterData() {
+        return {
+            AccId: $('#Code').val()
+        }
+    }
+    function suppCatChange() {
+        $("#SuppId").data("kendoDropDownList").dataSource.read();
+    }
+    function loadGrid() {
+        $("#gridOrderSearch").data("kendoGrid").dataSource.read();
+    }
+    function onRequestEnd(e) {
+        if ((e.type == "create" || e.type == "update") && !e.response.Errors) {
+            loadGrid();
+            kendo.alert("Save Successfully");
+        }
+    }
+    function filterSupplier() {
+        return {
+            CategoryId: $('#SuppCatId').val()
+        }
+    }
+
+
+</script>

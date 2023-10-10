@@ -1,0 +1,486 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "MTR";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">MTR</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Procurement</a></li>
+                    <li class="breadcrumb-item active">MTR</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .Value(((int)ViewBag.LocId).ToString())
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("locChange").DataBound("locChange"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("LocationList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Cost Center")
+                @(Html.Kendo()
+                .DropDownList()
+                    .Name("CCCode")
+                    .OptionLabel("Select CostCenter ...")
+                    .DataValueField("CCCode")
+                    .DataTextField("CCDesc")
+                    .Value(((int)ViewBag.CCCode).ToString())
+                    .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CostCentersList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                )
+            </div>
+
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Required Date")
+                @Html.Kendo().DatePicker().Name("RequiredDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Nature")
+                @(Html.Kendo()
+                .DropDownList()
+                    .Name("NatureId")
+                    //.OptionLabel("Select CostCenter ...")
+                    .DataValueField("ItemNatureId")
+                    .DataTextField("ItemNature")
+                    .SelectedIndex(0)
+                    //.Events(e => e.Change("NatureChange"))
+                    //.AutoBind(false)
+                    .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("MTRNatureList", "Procurement"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Item Type")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("ItemType")
+                //.OptionLabel("Select ItemType")
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .AutoBind(false)
+                .SelectedIndex(0)
+                .CascadeFrom("NatureId")
+                .Events(e => e.Change("ItemTypeChange").DataBound("ItemTypeChange"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("ItemTypeByNature", "Procurement").Data("filterItemType")).ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            <div class="col-md-3 col-sm-3 sku" style="display:none;">
+                @Html.Label("SKU")
+                @(Html.Kendo().MultiColumnComboBox()
+                    .Name("SKUId")
+                    .AutoBind(false)
+                    .Placeholder("Select SKU...")
+                    .DataTextField("SKUName")
+                    .DataValueField("SKUId")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("SKUName").Width("350px");
+                        columns.Add().Field("Company").Width("200px");
+                        columns.Add().Field("Product").Width("200px");
+                    })
+                    .Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "SKUName", "Company", "Product" })
+                    .IgnoreCase(true)
+                    //.Events(e => e.Change("SKUChange"))
+                    .MinLength(3)
+                    .BindTo(ViewBag.SKU)
+                    //.DataSource(dataSource =>
+                    //{
+                    //dataSource.Read(read => read.Action("SKUByLocList", "Setup").Data("filterSKU"));
+                    //})
+                    //.CascadeFrom("LocId")
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%"})
+                    )
+                @Html.ValidationMessage("SKUId")
+            </div>
+            <div class="col-md-3 col-sm-3 itm" style="display:none;">
+                @Html.Label("Item")
+                @(Html.Kendo().MultiColumnComboBox()
+                    .Name("ItemId")
+                    .AutoBind(false)
+                    .Placeholder("Select Item...")
+                    .DataTextField("Item")
+                    .DataValueField("ItemId")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("Item").Width("300px");
+                        columns.Add().Field("ItemBrand").Width("150px");
+                        columns.Add().Field("ItemProduct").Width("150px");
+                        columns.Add().Field("UOM").Width("100px");
+                    })
+                    .Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "Item", "ItemBrand", "ItemProduct" })
+                    //.MinLength(3)
+                    //.Events(e => e.Change("SKUChange"))
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("ItemByNatureList", "Procurement").Data("filterItem"));
+                    })
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                @Html.ValidationMessage("ItemId")
+            </div>
+            @*<div class="col-md-3 col-sm-3">
+            @Html.Label("Brand")
+            @(Html.Kendo()
+                .TextBox()
+                .Name("Brand")
+                .Enable(false)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+        </div>
+        <div class="col-md-3 col-sm-3">
+            @Html.Label("Product")
+            @(Html.Kendo()
+                .TextBox()
+                .Name("Product")
+                .Enable(false)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+        </div>*@
+            <div class="col-md-3">
+                @Html.Label("Qty")
+                @(Html.Kendo()
+               .NumericTextBox()
+               .Name("Qty")
+               .Min(0)
+               .Value(0)
+               .HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Est Price")
+                @(Html.Kendo()
+               .NumericTextBox()
+               .Name("EstPrice")
+               .Min(0)
+               .Value(0)
+               .HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-6">
+                @Html.Label("Remarks")
+                @(Html.Kendo()
+                .TextBox()
+                .Name("Remarks")
+                .HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-3">
+                <button class="k-button margin-10" type="button" onclick="addToGrid()">
+                    <i class="fas fa-plus"></i>&nbsp; Add
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        @(Html.Kendo()
+        .Grid<MTRDetailVM>()
+        .Name("gridMTRDetail")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.Item);
+            columns.Bound(c => c.Qty);
+            columns.Bound(c => c.EstPrice);
+            columns.Bound(c => c.Remarks);
+            columns.Command(c => { c.Destroy(); }).Width(100);
+        })
+
+        .Sortable()
+        //.Pageable()
+        .Scrollable()
+        .AutoBind(false)
+        .Navigatable()
+        .ToolBar(t => t.Save())
+        .Editable(e => e.Mode(GridEditMode.InCell))
+        .Events(e => e.SaveChanges("onSaveChanges"))
+        .HtmlAttributes(new { style = "height:300px;" })
+
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .Events(e => e.Error("error_handler"))
+        //.PageSize(100)
+        .Model(model =>
+        {
+            model.Id(m => m.MTRDtlId);
+            model.Field(m => m.ItemId).Editable(false);
+            model.Field(m => m.Item).Editable(false);
+            //model.Field(m => m.Remarks).Editable(false);
+        })
+        .Read(read => read.Action("MTR_Read", "Procurement"))
+        .Create(create => create.Action("MTR_Create", "Procurement").Data("masterData"))
+        .Update(create => create.Action("MTR_Update", "Procurement").Data("masterData"))
+        ))
+    </div>
+</div>
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<script>
+    $(document).ready(function () {
+        //$('#m_18000000').addClass('active');
+        //$('#d_18000000').css("display", "block");
+        //$('#m_18060000').addClass('active');
+        //$('#a_18060000').addClass('active');
+        resizeGrid();
+
+    });
+    function ItemTypeChange() {
+        if ($('#ItemType').val() == "P") {
+            $('.sku').css('display', 'none');
+            $('.itm').css('display', 'block');
+        }
+        else {
+            $('.itm').css('display', 'none');
+            $('.sku').css('display', 'block');
+        }
+
+        $('#ItemId').data('kendoMultiColumnComboBox').value("");
+        $('#ItemId').data('kendoMultiColumnComboBox').dataSource.read();
+    }
+    //function SKUChange() {
+    //    var data = $('#ItemId').data('kendoMultiColumnComboBox').dataItem();
+    //    if (data != null) {
+    //        $('#Brand').val(data.ItemBrand);
+    //        $('#Product').val(data.ItemProduct);
+    //    }
+    //}
+    function filterItem() {
+        return {
+            NatureId: $("#NatureId").val()
+        }
+    }
+    var gridElement = $("#gridMTRDetail");
+
+    function masterData() {
+        return {
+            LocId: $('#LocId').val(),
+            RequiredDate: $('#RequiredDate').val(),
+            CCCode: $('#CCCode').val(),
+            NatureId: $('#NatureId').val()
+        }
+    }
+    function filterDept() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+    function filterItemType() {
+        return {
+            NatureId: $('#NatureId').val()
+        }
+    }
+    function NatureChange() {
+        //if ($('#NatureId').val() == 1) {
+        //    $('#ItemType').val("P");
+        //}
+        //else if ($('#NatureId').val() == 2) {
+        //    //$('#ItemType').val("P");
+        //}
+        //else if ($('#NatureId').val() == 3) {
+        //    $('#ItemType').val("P");
+        //}
+
+        
+    }
+    function locChange() {
+        $('#CCCode').data('kendoDropDownList').dataSource.read();
+    }
+    function onSaveChanges(e) {
+
+        var dat = $("#gridMTRDetail").data("kendoGrid").dataSource.data();
+        if (dat.length == 0) {
+            dia.content("Nothing to Save");
+            dia.open();
+            e.preventDefault();
+            return;
+        }
+
+        if (!confirm("Are you sure that you want to proceed?")) {
+            e.preventDefault();
+            return;
+        }
+    }
+
+    function addToGrid() {
+        var dataSource = $('#gridMTRDetail').data('kendoGrid').dataSource;
+        if ($('#ItemType').val() == "P") {
+            var itm = $('#ItemId').data('kendoMultiColumnComboBox').dataItem();
+            var dat = {
+                MTRDtlId: 0,
+                Item: itm.Item,
+                ItemId: itm.ItemId,
+                ItemBrand: itm.ItemBrand,
+                ItemProduct: itm.ItemProduct,
+                Qty: $('#Qty').val(),
+                EstPrice: $('#EstPrice').val(),
+                Remarks: $('#Remarks').val(),
+                ItemType: $('#ItemType').val()
+            };
+            if (dat.ItemId > 0 && dat.ItemId && dat.Qty > 0) {
+                var data = dataSource.data();
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].ItemId == dat.ItemId) {
+                        alert('Item already exist');
+                        return;
+                    }
+                    //if (data[i].CSerialNo == dat.CSerialNo) {
+                    //    alert('Brand Serial No already exist');
+                    //    return;
+                    //}
+                }
+                dat.dirty = true;
+                dataSource.add(dat);
+                //dataSource.sync();
+                resetFields();
+            }
+            else {
+                alert('Please Select Item and Qty');
+            }
+        }
+        else if ($('#ItemType').val() == "S") {
+            var itm = $('#SKUId').data('kendoMultiColumnComboBox').dataItem();
+            var dat = {
+                MTRDtlId: 0,
+                Item: itm.SKUName,
+                ItemId: itm.SKUId,
+                ItemBrand: itm.Company,
+                ItemProduct: itm.Product,
+                Qty: $('#Qty').val(),
+                EstPrice: $('#EstPrice').val(),
+                Remarks: $('#Remarks').val(),
+                ItemType: $('#ItemType').val()
+            };
+            if (dat.ItemId > 0 && dat.ItemId && dat.Qty > 0) {
+                var data = dataSource.data();
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].ItemId == dat.ItemId) {
+                        alert('Item already exist');
+                        return;
+                    }
+                    //if (data[i].CSerialNo == dat.CSerialNo) {
+                    //    alert('Brand Serial No already exist');
+                    //    return;
+                    //}
+                }
+                dat.dirty = true;
+                dataSource.add(dat);
+                //dataSource.sync();
+                resetFields();
+            }
+            else {
+                alert('Please Select Item and Qty');
+            }
+        }
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message > 0) {
+                $.confirm({
+                    title: 'Saved Successfully!',
+                    content: 'Do you want to print?',
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-check',
+                    buttons: {
+                        Print: function () {
+                            $("#rpt").val("MTR");
+                            $("#TransId").val(message);
+                            $("#rptForm").submit();
+                        },
+                        Cancel: function () {
+                        }
+                    }
+                });
+                $('#gridMTRDetail').data('kendoGrid').dataSource.data([]);
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+    function resetFields() {
+        $('#ItemId').data('kendoMultiColumnComboBox').value("");
+        $('#Qty').data('kendoNumericTextBox').value(0);
+        $('#Remarks').val("");
+        $('#EstPrice').data('kendoNumericTextBox').value(0);
+        $('#Product').val("");
+        $('#Brand').val("");
+    }
+
+
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridMTRDetail").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+
+</script>
+

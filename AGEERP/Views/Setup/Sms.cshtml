@@ -1,0 +1,361 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "SMS";
+}
+<style>
+    .fas{
+        margin-right:8px;
+    }
+    @@font-face {
+        font-family: 'NafeesRegular';
+        src: url('/Content/fonts/urdu.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+    .urdu {
+        font-family: 'NafeesRegular';
+        font-weight: normal;
+        font-style: normal;
+        font-size: larger;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">SMS</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">SMS</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <form id="SmsForm">
+            <div class="row">
+                <div class="col-md-3" style="margin-top:-6px">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Suggest(true)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", required = true, validationmessage = "Location is Required" })
+                    )
+                    <span class="k-invalid-msg" data-for="LocId"></span>
+                </div>
+                <div class="col-md-3" style="margin-top:-6px">
+                    @Html.Label("Category")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("Category")
+                    .OptionLabel("Select Category")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(new List<SelectListItem>() {
+                      new SelectListItem() {
+                          Text = "Fresh OS",
+                          Value = "F"
+                      },
+                      new SelectListItem() {
+                          Text = "Regular OS",
+                          Value = "R"
+                      },
+                      new SelectListItem() {
+                          Text = "Live Accounts",
+                          Value = "A"
+                      },
+                       new SelectListItem() {
+                          Text = "Closed Accounts",
+                          Value = "C"
+                      }
+                  })
+                .HtmlAttributes(new { @style = "width:100%", required = true, validationmessage = "Category is Required"})
+                )
+                    <span class="k-invalid-msg" data-for="Category"></span>
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    <div class="row">
+                        <button class="k-button btn-start" style="margin-top:20px;" onclick="LoadMesg();">
+                            <i class="fas fa-sms"></i> LOAD
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-4">
+                    <label>Test Message</label>
+                    <div class="input-group">
+                        @(Html.Kendo()
+                       .TextBox()
+                       .Name("testnumber")
+                       .HtmlAttributes(new { placeholder = "Enter any mobile number", @class = "form-control" })
+                      )
+                        <div class="input-group-append">
+                            <button class="btn btn-info k-button btn-selftest" type="button"> <i class="fas fa-sms"></i>  SEND</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-sm-6">
+                    @Html.Label("Template for Message")
+                    @Html.TextArea("SMS", "", new { @class = "k-textbox urdu", style = "width: 100%; height:80px;word-spacing: 4px;", required = "required", validationmessage = "SMS Template" })
+                    <span id="remain">200</span> characters remaining<br />
+                    <span class="k-invalid-msg" data-for="SMS"></span>
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    <button class="k-button btn-send" onclick="SendMessages();" type="button" style="margin-top:28px;">
+                    <i class="fas fa-sms"></i> START
+                </button>
+                    <br />
+                    <input type="checkbox" class="isUrdu" /> Urdu SMS ?
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="col-sm-12 col-md-12 col-lg-12">
+    <div class="card card card-default scrollspy">
+        <div class="card-content">
+            <div class="row">
+                <div class="col-md-9 col-sm-12">
+                    @(Html.Kendo()
+                    .Grid<LseSmsVM>()
+                    .Name("smsGrid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.RowId).Hidden();
+                        columns.Bound(c => c.AccNo).Title("Account # ").Width(130);
+                        columns.Bound(c => c.MobileNo).Title("Mobile").Width(200);
+                        columns.Bound(c => c.SMS).Title("Message");
+                    })
+                    .Scrollable()
+                    .AutoBind(false)
+                    .Navigatable()
+                    .ToolBar(t => t.Search())
+                    .HtmlAttributes(new { style = "height:300px;font-size:12px;" })
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Batch(true)
+                    .Model(model =>
+                    {
+                        model.Id(m => m.RowId);
+                    })
+                    .Read(read => read.Action("LoadMessages", "Setup").Data("loadData"))
+                    ))
+                </div>
+                <div class="col-md-3" style="bottom:20px;right:0px;">
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("Total Messages")
+                        @Html.Kendo().TextBox().Name("TotalMessages").Value("0").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("SENT")
+                        @Html.Kendo().TextBox().Name("Sent").Value("0").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("REMAINING")
+                        @Html.Kendo().TextBox().Name("Remaining").Value("0").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("Failed")
+                        @Html.Kendo().TextBox().Name("Failed").Value("0").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                    <div class="col-md-12 col-sm-4">
+                        <button class="k-button" type="button" onclick="Cancel()" style="margin-top:25px;">
+                            <i class="fas fa-close"></i> CANCEL & REFRESH
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script type="text/javascript">
+        //$(".btn-send").click(function () {
+        //    var rows = $('#smsGrid').data("kendoGrid").dataSource.data();
+        //    if (rows.length > 0) {
+        //        $(".btn-send").html("<i class='fas fa-spinner'></i> SENDING");
+        //        $.each(rows, function (key, value) {
+        //            r = JSON.stringify(value);
+        //            $.ajax(
+        //                {
+        //                    type: "POST",
+        //                    url: "/setup/SendSMS",
+        //                    data: {
+        //                        row: r,
+        //                        category: $("#Category").val(),
+        //                        isUrdu: $('.isUrdu').is(':checked')
+        //                    },
+        //                    success: function (res) {
+        //                        if (res === "ok") {
+        //                            $("#Sent").val(parseInt($("#Sent").val()) + 1);
+        //                            $("#Remaining").val(parseInt($("#Remaining").val()) - 1);
+        //                        }
+        //                        else if (res === "failed") {
+        //                            $("#Failed").val(parseInt($("#Failed").val()) + 1);
+        //                            $("#Remaining").val(parseInt($("#Remaining").val()) - 1);
+        //                        }
+        //                    }
+        //                });
+        //        });
+        //        $(".btn-send").html("<i class='far fa-sms'></i> START");
+        //    }
+        //    else {
+        //        $.confirm({
+        //            title: 'Validation',
+        //            content: 'No Data found, Table is empty',
+        //            type: 'red',
+        //            typeAnimated: true,
+        //            icon: 'fas fa-times',
+        //            buttons: {
+        //                Ok: function () {
+        //                }
+        //            }
+        //        });
+        //    }
+        //});
+        $(".btn-selftest").click(function () {
+            $(".btn-selftest").html("<i class='fas fa-spinner'></i> SENDING");
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/setup/TestSMS",
+                    data: {
+                        TestNo: $("#testnumber").val(),
+                        Message: $('#Message').val()
+                    },
+                    success: function (res) {
+                        if (res === "ok") {
+                            $.confirm({
+                                title: 'Success',
+                                content: "Message has been sent",
+                                type: 'green',
+                                typeAnimated: true,
+                                icon: 'fas fa-check',
+                                buttons: {
+                                    Ok: function () {
+                                    }
+                                }
+                            });
+                            $(".btn-selftest").html("<i class='fas fa-sms'></i> SEND");
+                            $("#testnumber").val('');
+                        }
+                        else if (res === "failed") {
+                            $.confirm({
+                                title: 'Failed',
+                                content: 'Message sending Failed',
+                                type: 'red',
+                                typeAnimated: true,
+                                icon: 'fas fa-times',
+                                buttons: {
+                                    Ok: function () {
+                                    }
+                                }
+                            });
+                            $(".btn-selftest").html("<i class='fas fa-sms'></i> SEND");
+                        }
+                        else {
+                            $.confirm({
+                                title: 'Failed',
+                                content: res,
+                                type: 'red',
+                                typeAnimated: true,
+                                icon: 'fas fa-times',
+                                buttons: {
+                                    Ok: function () {
+                                    }
+                                }
+                            });
+                            $(".btn-selftest").html("<i class='fas fa-sms'></i> SEND");
+                        }
+                    }
+                });
+            $(".btn-selftest").html("<i class='far fa-check-circle'></i> SENT");
+        });
+        function Cancel() {
+            $("#smsGrid").data('kendoGrid').dataSource.data([]);
+            $("#TotalMessages").val("");
+            $("#Sent").val("");
+            $("#Reamining").val("");
+            $("#template").val("");
+            $("#testsms").val("");
+            $("#Category").Value("");
+        }
+        function loadData() {
+            return {
+                LocId: $("#LocId").val() || 0,
+                Category: $("#Category").val(),
+                Message: $("#SMS").val(),
+                IsUrdu: $('#isUrdu').is(":checked")
+            }
+        }
+        function LoadMesg() {
+            var validator = $("#SmsForm").kendoValidator().data("kendoValidator");
+            $("form").submit(function (event) {
+                event.preventDefault();
+                if (validator.validate()) {
+                    $('#smsGrid').data('kendoGrid').dataSource.read();
+                }
+                else {
+                    alert("Invalid Data");
+                }
+            });
+        }
+        function SendMessages() {
+            var dataSource = $("#smsGrid").data("kendoGrid").dataSource;
+            var row = dataSource.data();
+            $("#TotalMessages").val($('#smsGrid tbody tr').length);
+            $("#Remaining").val($('#smsGrid tbody tr').length);
+            var total = parseInt($("#TotalMessages").val());
+            var sent = parseInt($("#Sent").val());
+            var failed = parseInt($("#Failed").val());
+            $.each(row, function (i, r) {
+                $.ajax({ type: "GET", url: "/Setup/SendSMS",
+                        data: {
+                            RowId: r.RowId
+                    },
+                    async: false,
+                        success: function (res) {
+                            if (res.Msg == "ok") {
+                                $('tr[data-uid="' + r.uid + '"] ').css("color", "green");
+                                sent += 1;
+                                $("#Sent").val(sent);
+                                $("#Remaining").val(total - (sent + failed));
+                            }
+                            else {
+                                $('tr[data-uid="' + r.uid + '"] ').css("color", "red");
+                                failed += 1;
+                                $("#Failed").val(failed);
+                                $("#Remaining").val(total - (sent + failed));
+                            }
+                        }
+                });
+                return;
+            });
+        }
+        $("#Message").keyup(function () {
+            var tlength = $(this).val().length;
+            $(this).val($(this).val().substring(0, 200));
+            var tlength = $(this).val().length;
+            remain = 200 - parseInt(tlength);
+            $('#remain').text(remain);
+        });
+    </script>
+}

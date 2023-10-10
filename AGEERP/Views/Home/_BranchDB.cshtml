@@ -1,0 +1,238 @@
+﻿@using AGEERP.Models
+@{ 
+    Layout = null;
+}
+@*<style>
+    .card::before {
+        opacity: 0.9;
+    }
+
+    .card {
+        background-color: #ffffffd1;
+    }
+    /*.card {
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        background-color: rgba(255, 255, 255, 0.75);
+        border-radius: 12px;
+        border: 1px solid rgba(209, 213, 219, 0.3);
+    }*/
+</style>*@
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-white">Today Stats</h1>
+            </div><!-- /.col -->
+
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<div class="row">
+    <div class="col-md-3 col-sm-3 col-12">
+        <div class="card info-box shadow-lg" @*style="background-color:#ff2136;color:white;"*@>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:20px;font-weight:900;">Cash Sale</span>
+                <span class="info-box-number" style="font-size:35px;color:darkslategray"><span class="counter">@ViewBag.tdCashSale</span></span>
+            </div>
+            <!-- /.info-box-content -->
+
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-3 col-12">
+        <div class="card info-box shadow-lg" @*style="background-color:#ac1a28;color:white;"*@>
+            @*<span class="info-box-icon"><i class="far fa-dollar"></i></span>*@
+            @*<span class="info-box-icon" style="font-size:35px;color:darkslategray;font-weight:900;">RS</span>*@
+
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:20px;font-weight:1000;">Installment Sale</span>
+                <span class="info-box-number" style="font-size:35px;color:darkslategray;"><span class="counter">@ViewBag.tdInstSale</span></span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-3 col-12">
+        <div class="card info-box shadow-lg" @*style="background-color:#000;color:white;"*@>
+
+            @*<span class="info-box-icon" style="        font-size: 35px;
+                font-weight: 1000;">RS</span>*@
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:20px;font-weight:900;">Outstand Policy</span>
+                <span class="info-box-number" style="font-size:35px;color:darkslategray;"><span class="counter">@ViewBag.policy</span> Months</span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <div class="col-md-3 col-sm-3 col-12">
+        <div class="card info-box shadow-lg" @*style="background-color:#ff0018;color:white;"*@>
+
+            @*<span class="info-box-icon" style="        font-size: 35px;
+                font-weight: 1000;">RS</span>*@
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:20px;font-weight:900;">Pending Cash Receiving</span>
+                <span class="info-box-number" style="font-size:35px;color:darkslategray;"><span class="counter">@ViewBag.pendingCashReceive</span></span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <!-- /.col -->
+</div>
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-white">Monthly Stats</h1>
+            </div><!-- /.col -->
+
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<div class="row">
+    <div class="col-md-3 col-sm-3 col-12">
+        <div class="card info-box shadow-lg" @*style="background-color:#ff2136;color:white;"*@>
+            @*<span class="info-box-icon" style="font-size:35px;color:darkslategray;font-weight:900;">RS</span>*@
+
+            <div class="info-box-content">
+                <span class="info-box-text" style="        font-size: 20px;
+        font-weight: 900;">Cash Sale</span>
+                <span class="info-box-number" style="font-size:35px;color:darkslategray;"><span class="counter">@ViewBag.mnCashSale</span></span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-3 col-12">
+        <div class="card info-box shadow-lg" @*style="background-color:#ac1a28;color:white;"*@>
+            @*<span class="info-box-icon"><i class="far fa-dollar"></i></span>*@
+            @*<span class="info-box-icon" style="font-size:35px;color:darkslategray;font-weight:900;">RS</span>*@
+
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:20px;font-weight:1000;">Installment Sale</span>
+                <span class="info-box-number" style="font-size:35px;color:darkslategray;"><span class="counter">@ViewBag.mnInstSale</span></span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-3 col-12">
+        <div class="card info-box shadow-lg" @*style="background-color:#000;color:white;"*@>
+
+            @*<span class="info-box-icon" style="        font-size: 35px;
+                font-weight: 1000;">RS</span>*@
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:20px;font-weight:900;">Recovery</span>
+                <span class="info-box-number" style="font-size:35px;color:darkslategray;"><span class="counter">@ViewBag.recovery</span> %</span>
+            </div>
+        </div>
+    </div>
+    <!-- /.col -->
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-3 col-12">
+        <div class="card info-box shadow-lg" @*style="background-color:#ff0018;color:white;"*@>
+
+            @*<span class="info-box-icon" style="        font-size: 35px;
+            font-weight: 1000;">RS</span>*@
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:20px;font-weight:900;">Pending GRN/StockIssue</span>
+                <span class="info-box-number" style="font-size:35px;color:darkslategray;"><span class="counter">@ViewBag.pendingGrn</span>/<span class="counter">@ViewBag.pendingStockReceive</span></span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-lg">
+            @(Html.Kendo().Chart<TwoMonthSaleVM>((List<TwoMonthSaleVM>)ViewBag.tmCashSale)
+.Name("chart1")
+.Title("Cash Sale Monthly Comparison")
+.Legend(legend => legend
+    .Position(ChartLegendPosition.Top)
+)
+.ChartArea(chartArea => chartArea
+.Background("transparent")
+)
+//.DataSource(ds => ds.Read(read => read.Action("GetTwoMonthSale", "DashBoard").Data("GetLocationId")))
+.Series(series =>
+{
+    series.Line(model => model.PSale).Name("Previous Month Sale").CategoryField("Day");
+    series.Line(model => model.CSale).Name("Current Month Sale").CategoryField("Day");
+    series.Line(model => model.PYSale).Name("Previous Year This Month").CategoryField("Day");
+})
+.CategoryAxis(axis => axis
+    .Labels(labels => labels.Rotation(-90))
+
+    .Crosshair(c => c.Visible(true))
+)
+.Tooltip(tooltip => tooltip
+.Visible(true)
+.Shared(true)
+.Format("{0:N0}")
+)
+            )
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-lg">
+            @(Html.Kendo().Chart((List<TwoMonthSaleVM>)ViewBag.tmInstSale)
+.Name("chart2")
+.Title("Installment Sale Monthly Comparison")
+
+.Legend(legend => legend
+    .Position(ChartLegendPosition.Top)
+)
+.ChartArea(chartArea => chartArea
+.Background("transparent")
+)
+
+//.DataSource(ds => ds.Read(read => read.Action("GetTwoMonthInstSale", "DashBoard").Data("GetLocationId")))
+.Series(series =>
+{
+    series.Line(model => model.PSale).Name("Previous Month Sale").CategoryField("Day");
+    series.Line(model => model.CSale).Name("Current Month Sale").CategoryField("Day");
+    series.Line(model => model.PYSale).Name("Previous Year This Month").CategoryField("Day");
+})
+.CategoryAxis(axis => axis
+    .Labels(labels => labels.Rotation(-90))
+
+    .Crosshair(c => c.Visible(true))
+)
+.Tooltip(tooltip => tooltip
+.Visible(true)
+.Shared(true)
+.Format("{0:N0}")
+)
+            )
+        </div>
+    </div>
+    </div>
+<script src="~/Scripts/waypoints.min.js"></script>
+<script src="~/Scripts/jquery.counterup.min.js"></script>
+
+<script>
+        jQuery(document).ready(function ($) {
+            $('.counter').counterUp({
+                delay: 10,
+                time: 1000
+            });
+            //$('.nav-link').click();
+        });
+
+
+
+        //function GetLocationId() {
+        //    return {
+        //        LocID: 60
+        //    }
+        //}
+</script>

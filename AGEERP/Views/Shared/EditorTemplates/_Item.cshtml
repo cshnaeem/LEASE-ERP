@@ -1,0 +1,76 @@
+﻿@model AGEERP.Models.ItemVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.ItemId)
+
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("Item Code")
+        @(Html.Kendo().TextBoxFor(x => x.ItemCode).HtmlAttributes(new { @style = "width:100%", @maxlength = "50", @value="" }))
+    </div>
+
+    <div class="col-md-4">
+        @Html.Label("Item ")
+        @(Html.Kendo().TextBoxFor(x => x.Item).HtmlAttributes(new { @style = "width:100%", @maxlength = "50", @required = "readonly" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Item Spec")
+        @(Html.Kendo().TextBoxFor(x => x.Spec).HtmlAttributes(new { @style = "width:100%", @maxlength = "50", @required = "readonly" }))
+    </div>
+</div>
+    
+
+<div class="row">
+
+    <div class="col-md-4">
+        @Html.Label("Brand")
+        @(Html.Kendo().DropDownListFor(x => x.ItemBrandId)
+                                   .OptionLabel("Select Brand")
+                                   .DataValueField("ItemBrandId")
+                                   .DataTextField("ItemBrand")
+                                   .Filter(FilterType.Contains)
+                                   .DataSource(ds =>
+                                   {
+                                       ds.Read(read => read.Action("BrandList", "Procurement"));
+                                   })
+                                   .HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Product")
+        @(Html.Kendo().DropDownListFor(x => x.ItemProductId)
+                                   .OptionLabel("Select Product")
+                                   .DataValueField("ItemProductId")
+                                   .DataTextField("ItemProduct")
+                                   .Filter(FilterType.Contains)
+                                   .DataSource(ds =>
+                                   {
+                                       ds.Read(read => read.Action("ItemProductList", "Procurement"));
+                                   })
+                                   .HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+
+    <div class="col-md-4">
+        @Html.Label("UOM")
+        @(Html.Kendo().DropDownListFor(x => x.UOMId)
+                                   .OptionLabel("Select UOM")
+                                   .DataValueField("UOMId")
+                                   .DataTextField("UOM")
+                                   .DataSource(ds =>
+                                   {
+                                       ds.Read(read => read.Action("UOMList", "Procurement"));
+                                   })
+                                   .HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+</div>
+    
+}

@@ -1,0 +1,475 @@
+﻿@using AGEERP.Models
+@model List<CityVM>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">PO Plan</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">PO Plan</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("SaleStockCityWise", "Report", FormMethod.Post, new { target = "_blank", @Id = "frm" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("ComId")
+                .OptionLabel("Select Company ...")
+                //.SelectedIndex(0)
+                .DataValueField("ComId")
+                .DataTextField("ComName")
+                .Filter(FilterType.Contains)
+                .Events(e => e.Change("LoadProduct"))
+                //.CascadeFrom("SuppId")
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CompanyList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("ProductId")
+                .OptionLabel("Select Product ...")
+                .SelectedIndex(0)
+                .DataValueField("ProductId")
+                .DataTextField("Name")
+                //.Suggest(true)
+
+                .Events(e => e.Change("LoadModel"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("ProductByCompList", "Setup").Data("filterProduct"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                </div>
+                <div class="col-md-6 col-sm-4 ag">
+                    @Html.Label("Model")
+                    @(Html.Kendo()
+                .MultiSelect()
+                .Name("ModelId")
+                .Placeholder("All Model")
+                .DataValueField("ModelId")
+                .DataTextField("Model")
+                .Filter(FilterType.Contains)
+                //.CascadeFrom("ProductId")
+                //.Events(e => e.Change("LoadGrid"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("ModelByComProList", "Setup").Data("filterModel"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @class = "browser-default" })
+                    )
+                </div>
+                <div class="col-3 dt">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-3 dt">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Remarks")
+                    @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-6 col-sm-6 ag">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                        <i class="fas fa-search"></i>&nbsp; Search
+                    </button>
+                   
+                </div>
+                <div class="col-md-3 col-sm-3 dt">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-search"></i>&nbsp; Export
+                    </button>
+                </div>
+                <div class="col-md-3 col-sm-3 dt">
+                    <label>Select File to Import</label>
+                    <div class="input-group mb-3">
+                        <input type="file" class="form-control importfile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Select File" aria-describedby="basic-addon1">
+                        <div class="input-group-append">
+                            <button class="btn btn-info btnLoadFile k-button" type="button">LOAD FILE</button>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-md-3 col-sm-3">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="refreshGrid()">
+                        <i class="fas fa-search"></i>&nbsp; Refresh Total
+                    </button>
+                </div>*@
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Search Option").Value("1").Checked(true)
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Export Option").Value("2")
+                </div>
+            </div>
+        }
+        </div>
+        </div>
+        <div class="col-12">
+            @Html.Label("Order Plan")
+            @(Html.Kendo()
+    .Grid<POPlanCityDetailVM>
+    ()
+    .Name("gridOrderPlan")
+    .Columns(columns =>
+    {
+        columns.Bound(m => m.SkuId).Hidden();
+        columns.Bound(m => m.SKU).Locked().Title("SKU").Width(250).Filterable(f => f.Multi(true));
+        columns.Bound(g => g.City1).Title("BWP").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City2).Title("FSD").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City3).Title("GRW").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City4).Title("GRT").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City5).Title("ISB").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City6).Title("JLM").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City7).Title("KSR").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City8).Title("LHR").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City9).Title("MTN").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City10).Title("MDK").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City11).Title("OKR").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City12).Title("PEW").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City13).Title("RWP").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City14).Title("SWL").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City15).Title("SGD").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City16).Title("SKP").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City17).Title("SKT").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City18).Title("KHI").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City19).Title("QTA").Width(70).ClientFooterTemplate("#=sum#");
+        columns.Bound(g => g.City20).Title("LDR").Width(70).ClientFooterTemplate("#=sum#");
+
+
+        //columns.Bound(g => g.City1).Title(Model.Count >= 1 ? Model[0].CityCode : "").Hidden(Model.Count < 1).Width(70);
+        //columns.Bound(g => g.City2).Title(Model.Count >= 2 ? Model[1].CityCode : "").Hidden(Model.Count < 2).Width(70);
+        //columns.Bound(g => g.City3).Title(Model.Count >= 3 ? Model[2].CityCode : "").Hidden(Model.Count < 3).Width(70);
+        //columns.Bound(g => g.City4).Title(Model.Count >= 4 ? Model[3].CityCode : "").Hidden(Model.Count < 4).Width(70);
+        //columns.Bound(g => g.City5).Title(Model.Count >= 5 ? Model[4].CityCode : "").Hidden(Model.Count < 5).Width(70);
+        //columns.Bound(g => g.City6).Title(Model.Count >= 6 ? Model[5].CityCode : "").Hidden(Model.Count < 6).Width(70);
+        //columns.Bound(g => g.City7).Title(Model.Count >= 7 ? Model[6].CityCode : "").Hidden(Model.Count < 7).Width(70);
+        //columns.Bound(g => g.City8).Title(Model.Count >= 8 ? Model[7].CityCode : "").Hidden(Model.Count < 8).Width(70);
+        //columns.Bound(g => g.City9).Title(Model.Count >= 9 ? Model[8].CityCode : "").Hidden(Model.Count < 9).Width(70);
+        //columns.Bound(g => g.City10).Title(Model.Count >= 10 ? Model[9].CityCode : "").Hidden(Model.Count < 10).Width(70);
+        //columns.Bound(g => g.City11).Title(Model.Count >= 11 ? Model[10].CityCode : "").Hidden(Model.Count < 11).Width(70);
+        //columns.Bound(g => g.City12).Title(Model.Count >= 12 ? Model[11].CityCode : "").Hidden(Model.Count < 12).Width(70);
+        //columns.Bound(g => g.City13).Title(Model.Count >= 13 ? Model[12].CityCode : "").Hidden(Model.Count < 13).Width(70);
+        //columns.Bound(g => g.City14).Title(Model.Count >= 14 ? Model[13].CityCode : "").Hidden(Model.Count < 14).Width(70);
+        //columns.Bound(g => g.City15).Title(Model.Count >= 15 ? Model[14].CityCode : "").Hidden(Model.Count < 15).Width(70);
+        //columns.Bound(g => g.City16).Title(Model.Count >= 16 ? Model[15].CityCode : "").Hidden(Model.Count < 16).Width(70);
+        //columns.Bound(g => g.City17).Title(Model.Count >= 17 ? Model[16].CityCode : "").Hidden(Model.Count < 17).Width(70);
+        //columns.Bound(g => g.City18).Title(Model.Count >= 18 ? Model[17].CityCode : "").Hidden(Model.Count < 18).Width(70);
+        //columns.Bound(g => g.City19).Title(Model.Count >= 19 ? Model[18].CityCode : "").Hidden(Model.Count < 19).Width(70);
+        //columns.Bound(g => g.City20).Title(Model.Count >= 20 ? Model[19].CityCode : "").Hidden(Model.Count < 20).Width(70);
+    })
+    .Sortable()
+    .Scrollable(s => s.Enabled(true))
+    .AutoBind(false)
+    //.Filterable()
+    .Navigatable()
+    .ToolBar(t => t.Save())
+    .Editable(e => e.Mode(GridEditMode.InCell))
+    .HtmlAttributes(new { style = "height:500px;" })
+    .Events(e => e.SaveChanges("onSaveChanges"))
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .ServerOperation(false)
+    //.PageSize(20)
+    .Batch(true)
+    .Events(e => e.Error("error_handler").Change("refreshGrid"))
+    .Aggregates(aggregates =>
+    {
+        aggregates.Add(p => p.City1).Sum();
+        aggregates.Add(p => p.City2).Sum();
+        aggregates.Add(p => p.City3).Sum();
+        aggregates.Add(p => p.City4).Sum();
+        aggregates.Add(p => p.City5).Sum();
+        aggregates.Add(p => p.City6).Sum();
+        aggregates.Add(p => p.City7).Sum();
+        aggregates.Add(p => p.City8).Sum();
+        aggregates.Add(p => p.City9).Sum();
+        aggregates.Add(p => p.City10).Sum();
+        aggregates.Add(p => p.City11).Sum();
+        aggregates.Add(p => p.City12).Sum();
+        aggregates.Add(p => p.City13).Sum();
+        aggregates.Add(p => p.City14).Sum();
+        aggregates.Add(p => p.City15).Sum();
+        aggregates.Add(p => p.City16).Sum();
+        aggregates.Add(p => p.City17).Sum();
+        aggregates.Add(p => p.City18).Sum();
+        aggregates.Add(p => p.City19).Sum();
+        aggregates.Add(p => p.City20).Sum();
+
+    })
+    .Model(model =>
+    {
+        model.Id(m => m.RowId);
+        model.Field(m => m.SkuId).Editable(false);
+        model.Field(m => m.SKU).Editable(false);
+    })
+    .Read(read => read.Action("OrderPlanCity_Read", "Order").Data("ModelData"))
+    .Create(create => create.Action("OrderPlanCity_Update", "Order").Data("MasterData"))
+    .Update(update => update.Action("OrderPlanCity_Update", "Order").Data("MasterData"))
+    ))
+</div>
+        <form action="/Report/PrintSlip" method="post" target="_blank" id="rptForm" hidden="hidden">
+            @Html.AntiForgeryToken()
+            @Html.Hidden("rpt")
+            @Html.Hidden("PlanId")
+        </form>
+        <script type="text/javascript" src="/scripts/xlsx.full.min.js"></script>
+        <script type="text/javascript" src="/scripts/jszip.js"></script>
+        <script>
+            //$(document).ready(function () {
+            //    resizeGrid();
+            //});
+            $(document).ready(function () {
+                $(".dt").css("display", "none");
+                $(".ag").css("display", "block");
+                $('input[type=radio][name=rpt]').change(function () {
+                    var val = parseInt(this.value);
+                    if (val == 1) {
+                        $(".dt").css("display", "none");
+                        $(".ag").css("display", "block");
+                    }
+                    else if (val == 2) {
+                        $(".dt").css("display", "block");
+                        $(".ag").css("display", "none");
+                    }
+                });
+            });
+            function onSaveChanges(e) {
+                if ($('#gridOrderPlan').data('kendoGrid').dataSource.data().length == 0) {
+                    dia.content("Nothing to Save");
+                    dia.open();
+                    e.preventDefault();
+                }
+                //else if (!validator.validate()) {
+                //    e.preventDefault();
+                //}
+                //else if (!confirm("Are you sure that you want to proceed?")) {
+                //    e.preventDefault();
+                //}
+            }
+            function LoadProduct() {
+                $('#ProductId').data('kendoDropDownList').dataSource.read();
+            }
+            function MasterData() {
+                return {
+                    ComId: $('#ComId').val(),
+                    Remarks: $('#Remarks').val()
+                }
+            }
+            function loadGrid() {
+                //if (IsValid()) {
+                $("#gridOrderPlan").data("kendoGrid").dataSource.read();
+                //    $('#stockmodal').modal('show');
+                //}
+            }
+            function filterProduct() {
+                return {
+                    ComId: $('#ComId').val()
+                }
+            }
+            function LoadModel() {
+                $('#ModelId').data('kendoMultiSelect').dataSource.read();
+            }
+            function ModelData() {
+                return {
+                    ComId: $('#ComId').val(),
+                    ProductId: $('#ProductId').val() || 0,
+                    ModelLst: $('#ModelId').val() || [0],
+                }
+            }
+            function filterModel() {
+                return {
+                    ComId: $('#ComId').val(),
+                    ProductId: $('#ProductId').val()
+                }
+            }
+            function error_handler(e) {
+                if (e.errors) {
+                    var message = "";
+                    $.each(e.errors,
+                        function (key, value) {
+                            if ('Msg' == key) {
+                                $.each(value.errors,
+                                    function () {
+                                        message += this;
+                                    });
+                            } else {
+                                $.each(value.errors,
+                                    function () {
+                                        message += this;
+                                    });
+                            }
+                        });
+                    if (message > 0) {
+                        $.confirm({
+                            title: 'Saved Successfully!',
+                            content: 'Do you want to print?',
+                            type: 'red',
+                            typeAnimated: true,
+                            icon: 'fas fa-check',
+                            buttons: {
+                                Print: function () {
+                                    $("#rpt").val("POPlanCity");
+                                    $("#PlanId").val(message);
+                                    $("#rptForm").submit();
+                                },
+                                Cancel: function () {
+                                }
+                            }
+                        });
+                        $("#gridOrderPlan").data("kendoGrid").dataSource.data([]);
+                    } else {
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content(message);
+                        dia.open();
+                    }
+                }
+            }
+
+            //function resizeGrid() {
+            //    var height = $(window).innerHeight() - $('header').innerHeight() - 280;
+            //    if (height < 200) {
+            //        height = 200;
+            //    }
+            //    else if (height > 910) {
+            //        height = 910;
+            //    }
+            //    $("#gridOrderPlan").css("height", height);
+            //    $("#gridOrderPlan").data("kendoGrid").resize();
+            //}
+
+
+            //$(window).resize(function () {
+            //    resizeGrid();
+            //});
+            $(".btnLoadFile").click(function () {
+                var fileUpload = $(".importfile")[0];
+                var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+                if (regex.test(fileUpload.value.toLowerCase())) {
+                    if (typeof (FileReader) != "undefined") {
+                        var reader = new FileReader();
+                        if (reader.readAsBinaryString) {
+                            reader.onload = function (e) {
+                                ProcessExcel(e.target.result);
+                            };
+                            reader.readAsBinaryString(fileUpload.files[0]);
+                        } else {
+                            reader.onload = function (e) {
+                                var data = "";
+                                var bytes = new Uint8Array(e.target.result);
+                                for (var i = 0; i < bytes.byteLength; i++) {
+                                    data += String.fromCharCode(bytes[i]);
+                                }
+                                ProcessExcel(data);
+                            };
+                            reader.readAsArrayBuffer(fileUpload.files[0]);
+                        }
+                    } else {
+                        $(".btnLoadFile").html("LOAD FILE");
+                        alert('This browser does not support HTML5.');
+                    }
+                } else {
+                    $(".btnLoadFile").html("LOAD FILE");
+                    alert('Please upload a valid Excel file.');
+                }
+            });
+            function ProcessExcel(data) {
+                var workbook = XLSX.read(data, {
+                    type: 'binary'
+                });
+                var firstSheet = workbook.SheetNames[0];
+                var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+                var lst = [];
+                for (var i = 1; i < excelRows.length; i++) {
+                    var SkuId = typeof excelRows[i]["SKUId"] === 'undefined' ? "" : excelRows[i]["SKUId"];
+                    var SKU = typeof excelRows[i]["SKU"] === 'undefined' ? "" : excelRows[i]["SKU"];
+
+                    var City1 = typeof excelRows[i]["1"] === 'undefined' ? "0" : excelRows[i]["1"];
+                    var City2 = typeof excelRows[i]["2"] === 'undefined' ? "0" : excelRows[i]["2"];
+                    var City3 = typeof excelRows[i]["3"] === 'undefined' ? "0" : excelRows[i]["3"];
+                    var City4 = typeof excelRows[i]["4"] === 'undefined' ? "0" : excelRows[i]["4"];
+                    var City5 = typeof excelRows[i]["5"] === 'undefined' ? "0" : excelRows[i]["5"];
+                    var City6 = typeof excelRows[i]["6"] === 'undefined' ? "0" : excelRows[i]["6"];
+                    var City7 = typeof excelRows[i]["7"] === 'undefined' ? "0" : excelRows[i]["7"];
+                    var City8 = typeof excelRows[i]["8"] === 'undefined' ? "0" : excelRows[i]["8"];
+                    var City9 = typeof excelRows[i]["9"] === 'undefined' ? "0" : excelRows[i]["9"];
+                    var City10 = typeof excelRows[i]["10"] === 'undefined' ? "0" : excelRows[i]["10"];
+                    var City11 = typeof excelRows[i]["11"] === 'undefined' ? "0" : excelRows[i]["11"];
+                    var City12 = typeof excelRows[i]["12"] === 'undefined' ? "0" : excelRows[i]["12"];
+                    var City13 = typeof excelRows[i]["13"] === 'undefined' ? "0" : excelRows[i]["13"];
+                    var City14 = typeof excelRows[i]["14"] === 'undefined' ? "0" : excelRows[i]["14"];
+                    var City15 = typeof excelRows[i]["15"] === 'undefined' ? "0" : excelRows[i]["15"];
+                    var City16 = typeof excelRows[i]["16"] === 'undefined' ? "0" : excelRows[i]["16"];
+                    var City17 = typeof excelRows[i]["17"] === 'undefined' ? "0" : excelRows[i]["17"];
+                    var City18 = typeof excelRows[i]["18"] === 'undefined' ? "0" : excelRows[i]["18"];
+                    var City19 = typeof excelRows[i]["19"] === 'undefined' ? "0" : excelRows[i]["19"];
+                    var City20 = typeof excelRows[i]["20"] === 'undefined' ? "0" : excelRows[i]["20"];
+
+                    if (City1 > 0 || City2 > 0 || City3 > 0 || City4 > 0 || City5 > 0 || City6 > 0 || City7 > 0 || City8 > 0 || City9 > 0 || City10 > 0 ||
+                        City11 > 0 || City12 > 0 || City13 > 0 || City14 > 0 || City15 > 0 || City16 > 0 || City17 > 0 || City18 > 0 || City19 > 0 || City20 > 0) {
+                        lst.push({
+                            SkuId: SkuId,
+                            SKU: SKU,
+                            City1: City1,
+                            City2: City2,
+                            City3: City3,
+                            City4: City4,
+                            City5: City5,
+                            City6: City6,
+                            City7: City7,
+                            City8: City8,
+                            City9: City9,
+                            City10: City10,
+                            City11: City11,
+                            City12: City12,
+                            City13: City13,
+                            City14: City14,
+                            City15: City15,
+                            City16: City16,
+                            City17: City17,
+                            City18: City18,
+                            City19: City19,
+                            City20: City20
+                        });
+                    }
+                }
+                $("#gridOrderPlan").data('kendoGrid').dataSource.data(lst);
+
+                var grid = $("#gridOrderPlan").data('kendoGrid');
+                var rows = grid.items();
+                $(rows).each(function (e) {
+                    var row = this;
+                    var dataItem = grid.dataItem(row);
+                    dataItem.dirty = true;
+                    //dataItem.set("dirtyFields", { PaidAmount: true });
+                });
+                grid.refresh();
+            }
+            function refreshGrid() {
+                var grid = $("#gridOrderPlan").data('kendoGrid');
+                grid.refresh();
+            }
+        </script>

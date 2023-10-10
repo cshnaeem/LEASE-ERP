@@ -1,0 +1,110 @@
+﻿@using AGEERP.Models
+@model AGEERP.Models.GeoLocationVM
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.GeoId)
+
+    @Html.HiddenFor(m => m.GLvl)
+<div class="row">
+
+    <div class="col-md-4" style="margin-top: 7px;">
+        @Html.Label("Geo Title")
+        @(Html.Kendo()
+            .TextBoxFor(m => m.GTitle)
+            .Name("GTitle")
+            .HtmlAttributes(new { @style = "width:100%", @required = "required", placeholder = "Enter Geo Title here", @class = "validate", ValidationMessage = "Geo Title is required" }))
+        <span class="k-invalid-msg" data-for="GTitle"></span>
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Level")
+        @(Html.Kendo().DropDownListFor(x => x.GLevel)
+  //  .Events(x => x.Change("LoadParent"))
+    .BindTo(SelectListVM.RZLIH)
+    .HtmlAttributes(new { style = "width: 100%" }))
+
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Parent")
+        @(Html.Kendo()
+         .DropDownList()
+         .Name("ParentId")
+          //.OptionLabel("Select SKU")
+          .OptionLabel("Select Parent")
+         .DataValueField("GeoId")
+         .DataTextField("GTitle")
+        .CascadeFrom("GLevel")
+         .SelectedIndex(0)
+         .Filter(FilterType.Contains)
+         .ValuePrimitive(true)
+         //.Events(e => e.Change("LoadGrid"))
+         .DataSource(ds =>
+         {
+             ds.Read(read => read.Action("GeoLocationParent", "Employee").Data("ParentsLoad"))
+             .ServerFiltering(true);
+         })
+         .HtmlAttributes(new { @style = "width:100%", @required = true })
+        )
+
+        <span class="k-invalid-msg" data-for="ParentId"></span>
+    </div>
+</div>
+<div class="row">
+    @*<div class="col-md-3">
+        @Html.Label("Designation")
+        @(Html.Kendo()
+                                                        .DropDownList()
+                                                        .Name("DesgId")
+                                                        .OptionLabel("All Designation ...")
+                                                        .DataValueField("DesgId")
+                                                        .DataTextField("DesgName")
+                                                        .Filter(FilterType.Contains)
+                                                        .DataSource(ds =>
+                                                        {
+                                                            ds.Read(read => read.Action("JDesignationList", "Employee"));
+                                                        })
+                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>*@
+
+
+    <div class="col-md-4">
+        @Html.Label("Employee")
+        @(Html.Kendo().MultiColumnComboBox()
+        .Name("EmpId")
+        .Placeholder("Search Employee")
+        .DataValueField("EmpId")
+        .DataTextField("EmpName")
+        .Columns(columns =>
+        {
+            columns.Add().Field("EmpId").Width("100px");
+            columns.Add().Field("EmpName").Width("200px");
+            columns.Add().Field("DeptName").Width("200px");
+            columns.Add().Field("DesgName").Width("200px");
+
+        })
+
+        .Filter(FilterType.Contains)
+        .FilterFields(new string[] { "EmpName", "DeptName", "EmpId", "DesgName" })
+
+
+        .BindTo(ViewBag.empList)
+        //.DataSource(ds =>
+        //{
+        //    ds.Read(read => read.Action("GetEmployeeById", "Employee").Data("FilterEmp")).ServerFiltering(true);
+        //})
+        //.CascadeFrom("DesgId")
+        .IgnoreCase(true)
+        .HtmlAttributes(new { @style = "width:100%" })
+        )
+        <span class="k-invalid-msg" data-for="EmpId"></span>
+    </div>
+</div>
+}

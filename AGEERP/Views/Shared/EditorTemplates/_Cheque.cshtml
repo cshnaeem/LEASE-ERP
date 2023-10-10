@@ -1,0 +1,73 @@
+﻿@using AGEERP.Models
+@model AGEERP.Models.ChequeVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.ChequeId)
+    @Html.HiddenFor(m => m.AccNo)
+
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("ChequeType")<br />
+            @(Html.Kendo().RadioButtonFor(m => m.ChequeType).Value("Self").Label("Self"))
+            @(Html.Kendo().RadioButtonFor(m => m.ChequeType).Value("Cross").Label("Cross"))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("ChequeNo")
+            @(Html.Kendo().TextBoxFor(x => x.ChequeNo).HtmlAttributes(new { @style = "width:100%", @maxlength = "20", @required = "true" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("ChequeAmount")
+            @(Html.Kendo().NumericTextBoxFor(x => x.ChequeAmount).HtmlAttributes(new { @style = "width:100%"}))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("BankName")
+            @(Html.Kendo().TextBoxFor(x => x.BankName).HtmlAttributes(new { @style = "width:100%", @maxlength = "50", @required = "true" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("BranchName")
+            @(Html.Kendo().TextBoxFor(x => x.BranchName).HtmlAttributes(new { @style = "width:100%", @maxlength = "50", @required = "true" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("AccountTitle")
+            @(Html.Kendo().TextBoxFor(x => x.AccountTitle).HtmlAttributes(new { @style = "width:100%", @maxlength = "50", @required = "true" }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("ChequeCNIC")
+            @(Html.Kendo().MaskedTextBoxFor(x => x.ChequeCNIC).Mask("00000-0000000-0").HtmlAttributes(new { @style = "width:100%",@required = "true"}))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("BankAccNo")
+            @(Html.Kendo().TextBoxFor(x => x.BankAccNo).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Cheque By")
+            @(Html.Kendo().RadioButtonFor(m => m.ChequeBy).Value("C").Label("Customer"))
+            @(Html.Kendo().RadioButtonFor(m => m.ChequeBy).Value("G").Label("Guarantor"))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("ChequeIssueTo")
+            @(Html.Kendo().TextBoxFor(x => x.ChequeIssueTo).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("ChequeReturnTo")
+            @(Html.Kendo().TextBoxFor(x => x.ChequeReturnTo).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+    </div>
+}
+

@@ -1,0 +1,142 @@
+﻿@model AGEERP.Models.CharityDonationVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    @Html.HiddenFor(m => m.PersonId)
+
+
+    <div class="row">
+        <div class="col-md-3" id="personid">
+            @Html.Label("PersonId")
+            <br />
+            @(Html.Kendo().TextBoxFor(m => m.PersonId).HtmlAttributes(new { @style = "width:40%;text-align:center", @readonly = true }))
+
+        </div>
+        <div class="col-md-3">
+            @Html.Label("Person Name")
+            @(Html.Kendo().TextBoxFor(x => x.PersonName).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+
+        <div class="col-md-3">
+            @Html.Label("CNIC ")
+            @(Html.Kendo().MaskedTextBoxFor(x => x.CNIC).Mask("00000-0000000-0").HtmlAttributes(new { @style = "width:100%"}))
+        </div>
+        <div class="col-md-3">
+            @Html.Label("ContactNo")
+            @(Html.Kendo().TextBoxFor(x => x.ContactNo).HtmlAttributes(new { @style = "width:100%"}))
+        </div>
+
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-md-3">
+            @Html.Label("Reference")
+            @(Html.Kendo().TextBoxFor(x => x.Reference).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+
+        <div class="col-md-3">
+            @Html.Label("Cash ")
+            @(Html.Kendo().TextBoxFor(x => x.Amount).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-3">
+            @Html.Label("BankTransfer")
+            @(Html.Kendo().TextBoxFor(x => x.BankTransfer).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-3">
+            @Html.Label("Tax")
+            @(Html.Kendo().TextBoxFor(x => x.Tax).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-3">
+            @Html.Label("Bank Name")
+            @(Html.Kendo().TextBoxFor(x => x.BankName).HtmlAttributes(new { @style = "width:100%"}))
+        </div>
+
+        <div class="col-md-3">
+            @Html.Label("AccountNo ")
+            @(Html.Kendo().TextBoxFor(x => x.AccountNo).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-3">
+            @Html.Label("CCC")
+            @(Html.Kendo().DropDownListFor(x => x.CCC)
+                .OptionLabel("Select Center ...")
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                //.Events(e => e.Change("SelCashierBranch"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("CashCollectionCenterList", "Cash"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @class = "browser-default"})
+                )
+        </div>
+
+        <div class="col-md-3">
+            @Html.Label("Cashier")
+            @(Html.Kendo()
+               .DropDownListFor(x => x.CashierId)
+                .OptionLabel("Select Cashier ...")
+                //.SelectedIndex(0)
+                .DataValueField("EmpId")
+                .DataTextField("EmpName")
+               //.Events(e => e.Change("loadGrid"))
+                //.Suggest(true)
+                .CascadeFrom("CCC")
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CashierList", "Cash").Data("filterCashier")).ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-3">
+            @Html.Label("Status")
+            @(Html.Kendo().DropDownListFor(x => x.Status)
+           .OptionLabel("Select Status")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          //.Events(e => e.Change("change"))
+          .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Active",
+                  Value = "A"
+              },
+              new SelectListItem() {
+                  Text = "InActive",
+                  Value = "I"
+              }          })
+
+          .HtmlAttributes(new { style = "width: 100%" })
+    )
+        </div>
+        <div class="col-md-3">
+            @Html.Label("GLCode ")
+            @(Html.Kendo().TextBoxFor(x => x.GLCode).HtmlAttributes(new { @style = "width:100%"}))
+        </div>
+
+        <div class="col-md-6">
+            @Html.Label("Remarks ")
+            @(Html.Kendo().TextBoxFor(x => x.Remarks).HtmlAttributes(new { @style = "width:100%"}))
+        </div>
+    </div>
+
+}

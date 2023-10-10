@@ -1,0 +1,50 @@
+﻿@{
+    ViewBag.Title = "Leave Application Status Report";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Leave Application Status Report</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                    <li class="breadcrumb-item active">Leave Application Status Report</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("LeaveStatus", "Report", FormMethod.Post, new { target = "_blank" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row ">
+                <div class="col-md-3">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+            .DropDownList()
+            .Name("HDeptId")
+            .SelectedIndex(0)
+            .DataValueField("HDeptId")
+            .DataTextField("HDeptName")
+            .DataSource(x => x.Read("HDepartmentList", "Employee"))
+            .HtmlAttributes(new { @style = "width:100%" })
+            )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+                </div>
+                }
+            </div>
+        </div>

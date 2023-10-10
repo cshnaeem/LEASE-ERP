@@ -1,0 +1,583 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "JV";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            @*<h3 class="card-title">Journal Voucher</h3>*@
+            <a style="font-size: 18px;"><b>Journal Voucher</b></a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;
+            <a style="font-size: 16px;"><b>Financial Year : @ViewBag.CYear</b></a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;
+            <a style="font-size: 16px;"><b>Financial Period : @ViewBag.CPeriod</b></a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;
+            <a style="font-size: 16px;"><b>Voucher Date : @(Html.Kendo().DatePicker().Name("VoucherDate").Value(DateTime.Now.Date))</b></a>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">JV</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-2 col-sm-4">
+                @Html.Label("RefDocNo")
+                @(Html.Kendo().TextBox().HtmlAttributes(new { @style = "width:100%" }).Name("RefDocNo"))
+            </div>
+            <div class="col-md-2 col-sm-4">
+                @Html.Label("RefDocDate")
+                @(Html.Kendo().DatePicker()
+                .Name("RefDocDate")
+                .Value(DateTime.Now.Date)
+                .HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Documents")
+                @(Html.Kendo().Upload()
+                  .Name("files")
+                  .Multiple(true)
+                  .Async(a => a
+                      .Save("UploadDocBulk", "Document", new { refobjid = 20 })
+                      .Remove("DocumentRemove", "Document")
+                      .SaveField("files")
+                      .AutoUpload(false)
+                      .Concurrent(true)
+                      .Batch(true)
+                  ).Events(e => e
+                  .Success("onDocUp")
+                  .Remove("onUploadRemove")
+                  //.Remove("OnRemove")
+                  )
+                    )
+            </div>
+            @*<div class="col-md-2 col-sm-3">
+        </div>
+        <div class="col-md-2 col-sm-3">
+            @Html.Label("Debit")
+            @(Html.Kendo().TextBox().HtmlAttributes(new { @style = "width:100%" }).Name("Debit").Value("0").Enable(false))
+        </div>
+        <div class="col-md-2 col-sm-3">
+            @Html.Label("Credit")
+            @(Html.Kendo().TextBox().HtmlAttributes(new { @style = "width:100%" }).Name("Credit").Value("0").Enable(false))
+        </div>
+        <div class="col-md-2 col-sm-3">
+            @Html.Label("Balance")
+            @(Html.Kendo().TextBox().HtmlAttributes(new { @style = "width:100%" })  .Name("Balance").Value("0").Enable(false))
+        </div>*@
+            @*<div class="col m2 s4">
+            @Html.Label("VrDate")
+            @(Html.Kendo().DatePicker()
+            .Name("VrDate")
+            .Value(DateTime.Now.Date)
+            .Enable(false)
+            .HtmlAttributes(new { @style = "width:100%" }))
+        </div>*@
+            @*<div class="col m2 s4">
+            @Html.Label("Year")
+            @(Html.Kendo().TextBox().HtmlAttributes(new { @style = "width:100%" }).Name("CYear").Enable(false).Value(ViewBag.CYear))
+        </div>
+        <div class="col m2 s4">
+            @Html.Label("Period")
+            @(Html.Kendo().TextBox().HtmlAttributes(new { @style = "width:100%" }).Name("CPeriod").Enable(false).Value(ViewBag.CPeriod))
+        </div>*@
+        </div>
+        <hr />
+        <div id="frmD" class="row">
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("A/C")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("SubCode")
+                .Placeholder("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("200px");
+                    columns.Add().Field("Name").Width("500px");
+                })
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                .MinLength(3)
+                //.Events(e => e.Change("loadGrid"))
+                //.AutoBind(false)
+                //.BindTo(ViewBag.COA4)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SubCodeList", "Account").Data("filterSubCode"))
+                    .ServerFiltering(true);
+                })
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                )
+            </div>
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Subsidiary A/C")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("SubId")
+                .Placeholder("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("200px");
+                    columns.Add().Field("Name").Width("200px");
+                })
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                .MinLength(3)
+                .CascadeFrom("SubCode")
+                //.Events(e => e.Change("loadGrid"))
+                .AutoBind(false)
+                //.BindTo(ViewBag.COA4)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SubsidaryCodeList", "Account").Data("filterSubsidaryCode"))
+                    .ServerFiltering(true);
+                })
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Particulars")
+                @(Html.Kendo()
+                .TextBox()
+                .Name("Particulars")
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                )
+            </div>
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Profit Center")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("PCCode")
+                //.OptionLabel("NA")
+                //.SelectedIndex(0)
+                .DataValueField("PCCode")
+                .DataTextField("PCDesc")
+                .Value("72")
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("ProfitCentersList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-2 col-sm-4">
+                @Html.Label("Cost Center")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("CCCode")
+                //.SelectedIndex(0)
+                .DataValueField("CCCode")
+                .DataTextField("CCDesc")
+                .Value("72")
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CostCentersList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-2 col-sm-4">
+                @Html.Label("Dr")
+                @(Html.Kendo()
+                .NumericTextBox()
+                .Name("Dr")
+                .Value(0)
+                .Min(0)
+                //.Max(18)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-2 col-sm-4">
+                @Html.Label("Cr")
+                @(Html.Kendo()
+                .NumericTextBox()
+                .Name("Cr")
+                .Value(0)
+                .Min(0)
+                //.Max(18)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+
+            <div class="col-md-2 col-sm-4">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="addToGrid()">
+                    <i class="fas fa-plus"></i>&nbsp; Add
+                </button>
+            </div>
+        </div>
+        @*<div class="row">
+            <div class="col-md-6 col-sm-3">
+            </div>
+
+        </div>*@
+        <div class="col-md-12 col-xs-12">
+            <label>Select File to Import</label>
+            <div class="input-group mb-3">
+                <input type="file" class="form-control importfile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Select File" aria-describedby="basic-addon1">
+                <div class="input-group-append">
+                    <button class="btn btn-info btnLoadFile k-button" type="button">LOAD FILE</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <h4 id="PCode" class="card-title" style="text-align:center"></h4>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                @(Html.Kendo()
+                .Grid<VoucherDetailVM>()
+                .Name("gridVoucher")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.VrDtlId).Hidden();
+                    columns.Bound(c => c.VrId).Hidden();
+                    columns.Bound(c => c.SubCode).Width(140).Title("Account");
+                    columns.Bound(c => c.SubsidaryCode).Title("Subsidiary");
+                    columns.ForeignKey(c => c.PCCode, (System.Collections.IEnumerable)ViewData["PCVD"], "PCCode", "PCDesc").Title("Profit Center").Width(110);
+                    columns.ForeignKey(c => c.CCCode, (System.Collections.IEnumerable)ViewData["CCVD"], "CCCode", "CCDesc").Title("Cost Center").Width(100);
+                    columns.Bound(c => c.Particulars);
+                    columns.Bound(c => c.Dr).Width(100);
+                    columns.Bound(c => c.Cr).Width(100);
+                    columns.Command(c => { c.Destroy(); }).Width(100);
+                })
+                //.Pageable()
+                //.Sortable()
+                .Scrollable()
+                .ToolBar(t => t.Template(@<text>
+
+                                        <a class="k-button k-button-icontext k-grid-save-changes" href="javascript:void(0)"><span class="k-icon k-i-check"></span>Save changes</a>
+                                        <a class="k-button k-button-icontext k-grid-cancel-changes" href="javascript:void(0)"><span class="k-icon k-i-cancel"></span>Cancel changes</a>
+                                        <a class="k-button k-button-icontext k-grid-excel" href="javascript:void(0)"><span class="k-icon k-i-excel"></span>Export to Excel</a>
+                                        <div class="toolbar">
+                                            <label style="margin-left:15px;" class="category-label float-right" for="category">Balance: <span id="Balance">0</span></label>
+                                            <label style="margin-left:15px;" class="category-label float-right" for="category">Credit: <span id="Credit">0</span></label>
+                                            <label class="category-label float-right" for="category">Debit: <span id="Debit">0</span></label>
+
+
+                                        </div>
+                        </text>))
+                .AutoBind(false)
+                //.Filterable(ftb => ftb.Mode(GridFilterMode.Row).Extra(false)
+                // .Operators(operators => operators
+                // .ForString(str => str.Clear()
+                // .Contains("Contains"))))
+                //.ToolBar(t => { t.Save();t.Excel(); })
+                .Editable(e => e.Mode(GridEditMode.InCell))
+                .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+                .Events(e => e.DataBound("gridDataBound"))
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                //.PageSize(20)
+                .Batch(true)
+                .ServerOperation(false)
+                .Events(e => e.Error("error_handler").Change("calculateBalance"))
+                .Model(model =>
+                {
+                    model.Id(m => m.VrDtlId);
+                    model.Field(m => m.SubCode).Editable(false);
+                    model.Field(m => m.SubsidaryCode).Editable(false);
+                    model.Field(m => m.PCCode).Editable(false);
+                    model.Field(m => m.CCCode).Editable(false);
+                    model.Field(m => m.Particulars).Editable(false);
+                    model.Field(m => m.ChequeNo).Editable(false);
+                    model.Field(m => m.Dr).Editable(false);
+                    model.Field(m => m.Cr).Editable(false);
+                })
+                .Read(read => read.Action("Voucher_Read", "Account"))
+                .Create(create => create.Action("JV_Create", "Account").Data("masData"))
+                .Update(update => update.Action("Voucher_Update", "Account"))
+                //.Destroy(update => update.Action("COA_Destroy", "Account"))
+                ))
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<script type="text/javascript" src="/scripts/xlsx.full.min.js"></script>
+<script type="text/javascript" src="/scripts/jszip.js"></script>
+@section scripts
+{
+    <script Model="text/javascript">
+        $(".btnLoadFile").click(function () {
+            var fileUpload = $(".importfile")[0];
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+            if (regex.test(fileUpload.value.toLowerCase())) {
+                if (typeof (FileReader) != "undefined") {
+                    var reader = new FileReader();
+                    if (reader.readAsBinaryString) {
+                        reader.onload = function (e) {
+                            ProcessExcel(e.target.result);
+                        };
+                        reader.readAsBinaryString(fileUpload.files[0]);
+                    } else {
+                        reader.onload = function (e) {
+                            var data = "";
+                            var bytes = new Uint8Array(e.target.result);
+                            for (var i = 0; i < bytes.byteLength; i++) {
+                                data += String.fromCharCode(bytes[i]);
+                            }
+                            ProcessExcel(data);
+                        };
+                        reader.readAsArrayBuffer(fileUpload.files[0]);
+                    }
+                } else {
+                    $(".btnLoadFile").html("LOAD FILE");
+                    alert('This browser does not support HTML5.');
+                }
+            } else {
+                $(".btnLoadFile").html("LOAD FILE");
+                alert('Please upload a valid Excel file.');
+            }
+        });
+        function ProcessExcel(data) {
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+            var firstSheet = workbook.SheetNames[0];
+            var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+            var lst = [];
+            for (var i = 0; i < excelRows.length; i++) {
+                var dat = {
+                    PCCode: typeof excelRows[i]["PCCode"] === 'undefined' ? "0" : excelRows[i]["PCCode"],
+                    CCCode: typeof excelRows[i]["CCCode"] === 'undefined' ? "0" : excelRows[i]["CCCode"],
+                    AccId: typeof excelRows[i]["AccId"] === 'undefined' ? "0" : excelRows[i]["AccId"],
+                    SubCode: typeof excelRows[i]["AccCode"] === 'undefined' ? "" : excelRows[i]["AccCode"],
+                    SubCodeDesc: typeof excelRows[i]["AccDesc"] === 'undefined' ? "" : excelRows[i]["AccDesc"],
+                    SubId: typeof excelRows[i]["SubId"] === 'undefined' ? "0" : excelRows[i]["SubId"],
+                    SubsidaryCode: typeof excelRows[i]["SubsidaryCode"] === 'undefined' ? "" : excelRows[i]["SubsidaryCode"],
+                    Particulars: typeof excelRows[i]["Particulars"] === 'undefined' ? "" : excelRows[i]["Particulars"],
+                    Dr: parseInt(typeof excelRows[i]["Dr"] === 'undefined' ? "0" : excelRows[i]["Dr"]),
+                    Cr: parseInt(typeof excelRows[i]["Cr"] === 'undefined' ? "0" : excelRows[i]["Cr"])
+                };
+                lst.push(dat);
+            }
+            $("#gridVoucher").data('kendoGrid').dataSource.data(lst);
+        }
+        var gridElement = $("#gridVoucher");
+        $(document).ready(function () {
+            resizeGrid();
+            //$('#m_15000000').addClass('active');
+            //$('#d_15000000').css("display", "block");
+            //$('#m_15060000').addClass('active');
+            //$('#d_15060000').css("display", "block");
+            //$('#m_15060500').addClass('active');
+            //$('#a_15060500').addClass('active');
+        });
+        var validatorD = $("#frmD").kendoValidator().data("kendoValidator");
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridVoucher").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "";
+                $.each(e.errors,
+                    function (key, value) {
+                        if ('Msg' == key) {
+                            $.each(value.errors,
+                                function () {
+                                    message += this;
+                                });
+                        } else {
+                            $.each(value.errors,
+                                function () {
+                                    message += this;
+                                });
+                        }
+                    });
+                if (message > 0) {
+                    $.confirm({
+                        title: 'Saved Successfully!',
+                        content: 'Do you want to print?',
+                        type: 'red',
+                        typeAnimated: true,
+                        icon: 'fas fa-check',
+                        buttons: {
+                            Print: function () {
+                                $("#rpt").val("Voucher");
+                                $("#TransId").val(message);
+                                $("#rptForm").submit();
+                            },
+                            Cancel: function () {
+                            }
+                        }
+                    });
+                    var upload = $("#files").data("kendoUpload");
+                    upload.clearAllFiles();
+                    $("#gridVoucher").data("kendoGrid").dataSource.data([]);
+                } else {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Error");
+                    dia.content(message);
+                    dia.open();
+                }
+            }
+        }
+        var balance = 0;
+        function calculateBalance() {
+            var data = $('#gridVoucher').data('kendoGrid').dataSource.data();
+            var cr = 0;
+            var dr = 0;
+            for (var i = 0; i < data.length; i++) {
+                dr = dr + data[i].Dr;
+                cr += data[i].Cr;
+            }
+            $('#Debit').text(dr);
+            $('#Credit').text(cr);
+
+            balance = (dr - cr);
+            $('#Balance').text(balance);
+        }
+        function resetFields() {
+            $('#SubCode').data("kendoMultiColumnComboBox").value("");
+            $('#Dr').data('kendoNumericTextBox').value(0);
+            $('#Cr').data('kendoNumericTextBox').value(0);
+            $('#Particulars').val("");
+            $('#SubCode').data("kendoMultiColumnComboBox").input.focus();
+        }
+        function addToGrid() {
+            debugger;
+            if (!validatorD.validate()) {
+                e.preventDefault();
+                return;
+            }
+            var dataSource = $('#gridVoucher').data('kendoGrid').dataSource;
+            var SubCode = $('#SubCode').data('kendoMultiColumnComboBox').dataItem();
+            var SubId = $('#SubId').data('kendoMultiColumnComboBox').dataItem();
+            var dat = {
+                PCCode: $('#PCCode').val() || 0,
+                CCCode: $('#CCCode').val() || 0,
+                AccId: SubCode.Id,
+                SubCode: SubCode.Code + " " + SubCode.Name,
+                SubCodeDesc: SubCode.Name,
+                //SubId:SubId.Id,
+                //SubsidaryCode: SubId.Code+ " "+ SubId.Name,
+                Particulars: $('#Particulars').val(),
+                Dr: $('#Dr').data('kendoNumericTextBox').value(),
+                Cr: $('#Cr').data('kendoNumericTextBox').value()
+            };
+            var ord = dataSource.data();
+            for (var i = 0; i < ord.length; i++) {
+                if (ord[i].PCCode != dat.PCCode) {
+                    transstatus = false;
+                    break;
+                }
+                else {
+                    transstatus = true;
+                }
+            }
+
+            if (ord.length == 0) {
+                transstatus = true;
+
+            }
+
+            if (SubId != null) {
+                dat.SubId = SubId.Id;
+                dat.SubsidaryCode = SubId.Code + " " + SubId.Name;
+            }
+            if (transstatus == false) {
+                kendo.alert('Add same profit center');
+            }
+            else
+                if ((dat.Cr > 0 && dat.Dr == 0) || (dat.Cr == 0 && dat.Dr > 0)) {
+                    console.log(dat);
+                    dataSource.add(dat);
+                    calculateBalance();
+                    resetFields();
+
+                }
+                else {
+                    kendo.alert('Debit or Credit should be zero');
+                }
+
+        }
+        function masData() {
+            calculateBalance();
+            if (balance == 0) {
+                var upload = $("#files").data("kendoUpload"), files = upload.getFiles();
+                var fl = [];
+                for (var i = 0; i < files.length; i++) {
+                    fl.push(files[i].id);
+                }
+                return {
+                    RefDocNo: $('#RefDocNo').val(),
+                    RefDocDate: $('#RefDocDate').val(),
+                    VoucherDate: $('#VoucherDate').val(),
+                    files: fl
+                }
+            }
+            else {
+                alert('Balance should be zero');
+            }
+        }
+        function filterSubCode() {
+            return {
+                str: $('#SubCode').data("kendoMultiColumnComboBox").input.val() || ""
+            }
+        }
+        function filterSubsidaryCode() {
+            return {
+                PId: $('#SubCode').data("kendoMultiColumnComboBox").value(),
+                str: $('#SubId').data("kendoMultiColumnComboBox").input.val() || ""
+            }
+        }
+        function gridDataBound() {
+            var ord = $('#gridVoucher').data('kendoGrid').dataSource.data();
+            if (ord.length == 0) {
+                $('#PCCode').data('kendoDropDownList').enable(true);
+            }
+            else {
+                $('#PCCode').data('kendoDropDownList').enable(false);
+            }
+        }
+        function onDocUp(e) {
+            for (i = 0; i < e.response.length; i++) {
+                e.files[i].id = e.response[i];
+            }
+        }
+        function onUploadRemove(e) {
+            var files = e.files;
+            var docid = 0;
+            for (i = 0; i < files.length; i++) {
+                //replace the name with the id added to the object
+                docid = files[i].id;
+            }
+
+            return {
+                DocId: docid
+            }
+        }
+    </script>
+}

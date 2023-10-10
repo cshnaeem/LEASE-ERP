@@ -1,0 +1,303 @@
+﻿<div class="row">
+    <div class="col-md-3">
+        @Html.Label("From Date")
+        @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+    </div>
+    <div class="col-md-3">
+        @Html.Label("To Date")
+        @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+    </div>
+    <div class="col-md-3">
+        @Html.Label("Type")
+        @(Html.Kendo().DropDownList()
+          .Name("RoleId")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .Events(e => e.Change("TypeChange"))
+          .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Inquiry",
+                  Value = "2"
+              },
+              new SelectListItem() {
+                  Text = "Marketing",
+                  Value = "1"
+              },
+              new SelectListItem() {
+                  Text = "Manager",
+                  Value = "4"
+              }
+          })
+          .Value("1")
+          .HtmlAttributes(new { style = "width: 100%" })
+    )
+    </div>
+    <div class="col-md-3">
+        @Html.Label("Officers")
+        @(Html.Kendo()
+                .DropDownList()
+                .Name("RecoveryId")
+                .OptionLabel("All ...")
+                .DataValueField("EmpId")
+                .DataTextField("EmpName")
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("EmpByRoleLoc", "Sale").Data("filterRecovery"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+               )
+    </div>
+    <div class="col-md-3">
+        @Html.Label("Status")
+        @(Html.Kendo().DropDownList()
+          .Name("Status")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Open",
+                  Value = "3"
+              },
+              new SelectListItem() {
+                  Text = "Close",
+                  Value = "4"
+              }
+          })
+          .Value("1")
+          .HtmlAttributes(new { style = "width: 100%" })
+    )
+    </div>
+    <div class="col-md-6 col-sm-6">
+        <br />
+        <button class="k-button margin-10" type="button" onclick="filterGrid()">
+            <i class="fas fa-search"></i>&nbsp; Search
+        </button>
+        <a class="k-button margin-10 btnAss" style="float:right;" onclick="PrintSelected()">Print Selected</a>
+        <a class="k-button margin-10 btnAss" style="float:right;" onclick="RetryPrint()">Retry Print</a>
+        <br />
+        <span class="btnAss" style="float:right;color:red;" id="printcount"></span>
+    </div>
+    <div class="col-sm-12">
+        @(Html.Kendo()
+                                .Grid<AGEERP.Models.AccountSearchVM>()
+                                .Name("gridAccountSearch1")
+                                .Columns(columns =>
+                                {
+                                    columns.Select().Width(50);
+                                    columns.Bound(c => c.AccNo).ClientTemplate("<a style='color:red;cursor:pointer;' onclick=\"PrintInvoice('#=AccNo#')\">#=AccNo#</a>").Width(80);
+                                    columns.Bound(c => c.DeliveryDate).Format("{0: dd/MM/yyyy}").Width(100);
+                                    columns.Bound(c => c.Customer);
+                                    columns.Bound(c => c.FName);
+                                    columns.Bound(c => c.Mobile1).Width(110);
+                                    columns.Bound(c => c.NIC).Width(130);
+                                    columns.Bound(c => c.SKU);
+                                    //columns.Bound(c => c.Model).Width(120);
+                                    columns.Command(c =>
+                                    {
+                                        c.Custom("Print").Click("PrintSlip");
+                                        //c.Custom("Doc").Click("GetDoc");
+                                    }).Width(100);
+                                })
+                                .Sortable()
+                                .PersistSelection()
+                                .Scrollable()
+                                .Mobile(MobileMode.Auto)
+                                .Selectable(x => x.Mode(GridSelectionMode.Multiple).Type(GridSelectionType.Row))
+                                //.Pageable()
+                                .ToolBar(t => { t.Excel();t.Search(); })
+                                .Search(s =>
+                                {
+                                    s.Field(a => a.AccNo);
+                                    s.Field(a => a.Customer);
+                                    s.Field(a => a.FName);
+                                    s.Field(a => a.Mobile1);
+                                    s.Field(a => a.NIC);
+                                    s.Field(a => a.SKU);
+                                })
+                                .AutoBind(false)
+                                .Navigatable()
+                                .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+                                .DataSource(dataSource => dataSource
+                                .Ajax()
+                                //.PageSize(20)
+                                .ServerOperation(false)
+                                .Model(model =>
+                                {
+                                    model.Id(m => m.AccNo);
+                                })
+                                .Read(read => read.Action("AccountSearchMore_Read", "Sale").Data("filterAccountSearch1"))
+                                ))
+    </div>
+</div>
+@*<link href="~/Content/printjs/print.min.css" rel="stylesheet" />
+<script src="@Url.Content("~/Content/printjs/print.min.js")"></script>*@
+<script>
+    function filterRecovery() {
+        return {
+            LocId: $("#LocId").val() || 0,
+            RoleId: $("#RoleId").val()
+        }
+    }
+    function TypeChange() {
+        $('#RecoveryId').data('kendoDropDownList').dataSource.read();
+    }
+    function filterAccountSearch1() {
+        return {
+            LocId: $("#LocId").val() || 0,
+            FromDate: $("#FromDate").val(),
+            ToDate: $("#ToDate").val(),
+            RoleId: $("#RoleId").val(),
+            RecoveryId: $("#RecoveryId").val() || 0,
+            Status: $("#Status").val()
+        }
+    }
+    function filterGrid() {
+        $("#gridAccountSearch1").data("kendoGrid").dataSource.read();
+    }
+    Array.prototype.remove = function (from, to) {
+        var rest = this.slice((to || from) + 1 || this.length);
+        this.length = from < 0 ? this.length + from : from;
+        return this.push.apply(this, rest);
+    };
+    var arr = [];
+    function PrintSelected() {
+        debugger;
+        var f = navigator.userAgent.search("Firefox");
+        if (f > -1) {
+            var nAgt = navigator.userAgent;
+            var fullVersion = nAgt.substring(f + 8);
+            if (fullVersion >= 53) {
+                var AccLst = $('#gridAccountSearch1').data('kendoGrid').selectedKeyNames();
+                if (confirm("Are you sure to you want to print " + AccLst.length + " Accounts?")) {
+                    //$('#AccNos').val(AccLst.join(','));
+                    //$("#rptForm").submit();
+                    var ar = [];
+                    for (var i = 0; i < AccLst.length; i++) {
+                        ar.push(AccLst[i]);
+                        
+                        //var url = '/Report/CustReportPDF?accNo=' + AccLst[i];
+                        //printJS(url);
+                        
+                    }
+                    arr = ar.sort();
+                    printpd();
+                    $('#printcount').text("Please wait " + arr.length + " print remaining");
+                }
+            }
+            else {
+                kendo.alert('Please use latest version of Firefox Browser');
+            }
+        }
+        else {
+            kendo.alert('Please Use Firefox Browser');
+        }
+    }
+    //function printAllPag() {
+    //    for (var i = 0; i < arr.length; i++) {
+    //        printPage('/Report/CustReportPDF?accNo=' + AccNo);
+    //    }
+    //}
+    function printpd() {
+        if (arr.length > 0) {
+            var AccNo = arr[0];
+            //debugger;
+            if (AccNo > 0) {
+                //printPage('/Sale/CustReportPDF?accNo=' + AccNo);
+                document.getElementById("pdfPage").src = '/Report/CustReportPDF?accNo=' + AccNo;
+                //var url = '/Sale/CustReportPDF?accNo=' + AccNo;
+                //printJS(url);
+                //console.log('a');
+            }
+            $('#printcount').text("Please wait " + arr.length + " print remaining");
+        }
+        else {
+            $('#printcount').text("");
+        }
+    }
+    function RetryPrint() {
+        printpd();
+    }
+    function printt() {
+        var canv = document.getElementById("pdfPage");
+        if (arr.length > 0) {
+            setTimeout(function () {
+                canv.focus();
+                canv.contentWindow.print();
+                arr.remove(0);
+                printpd(arr);
+            }, 2000);
+        }
+    }
+    //function printt() {
+    //    var canv = document.getElementById("pdfPage");
+        
+    //    if (arr.length > 0) {
+
+    //        //setTimeout(function () {
+    //            debugger;
+    //            //canv.contentWindow.addListener(function (mql) {
+    //            //    console.log('print event', mql);
+    //            //});
+    //            //canv.contentWindow.addEventListener("beforeunload", closePrint);
+    //        //canv.contentWindow.addEventListener("afterprint", closePrint);
+    //        //console.log(canv);
+    //        //console.log(canv.contentWindow);
+    //        //    console.log(canv.src);
+    //            canv.contentWindow.__container__ = canv;
+            
+         
+    //        //$(canv).find("body").on('onbeforeunload', function (event) {
+    //        //    debugger;
+    //        //    alert('hellow');
+    //        //});
+    //        //$(canv).find("body").on('onafterprint', function (event) {
+    //        //    debugger;
+    //        //    alert('hellow 11');
+    //        //});
+    //            canv.contentWindow.onbeforeunload = closePrint;
+    //            canv.contentWindow.onafterprint = closePrint;
+    //            canv.contentWindow.focus();
+    //            canv.contentWindow.print();
+    //            arr.remove(0);
+    //            //printpd(arr);
+    //        //}, 1000);
+    //    }
+    //}
+
+    //function closePrint() {
+    //    console.log('c');
+    //    //debugger;
+    //    //document.body.removeChild(this.__container__);
+    //    if (arr.length > 0) {
+    //        arr.remove(0);
+    //        printpd();
+    //    }
+    //}
+
+    //function setPrint() {
+    //    debugger;
+    //    if (arr.length > 0) {
+    //        this.contentWindow.__container__ = this;
+    //        this.contentWindow.onbeforeunload = closePrint;
+    //        this.contentWindow.onafterprint = closePrint;
+    //        this.contentWindow.focus(); // Required for IE
+    //        this.contentWindow.print();
+    //    }
+    //}
+
+    //function printPage(sURL) {
+    //    if (arr.length > 0) {
+    //        var oHideFrame = document.createElement("iframe");
+    //        oHideFrame.style.position = "fixed";
+    //        oHideFrame.style.right = "0";
+    //        oHideFrame.style.bottom = "0";
+    //        oHideFrame.style.width = "0";
+    //        oHideFrame.style.height = "0";
+    //        oHideFrame.style.border = "0";
+    //        oHideFrame.src = sURL;
+    //        oHideFrame.onload = setPrint;
+    //        document.body.appendChild(oHideFrame);
+    //    }
+    //}
+</script>

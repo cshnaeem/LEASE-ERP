@@ -1,0 +1,67 @@
+﻿@model AGEERP.Models.MTRDetailVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+<div class="row">
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("Item Type")
+        @(Html.Kendo()
+                .DropDownListFor(m => m.ItemType)
+                //.Name("ItemType")
+                //.OptionLabel("Select ItemType")
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .AutoBind(false)
+                .SelectedIndex(0)
+                .Events(e => e.Change("ItemTypeChange").DataBound("ItemTypeChange"))
+                .BindTo(AGEERP.Models.SelectListVM.ItemTypeSL)
+                .HtmlAttributes(new { @style = "width:100%" })
+                    )
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("Item")
+        @(Html.Kendo().DropDownListFor(m => m.ItemId)
+                    //.Name("ItemId")
+                    .AutoBind(false)
+                    .OptionLabel("Select Item...")
+                    .DataTextField("Item")
+                    .DataValueField("ItemId")
+                    .Filter(FilterType.Contains)
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("ItemByItemTypeList", "Procurement").Data("filterItem"));
+                    })
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+        @Html.ValidationMessage("ItemId")
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("Qty")
+        @(Html.Kendo().NumericTextBoxFor(m => m.Qty)
+                        .HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("EstPrice")
+        @(Html.Kendo().NumericTextBoxFor(m => m.EstPrice)
+                        .HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("Remarks")
+        @(Html.Kendo().TextBoxFor(m => m.Remarks)
+                        .HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+</div>
+
+
+}

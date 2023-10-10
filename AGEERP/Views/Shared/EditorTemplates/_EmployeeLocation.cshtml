@@ -1,0 +1,69 @@
+﻿@model AGEERP.Models.EmployeeGeoLocationMappingVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.TransId)
+
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Reigion, Zone or Location")
+            @(Html.Kendo().DropDownList()
+              .Name("RzlId")
+              .OptionLabel("Select")
+              .DataTextField("Text")
+              .DataValueField("Value")
+             .DataSource(source =>
+                                {
+                                    source.Read(read =>
+                                    {
+                                        read.Action("GeoLocationList", "Employee");
+                                    });
+                                })
+              .HtmlAttributes(new { style = "width: 100%" })
+        )
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Employee")
+            @(Html.Kendo().ComboBoxFor(x => x.EmpId)
+            .Placeholder("Select Employee ...")
+            .DataValueField("EmpId")
+            .DataTextField("EmpName")
+            .DataSource(ds =>
+            {
+                ds.Read(read => read.Action("EmployeeList", "Employee"));
+            })
+            .HtmlAttributes(new { @style = "width:100%" ,@readonly = "readonly"}))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Location")
+            @(Html.Kendo().DropDownListFor(x=>x.GeoId)
+              .Name("GeoId")
+              .HtmlAttributes(new { style = "width:100%", required = "required", validationmessage="Geo Location is Required" })
+              .OptionLabel("Select Location...")
+              .DataTextField("LocName")
+              .DataValueField("LocId")
+              .DataSource(source =>
+              {
+                  source.Read(read =>
+                  {
+                      read.Action("GetLocationByRegionZone", "Employee")
+                          .Data("LocationLoad");
+                  })
+                  .ServerFiltering(true);
+              })
+              .Enable(false)
+              .AutoBind(false)
+              .CascadeFrom("RzlId")
+        )
+            <span class="k-invalid-msg" data-for="GeoId"></span>
+        </div>      
+    </div>   
+}

@@ -1,0 +1,27 @@
+﻿@model string
+@(Html.Kendo()
+                    .MultiColumnComboBoxFor(m => m)
+                    .Name("SubCode")
+                    .Placeholder("Select COA ...")
+                    //.SelectedIndex(0)
+                    .DataValueField("Code")
+                    .DataTextField("Code")
+                    .Columns(columns =>
+                        {
+                            columns.Add().Field("Code").Width("200px");
+                            columns.Add().Field("Name").Width("200px");
+                        })
+                    //.Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "Code", "Name" })
+                    .MinLength(3)
+                    //.Events(e => e.Change("loadGrid"))
+                    .AutoBind(true)
+                    .BindTo((System.Collections.IEnumerable)ViewData["COA"])
+                    //.DataSource(ds =>
+                    //{
+                    // ds.Read(read => read.Action("Code4List", "Account"));
+                    // //.ServerFiltering(true);
+                    // })
+                    .HtmlAttributes(new { @style = "width:100%" })
+)

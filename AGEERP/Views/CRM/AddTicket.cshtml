@@ -1,0 +1,256 @@
+﻿@{
+    ViewBag.Title = "Add Ticket";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Parent = "CRM";
+}
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+
+
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Add Complaint</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Add Complaint</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Ajax.BeginForm("AddTicket", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+        {
+            @Html.ValidationSummary()
+            @Html.Hidden("Status", "")
+            <div class="row">
+
+                <div class="col-6">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                            .MultiColumnComboBox()
+                            .Name("LocId")
+                            .DataValueField("LocId")
+                            .DataTextField("LocName")
+                            .SelectedIndex(0)
+                            .Columns(columns =>
+                            {
+                                columns.Add().Field("LocCode").Width("100px");
+                                columns.Add().Field("LocName").Width("200px");
+                            })
+                            .FilterFields(new string[] { "LocCode", "LocName" })
+                            .Filter(FilterType.Contains)
+                            .DataSource(ds =>
+                            {
+                                ds.Read(read => read.Action("LocationList", "Setup"));
+                            })
+                            .HtmlAttributes(new { @style = "width:100%", @required = true })
+                        )
+                </div>
+                <div class="col-6">
+                    @Html.Label("Category")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("CategoryId")
+                .OptionLabel("Select Category ...")
+                //.SelectedIndex(0)
+                .DataValueField("CategoryId")
+                .DataTextField("Category")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CrmCategoryList", "CRM"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;", @required = true })
+                )
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-6">
+                    @Html.Label("Contact Person")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("ContactPerson")
+                    .HtmlAttributes(new { @style = "width:100%"})
+                    )
+                </div>
+
+                <div class="col-6">
+                    @Html.Label("Contact No")
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("ContactNo")
+                    .Mask("0000-0000000")
+                    .HtmlAttributes(new { @style = "width:100%"})
+                    )
+                </div>
+            </div>
+            <br /> <br />
+            <div class="row">
+
+                <div class="col-12">
+                    @Html.Label("Complain")
+                    <textarea class="form-control" name="Complain" style="width: 100%" rows="4"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Documents")
+                    @(Html.Kendo().Upload()
+                        .Name("files")
+                        .Multiple(true)
+                        .Async(a => a
+                            .Save("UploadDocBulk", "Document", new { refobjid = 17 })
+                            .Remove("DocumentRemove", "Document")
+                            .SaveField("files")
+                            .AutoUpload(false)
+                            //.Concurrent(true)
+                            .Batch(true)
+                        ).Events(e => e
+                        .Success("onDocUp")
+                        .Remove("onUploadRemove")
+                        //.Remove("OnRemove")
+                        )
+                        )
+                </div>
+                <input type="hidden" name="UploadedFiles" id="UploadedFiles" />
+                <div class="col-md-3" id="savebtn">
+                    <br />
+                    <button class="k-button margin-10" type="button" id="btnSave" onclick="SaveDoc()">
+                        <i class="fas fa-plus"></i>&nbsp; Save
+                    </button>
+                </div>
+
+            </div>
+        }
+    </div>
+</div>
+
+
+
+<script>
+
+    function IsValid() {
+        var dia = $("#msgBox").data("kendoDialog");
+        dia.title("Validation");
+        var CategoryId = $('#CategoryId').val();
+        var Complain = $('#Complain').val();
+        if (CategoryId == 0) {
+            dia.content("Please Select Category!");
+            dia.open();
+            return false;
+        }
+        else if (Complain == "") {
+            dia.content("Please Enter Complain!");
+            dia.open();
+            return false;
+        }
+        return true;
+    }
+
+    var flarr = [];
+    function onDocUp(e) {
+        for (var i = 0; i < e.response.length; i++) {
+            e.files[i].id = e.response[i];
+        }
+    }
+    function onUploadRemove(e) {
+        var files = e.files;
+        var docid = 0;
+        for (i = 0; i < files.length; i++) {
+            docid = files[i].id;
+        }
+
+        return {
+            DocId: docid
+        }
+    }
+    function SaveDoc() {
+        if (IsValid() == true) {
+            var upload = $("#files").data("kendoUpload");
+            var files = upload.getFiles();
+            var fl = [];
+            for (var i = 0; i < files.length; i++) {
+                fl.push(files[i].id);
+            }
+            $('#UploadedFiles').val(fl);
+            if (fl.length > 0) {
+                $.confirm({
+                    title: 'Confirmation',
+                    content: 'Are you sure that you want to proceed?',
+                    buttons: {
+                        confirm: function () {
+                            kendo.ui.progress($('.card'), true);
+                            $('#savebtn').css('display', 'none');
+                            $('#frm').submit();
+
+                        },
+                        cancel: function () {
+                        }
+                    }
+                });
+            }
+            else {
+                kendo.alert("Please attach document");
+            }
+        }
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+
+        if (result.TicketId > 0) {
+            dia.title("Msg");
+            dia.content("Save Successfully");
+            dia.open();
+            $('#Amount').data('kendoNumericTextBox').value(0);
+            $('#Description').val("");
+       
+            var upload = $("#files").data("kendoUpload");
+            upload.clearAllFiles();
+            $('#savebtn').css('display', 'block');
+        }
+        else {
+            dia.title("Error");
+            dia.content("Not Save Successfully");
+            dia.open();
+
+        }
+        $('#savebtn').css('display', 'block');
+    }
+
+
+
+@*    function SaveDoc() {
+        $.confirm({
+            title: 'Confirmation',
+            content: 'Are you sure that you want to proceed?',
+            buttons: {
+                confirm: function () {
+                    $('#frm').submit();
+                    kendo.ui.progress($('.card'), true);
+                },
+                cancel: function () {
+                }
+            }
+        });
+    }*@
+ @*   function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+
+            dia.title("Msg");
+            dia.content("Save Successfully");
+            dia.open();
+    }*@
+
+</script>
+
+
+
+
+
+

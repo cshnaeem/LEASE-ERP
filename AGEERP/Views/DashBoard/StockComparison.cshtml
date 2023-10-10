@@ -1,0 +1,106 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "StockComparison";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card ihead">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Stock Comparison</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a>Dashboard</a></li>
+                    <li class="breadcrumb-item active">Stock Comparison</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+
+        <div class="responsive-message"></div>
+        <button id="export" class="k-button k-button-icontext hidden-on-narrow"><span class="k-icon k-i-excel"></span>Export to Excel</button><br />
+        @(Html.Kendo().PivotConfigurator()
+    .Name("configurator")
+    .HtmlAttributes(new { @class = "hidden-on-narrow" })
+    .Filterable(true)
+    .Sortable()
+    .Height(500)
+)
+        @(Html.Kendo().PivotGrid<StockAllVM>()
+    .Name("pivotgrid")
+    .ColumnWidth(150)
+    .Height(580)
+    .Excel(excel => excel
+                    .FileName("Stock" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx")
+                )
+    .HtmlAttributes(new { @class = "hidden-on-narrow" , style = "font-size:12px;" })
+    .Filterable(true)
+    .Sortable()
+    .Configurator("#configurator")
+    .BindTo((IEnumerable<StockAllVM>)ViewBag.dat)
+   .DataSource(dataSource => dataSource
+        .Ajax()
+        
+        //.Transport(transport => transport.Read("StockComparison_Read", "DashBoard"))
+        .Schema(schema => schema
+            .Cube(cube => cube
+                .Dimensions(dimensions =>
+                {
+                    dimensions.Add(model => model.CityCode).Caption("All Cities");
+                    dimensions.Add(model => model.LocCode).Caption("All Locations");
+                    dimensions.Add(model => model.Company).Caption("All Company");
+                    dimensions.Add(model => model.Product).Caption("All Product");
+                    dimensions.Add(model => model.Type).Caption("All Type");
+                    dimensions.Add(model => model.Model).Caption("All Model");
+                    dimensions.Add(model => model.SKU).Caption("All SKU");
+                    dimensions.Add(model => model.Status).Caption("All Status");
+                    dimensions.Add(model => model.Supplier).Caption("All Supplier");
+                })
+                .Measures(measures => {
+                    measures.Add("Qty").Field(model => model.SerialNo).AggregateName("count");
+                    measures.Add("Value").Field(model => model.PPrice).AggregateName("sum");
+                }
+                )
+            ))
+        .Columns(columns =>
+        {
+            columns.Add("CityCode").Expand(true);
+        })
+        .Rows(rows => rows.Add("Product").Expand(true))
+        .Measures(measures => measures.Values("Qty"))
+    )
+)
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#export").click(function () {
+            $("#pivotgrid").getKendoPivotGrid().saveAsExcel();
+        });
+    });
+    function onError(e) {
+        alert("error: " + kendo.stringify(e.errors[0]));
+    }
+
+</script>
+
+<style>
+    #configurator {
+        width: 300px;
+        min-width: 300px;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    #pivotgrid {
+        width: 100%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .hidden-on-narrow {
+        display: inline-block;
+        vertical-align: top;
+    }
+</style>

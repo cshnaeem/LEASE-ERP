@@ -1,0 +1,204 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "BikeLetterSale";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+@using (Html.BeginForm("BikeLetterSale", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Bike Sale Search</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                        <li class="breadcrumb-item active">Bike Sale Search</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row ">
+
+
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-3">
+                    @Html.Label("City")
+                    @(Html.Kendo()
+        .DropDownList()
+        .Name("CityId")
+        .OptionLabel("All")
+        .DataValueField("CityId")
+        .DataTextField("City")
+        .Filter(FilterType.Contains)
+        .Events(e => e.Change("loadLocation"))
+        .DataSource(ds =>
+        {
+            ds.Read(read => read.Action("CityList", "Setup"));
+        })
+        .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+
+                <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+        .MultiColumnComboBox()
+        .Name("LocId")
+        .Placeholder("All Locations ...")
+        .DataValueField("LocId")
+        .DataTextField("LocName")
+        //.SelectedIndex(0)
+        .Columns(columns =>
+        {
+            columns.Add().Field("LocCode").Width("100px");
+            columns.Add().Field("LocName").Width("200px");
+        })
+        .FilterFields(new string[] { "LocCode", "LocName" })
+        .Filter(FilterType.Contains)
+        .DataSource(ds =>
+        {
+            ds.Read(read => read.Action("LocationByCityList", "Setup").Data("filterLocation"));
+        })
+        .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-3">
+                    @Html.Label("Type")
+                    @(Html.Kendo()
+        .DropDownList()
+        .Name("TypeId")
+        .OptionLabel("All")
+        .DataValueField("TypeId")
+        .DataTextField("Name")
+        .Filter(FilterType.Contains)
+
+        .DataSource(ds =>
+        {
+            ds.Read(read => read.Action("TypeListByProductId", "Setup"));
+        })
+        .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+
+
+                <div class="col-3">
+                    @Html.Label("Model")
+                    @(Html.Kendo()
+        .DropDownList()
+        .Name("ModelId")
+        .OptionLabel("All")
+        .DataValueField("ModelId")
+        .DataTextField("Model")
+        .Filter(FilterType.Contains)
+        .CascadeFrom("TypeId")
+        .DataSource(ds =>
+        {
+            ds.Read(read => read.Action("ModelByTypeList", "Setup").Data("filterModel"))
+                        .ServerFiltering(true);
+        })
+        .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+    .DropDownList()
+    .Name("SuppId")
+    .OptionLabel("All Supplier ...")
+    //.SelectedIndex(0)
+    .DataValueField("SuppId")
+    .DataTextField("SuppName")
+    .Filter(FilterType.Contains)
+    //.Suggest(true)
+    .DataSource(ds =>
+    {
+        ds.Read(read => read.Action("SupplierByCatList", "Setup").Data("filterSupplier"));
+    })
+    .HtmlAttributes(new { @style = "width:100%;" })
+                )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Sale Type")
+                    @(Html.Kendo()
+    .DropDownList()
+    .Name("SaleType")
+    .SelectedIndex(0)
+    .BindTo(SelectListVM.SaleTypeSL)
+    .HtmlAttributes(new { @style = "width:100%;" })
+                )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("SerialNo")
+                    @(Html.Kendo()
+    .TextBox()
+    .Name("SerialNo")
+    .HtmlAttributes(new { @style = "width:100%", placeholder = "Type Serial No" })
+                )
+
+                </div>
+
+                <div class="col-md-3 col-sm-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit" >
+                        <i class="fas fa-search"></i>&nbsp; Search
+                    </button>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+
+}
+    <script>
+
+
+
+        function filterSupplier() {
+            return {
+                CategoryId: 3
+            }
+        }
+
+
+
+
+
+
+        function filterLocation() {
+            return {
+                CityId: $('#CityId').val() || 0
+            }
+        }
+        function loadLocation() {
+            $("#LocId").data("kendoMultiColumnComboBox").dataSource.read();
+        }
+        function filterModel() {
+            return {
+                TypeId: $('#TypeId').val() || 0
+            }
+        }
+    </script>
+
+
+

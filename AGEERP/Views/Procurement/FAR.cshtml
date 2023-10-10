@@ -1,0 +1,81 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "FAR";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">FAR</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Procurement">Procurement</a></li>
+                    <li class="breadcrumb-item active">FAR</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        <div class="row">
+            @(Html.Kendo()
+        .Grid<FarStoreVM>()
+        .Name("gridEditStockOpening")
+        .Columns(columns =>
+        {
+            columns.Command(c => { c.Custom("Edit").Text(" ").Click("EditEmployee").IconClass("fas fa-edit"); });
+            columns.Bound(c => c.LocName).Filterable(f => f.Multi(true).Search(true));
+            columns.Bound(c => c.CCCodeDesc).Filterable(f => f.Multi(true));
+            columns.Bound(c => c.EmpName).Filterable(f => f.Multi(true));
+            //columns.Bound(c => c.ItemType).Filterable(f => f.Multi(true));
+            columns.Bound(c => c.ItemName).Filterable(f => f.Multi(true));
+            columns.Bound(c => c.SerialNo).Filterable(f => f.Multi(true));
+            columns.Bound(c => c.CSerialNo).Filterable(f => f.Multi(true));
+            columns.Bound(c => c.PPrice).Title("Purchase Price");
+            columns.Bound(c => c.Condition).Filterable(f => f.Multi(true));
+            columns.Bound(c => c.CurrentValue);
+            columns.Bound(c => c.DepreciationPercent);
+            columns.Bound(c => c.InstallationDate).Format("{0:dd/MM/yyyy}").Filterable(f => f.Multi(true));
+            columns.Bound(c => c.PurchaseDate).Format("{0:dd/MM/yyyy}").Filterable(f => f.Multi(true));
+            columns.Bound(c => c.Remarks);
+            //columns.Command(c => c.Edit());
+        })
+        .Sortable()
+        .ToolBar(t =>
+        {
+            t.Excel();
+            //t.Save();
+        })
+        //.Pageable()
+        .Filterable()
+            .Scrollable()
+            //.AutoBind(false)
+            //.Navigatable()
+            //.ToolBar(t => t.Save())
+            //.Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_EditStockOpening"))
+            //.Events(e => e.SaveChanges("onSaveChanges"))
+            .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            //.Batch(true)
+            //.ServerOperation(false)
+            //.AutoSync(true)
+            //.Events(e => e.Error("error_handler"))
+            .PageSize(100)
+            .Model(model =>
+            {
+                model.Id(m => m.StoreId);
+            })
+            .Read(read => read.Action("FAR_Read", "Procurement"))
+            //.Update(create => create.Action("StockOpening_Update", "Procurement"))
+            ))
+        </div>
+    </div>
+</div>
+<script>
+    function EditEmployee(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var win = window.open("/Procurement/AssetAllocation/" + dataItem.StoreId, '_blank');
+        win.focus();
+    }
+</script>

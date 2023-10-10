@@ -1,0 +1,56 @@
+﻿@using AGEERP.Models
+@model IEnumerable<DashboardVM>
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card ihead">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">@ViewBag.VTitle Dashboards</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a>Dashboard</a></li>
+                    <li class="breadcrumb-item active">@ViewBag.VTitle Dashboards</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+        @foreach (var v in Model)
+        {
+        <div class="col-md-3" onclick="show('@v.LinkCode')" style="cursor:pointer;">
+            <div class="card card-widget widget-user">
+                <div class="widget-user-header text-white" style="background-size:cover;background-image:url('@v.ImgPath')">
+                </div>
+                <div class="card-footer" style="padding-top:0px;">
+                        <div class="col-sm-12">
+                            <div class="description-block">
+                                <h3 class="description-header">@v.Title</h3>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+        }
+        </div>
+    </div>
+
+</div>
+<script>
+    function show(rpt) {
+        $.ajax
+            ({
+                type: "GET",
+                url: "/DashBoard/GetDash?DashId=" + rpt,
+                dataType: 'json',
+                success: function (data) {
+                    var wind = window.open(data, 'dashboard_popup', 'fullscreen=1,location=0,toolbar=no,directories=no,status=no,menubar=no');
+                    wind.location.visible = false;
+
+                }
+            });
+    }
+</script>

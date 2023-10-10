@@ -1,0 +1,9 @@
+@model TimeSpan?
+
+@(Html.Kendo().TimePickerFor(m => m).Format("{0:hh:mm tt}")
+         .ParseFormats(new string[] { "0", "hh:mm tt" })
+         .Events(e =>
+        {
+            e.Change("FormatDate");
+        }))
+

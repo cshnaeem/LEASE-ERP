@@ -1,0 +1,73 @@
+﻿
+@{
+    ViewBag.Title = "CRC Fine Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">CRC Fine Detail</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">HR</a></li>
+                    <li class="breadcrumb-item active">CRC Fine Detail</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        @using (Html.BeginForm("CRCFineDetail", "Report", FormMethod.Post, new { target = "_blank" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("Month")
+                    @Html.Kendo().DatePicker().Name("Month").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+
+                <div class="col-md-3">
+                    @Html.Label("CRC")
+                    @(Html.Kendo()
+                  .DropDownList()
+                  .OptionLabel("All CRC")
+                  .Name("CRC")
+                  .SelectedIndex(0)
+                  .DataValueField("EmpId")
+                  .DataTextField("EmpName")
+                  .Filter(FilterType.Contains)
+                  .DataSource(x => x.Read("CRCList", "Employee"))
+                  .HtmlAttributes(new { @style = "width:100%" })
+                )
+
+                </div>
+
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i> Show
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        //$('#m_17000000').addClass('active');
+        //$('#d_17000000').css("display", "block");
+        //$('#m_17040000').addClass('active');
+        //$('#d_17040000').css("display", "block");
+        //$('#m_17040200').addClass('active');
+        //$('#a_17040200').addClass('active');
+    });
+    function onChange(e) {
+        var date = this.value();
+        date = new Date(date.getFullYear(), date.getMonth(), lastday(date.getFullYear(), date.getMonth()));
+        this.value(date);  //or put this.set("bindname", date); if you use a data-bind.
+    }
+</script>
+

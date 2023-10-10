@@ -1,0 +1,37 @@
+﻿
+@{
+    ViewBag.Title = "Salary Sheet Promotion Demotion";
+}
+@using (Html.BeginForm("SalarySheetPromoDemo", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Salary Sheet Promotion Demotion</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Report</a></li>
+                        <li class="breadcrumb-item active">Salary Sheet Promotion Demotion</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                @Html.Label("Date")
+                @Html.Kendo().DatePicker().Name("Date").Value(DateTime.Now.Date).Start(CalendarView.Year).Depth(CalendarView.Year).Format("MMM yyyy").HtmlAttributes(new { @style = "width:100%" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-9">
+            </div>
+            <div class="col-3">
+                <br />
+                <button class="k-button k-primary" type="submit">
+                    <i class="fas fa-print"></i>&nbsp; Print
+                </button>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,213 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Bank Books";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Bank Books</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">Bank Books</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-6">
+                @Html.Label("A/C Code")
+                @(Html.Kendo().MultiColumnComboBox()
+                .Name("SubCode")
+                .DataTextField("Name")
+                .DataValueField("Id")
+                .FilterFields(new string[] { "Code", "Name" })
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("200px");
+                    columns.Add().Field("Name").Width("200px");
+                })
+                .Suggest(true)
+                .IgnoreCase(true)
+                .Filter(FilterType.Contains)
+                .DataSource(dataSource =>
+                {
+                    dataSource.Read(read => read.Action("SubCodeBankList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-6">
+                @Html.Label("BankName")
+                @(Html.Kendo().TextBox().Name("BankName").HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-3 col-sm-6">
+                @Html.Label("Bank Account No")
+                @(Html.Kendo().TextBox().Name("BankAccNo").HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-3 col-sm-6">
+                @Html.Label("Account Type")
+                @(Html.Kendo()
+             .DropDownList()
+             .Name("AccountType")
+             .OptionLabel("Select Account Type")
+             .BindTo(SelectListVM.BankAccountType)
+             .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-6">
+                @Html.Label("Start ChqNo")
+                @(Html.Kendo().TextBox().Name("StartChqNo").HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-3 col-sm-6">
+                @Html.Label("End ChqNo")
+                @(Html.Kendo().TextBox().Name("EndChqNo").HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="addToGrid(this)">
+                    <i class="fas fa-plus"></i>&nbsp; Add
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                @(Html.Kendo()
+                .Grid<BankBookVM>()
+                .Name("gridBankBook")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.TransID).Hidden();
+                    columns.Bound(c => c.BankName);
+                    columns.Bound(c => c.BankAccNo);
+                    columns.ForeignKey(c => c.AccountType, (System.Collections.IEnumerable)ViewData["AccountTypeSL"], "Value", "Text").Title("Account Type");
+                    columns.Bound(c => c.StartChqNo);
+                    columns.Bound(c => c.EndChqNo);
+                    //columns.Bound(c => c.CurrentChqNo);
+
+                    columns.Command(c => { c.Destroy(); }).Width(250);
+                })
+                //.Pageable()
+                .Sortable()
+                .Scrollable()
+                .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+                //.ToolBar(t => { t.Create(); })
+                .Editable(e => e.Mode(GridEditMode.InLine))
+                .HtmlAttributes(new { style = "height:400px;" })
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                //.Batch(true)
+                //.PageSize(20)
+                .Events(e => e.Error("error_handler"))
+                .Model(model =>
+                {
+                    model.Id(m => m.TransID);
+                })
+                .Read(read => read.Action("BankBook_Read", "Account"))
+                .Create(create => create.Action("BankBook_Create", "Account"))
+                .Update(update => update.Action("BankBook_Update", "Account"))
+                .Destroy(update => update.Action("BankBook_Destroy", "Account"))
+                ))
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var gridElement = $("#gridBankBook");
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_15000000').addClass('active');
+        //$('#d_15000000').css("display", "block");
+        //$('#m_15030000').addClass('active');
+        //$('#a_15030000').addClass('active');
+    })
+
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridBankBook").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Error");
+            dia.content(message);
+            dia.open();
+            $('#gridBankBook').data('kendoGrid').dataSource.read();
+        }
+    }
+    function IsValid(data) {
+        if (data.AccId == 0) {
+            alert('Please Select Bank');
+            return false;
+        }
+        else if (data.StartChqNo.length < 8) {
+            alert('Invalid Start ChequeNo');
+            return false;
+        }
+        else if (data.EndChqNo.length < 8) {
+            alert('Invalid End ChequeNo');
+            return false;
+        }
+        else if (data.StartChqNo.length != data.EndChqNo.length) {
+            alert('Start and End Cheque Length should be same');
+            return false;
+        }
+        else if (data.StartChqNo.length > data.EndChqNo.length) {
+            alert('Start cheque should be greater than End cheque');
+            return false;
+        }
+        return true;
+    }
+    function addToGrid(e) {
+        //e.preventDefault();
+        var data = {
+            AccId: $('#SubCode').data('kendoMultiColumnComboBox').value(),
+            SubCodeDesc: $('#SubCode').data('kendoMultiColumnComboBox').text(),
+            StartChqNo: $('#StartChqNo').val(),
+            EndChqNo: $('#EndChqNo').val(),
+            AccountType : $('#AccountType').val(),
+            CurrentChqNo: $('#CurrentChqNo').val(),
+            BankName: $('#BankName').val(),
+            BankAccNo: $('#BankAccNo').val()
+        }
+        if (IsValid(data)) {
+            var gridData = gridElement.data('kendoGrid').dataSource.data();
+            var IsExist = false;
+            for (var i = 0; i < gridData.length; i++) {
+                if (data.AccId == gridData[i].AccId) {
+                    IsExist = true;
+                }
+            }
+            if (IsExist) {
+                var r = confirm("Bank Book already exist for this Bank. Do you want inactive previous Book");
+                if (r == false) {
+                    return;
+                }
+            }
+            gridElement.data('kendoGrid').dataSource.add(data);
+            gridElement.data('kendoGrid').saveChanges();
+        }
+    }
+</script>

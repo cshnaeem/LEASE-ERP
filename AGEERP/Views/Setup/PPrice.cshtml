@@ -1,0 +1,249 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "PPrice";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Purchase Price</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Purchase Price</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                @Html.Label("Supplier")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("SuppId")
+                .OptionLabel("Select Supplier ...")
+                //.SelectedIndex(0)
+                .DataValueField("SuppId")
+                .DataTextField("SuppName")
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("SupplierList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Company")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("ComId")
+                .OptionLabel("Select Company")
+                .DataValueField("ComId")
+                .DataTextField("ComName")
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("CompanyList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Product")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("ProductId")
+                .OptionLabel("Select Product")
+                .DataValueField("ProductId")
+                .DataTextField("Name")
+                .CascadeFrom("ComId")
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("ProductByCompList", "Setup").Data("filterProduct"))
+                .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Model")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("ModelId")
+                .OptionLabel("Select Model")
+                .DataValueField("ModelId")
+                .DataTextField("Model")
+                .CascadeFrom("ProductId")
+                .Events(e => e.Change("LoadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("ModelByComProList", "Setup").Data("filterModel"))
+                .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        @(Html.Kendo()
+           .Grid<PPriceVM>()
+           .Name("gridPPrice")
+           .Columns(columns =>
+           {
+               columns.Bound(c => c.RowId).Hidden();
+               columns.Bound(c => c.ModelId).Hidden();
+               columns.Bound(c => c.InvoicePrice);
+               columns.Bound(c => c.Discount);
+               columns.Bound(c => c.MRP);
+               columns.Bound(c => c.FromDate).EditorTemplateName("Date").Format("{0: dd/MM/yyyy}");
+               columns.Bound(c => c.ToDate).EditorTemplateName("Date").Format("{0: dd/MM/yyyy}");
+               columns.Bound(c => c.GST).Title("GST");
+               columns.Bound(c => c.WHT).Title("WHT");
+               columns.Bound(c => c.NetPrice);
+               columns.Command(c => { c.Edit(); c.Destroy(); }).Width(220);
+           })
+           .Pageable()
+           .Sortable()
+           .Scrollable()
+           .AutoBind(false)
+           .ToolBar(t => t.Create())
+           .Editable(e => e.Mode(GridEditMode.InLine))
+           .HtmlAttributes(new { style = "height:400px;" })
+           //.Events(e => e.Edit("OnProductChange"))
+           .DataSource(dataSource => dataSource
+           .Ajax()
+           .PageSize(20)
+           .Events(e => e.Error("error_handler").Change("OnPriceChange"))
+           .Model(model =>
+           {
+               model.Id(m => m.RowId);
+           })
+           .Read(read => read.Action("PPrice_Read", "Setup").Data("ModelData"))
+           .Create(create => create.Action("PPrice_Create", "Setup").Data("ModelData"))
+           .Update(update => update.Action("PPrice_Update", "Setup"))
+           .Destroy(update => update.Action("PPrice_Destroy", "Setup"))
+           ))
+    </div>
+    </div>
+        @section scripts
+{
+            <script type="text/javascript">
+                var gridElement = $("#gridPPrice");
+                var taxdata = null;
+                $(document).ready(function () {
+                    resizeGrid();
+                    //$('#m_10000000').addClass('active');
+                    //$('#d_10000000').css("display", "block");
+                    //$('#m_10010000').addClass('active');
+                    //$('#d_10010000').css("display", "block");
+                    //$('#m_10010100').addClass('active');
+                    //$('#a_10010100').addClass('active');
+                    getTax();
+                });
+                function getTax() {
+                    $.getJSON("/Setup/GetTax")
+                        .done(function (data) {
+                            if (data != null) {
+                                taxdata = data;
+                            }
+                            else {
+                                alert('Data does not exist');
+                            }
+                        })
+                        .fail(function (jqxhr, textStatus, error) {
+                            alert('Data does not exist');
+                        });
+                }
+
+                function filterProduct() {
+                    return {
+                        ComId: $('#ComId').val()
+                    }
+                }
+                function filterModel() {
+                    return {
+                        ComId: $('#ComId').val(),
+                        ProductId: $('#ProductId').val()
+                    }
+                }
+                function filterGrid() {
+                    return {
+                        Model: $('#ModelId').val()
+                    }
+                }
+                function ModelData() {
+                    return {
+                        Model: $('#ModelId').val(),
+                        Supplier: $('#SuppId').val()
+                    }
+                }
+                function LoadGrid() {
+                    $('#gridPPrice').data('kendoGrid').dataSource.read();
+                }
+                function OnPriceChange(e) {
+                    if (e.action === "itemchange") {
+                        if (e.field === "InvoicePrice" || e.field === "Discount" || e.field === "MRP") {
+                            var model = e.items[0];
+                            model.set("GST", model.InvoicePrice * taxdata.GST);
+                            model.set("WHT", model.InvoicePrice * taxdata.WHT);
+                            model.set("NetPrice", model.GST + model.WHT + model.InvoicePrice - model.Discount);
+                        }
+                    }
+                }
+                function NonEdit(dataItem) {
+                    return dataItem.MRP > 0 ? false : true;
+                }
+
+                //function OnProductChange(e) {
+                //    var cur = this.columns[this.cellIndex(e.container)].field;
+                //    if (cur === "GST" || cur === "WHT" || cur === "NetPrice") {
+                //        return false;
+                //    }
+                //}
+                function resizeGrid() {
+                    var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+                    if (height < 200) {
+                        height = 200;
+                    }
+                    else if (height > 910) {
+                        height = 910;
+                    }
+                    $("#gridPPrice").css("height", height);
+                    gridElement.data("kendoGrid").resize();
+                }
+
+                $(window).resize(function () {
+                    resizeGrid();
+                });
+                function error_handler(e) {
+                    if (e.errors) {
+                        var message = "Errors:\n";
+                        $.each(e.errors, function (key, value) {
+                            if ('errors' in value) {
+                                $.each(value.errors, function () {
+                                    message += this + "\n";
+                                });
+                            }
+                        });
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content(message);
+                        dia.open();
+                    }
+                }
+            </script>
+            <style>
+                th [role="listbox"] {
+                    visibility: hidden;
+                }
+
+                .k-filtercell, .k-filtercell .k-widget, .k-filtercell > span {
+                    display: table-row;
+                }
+            </style>
+        }

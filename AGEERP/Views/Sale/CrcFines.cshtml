@@ -1,0 +1,461 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Crc Fines";
+}
+<style>
+    .k-upload-files {
+        height: 70px !important;
+    }
+</style>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Crc Fines</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Sale</a></li>
+                    <li class="breadcrumb-item active">Crc Fines</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12 ihead">
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="input-group">
+                        @Html.Kendo().RadioButton().Name("rpt").Label("By Account Number").Value("1").Checked(true)
+                    </div>
+
+                </div>
+
+                <div class="col-lg-2">
+                    <div class="input-group">
+                        @Html.Kendo().RadioButton().Name("rpt").Label("By Branch").Value("2")
+                    </div>
+
+                </div>
+
+            </div>
+            @using (Ajax.BeginForm("CrcFines", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+            {
+
+        <div class="row">
+            <div class="col-md-4 col-sm-4" id="divacc">
+                @Html.Label("Acc No")
+                @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("AccountNo")
+                    .Format("##,###")
+                    .Min(0)
+                    .Max(9999999999)
+                    .Spinners(false)
+                    .Events(e => e.Change("AccNoChange"))
+                    .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-4 col-sm-4" id="divloc" style="display:none;">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                             .MultiColumnComboBox()
+                             .Name("LocId")
+                             .Placeholder("Select Locations ...")
+                             .DataValueField("LocId")
+                             .DataTextField("LocName")
+                             .Columns(columns =>
+                             {
+                                 columns.Add().Field("LocCode").Width("100px");
+                                 columns.Add().Field("LocName").Width("200px");
+                             })
+                             .FilterFields(new string[] { "LocCode", "LocName" })
+                             .Filter(FilterType.Contains)
+                             .DataSource(ds =>
+                             {
+                                 ds.Read(read => read.Action("LocationListPO", "Setup"));
+                             })
+                             .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Customer")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("CustName")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                )
+            </div>
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Branch")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("AccBranch")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                )
+            </div>
+        </div>
+                <div class="row" id="formAdvance">
+                    <div class="col-md-4 col-sm-4">
+                        @Html.Label("Fine Policy")
+                        @(Html.Kendo().MultiColumnComboBox()
+                        .Name("PolicyId")
+                        //.AutoBind(false)
+                        .Placeholder("Select Policy")
+                        .DataTextField("ShortDesc")
+                        .DataValueField("PolicyId")
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("PolicyId").Width("100px");
+                            columns.Add().Field("PolicyCode").Width("200px");
+                            //columns.Add().Field("DesgName").Width("180px");
+                            //columns.Add().Field("Amount").Width("80px");
+                            columns.Add().Field("ShortDesc").Width("200px");
+                        })
+                        .Events(e => e.Change("PolChange"))
+                        .Filter(FilterType.Contains)
+                        .FilterFields(new string[] { "PolicyCode" })
+                        //.MinLength(3)
+                        //.CascadeFrom("FineToEmp")
+                        .DataSource(dataSource =>
+                        {
+                            dataSource.Read(read => read.Action("CRCFinePolicy", "Sale")).ServerFiltering(true);
+                        })
+                        .IgnoreCase(true)
+                        .HtmlAttributes(new { @style = "width:100%", required = "required", validationmessage = "Policy is Required" })
+                        )
+                    </div>
+
+                    <div class="col-md-4 col-sm-4">
+                        @Html.Label("Employee")
+                        @(Html.Kendo().MultiColumnComboBox()
+                        .Name("FineToEmp")
+                        //.AutoBind(false)
+                        .Placeholder("Select Employee")
+                        .DataTextField("EmpName")
+                        .DataValueField("EmpId")
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("EmpId").Width("100px");
+                            columns.Add().Field("EmpName").Width("200px");
+                            //columns.Add().Field("DeptName").Width("200px");
+                            columns.Add().Field("DesgName").Width("200px");
+                            columns.Add().Field("Amount").Width("80px");
+                        })
+                        .Events(e => e.Change("EmpChange"))
+                        .Filter(FilterType.Contains)
+                      //  .CascadeFrom("PolicyId")
+                        .FilterFields(new string[] { "EmpName", "DepName", "EmpId", "DesgName" })
+                        //.MinLength(3)
+                        .DataSource(dataSource =>
+                        {
+                            dataSource.Read(read => read.Action("EmpListByPolicy", "Employee").Data("filterEmp")).ServerFiltering(true);
+                        })
+                        .IgnoreCase(true)
+                        .HtmlAttributes(new { @style = "width:100%", required = "required", validationmessage = "Employee is Required" })
+                        )
+                    </div>
+                    <div class="col-md-4 col-sm-4">
+                        @Html.Label("Amount")
+                        @(Html.Kendo().NumericTextBox().Name("Amt").Events(x=>x.Change("UpdateAmt"))
+                        .HtmlAttributes(new { @style = "width:100%", required = "required", validationmessage = "Amount is Required" }))
+                    </div>
+
+
+
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-sm-4">
+                        @Html.Label("Fine Reason")
+                        @(Html.Kendo().TextBox().Name("FineReason")
+                        .HtmlAttributes(new { @style = "width:100%", required = "required", validationmessage = "Fine Reason is Required" }))
+                    </div>
+
+                </div>
+                @*<div class="row">
+                <b><span id="desgtext" style="font-size:20px;text-align:start;"></span></b>
+                <br />
+                <br />
+                <br />
+                <b><span id="politext" style="font-size:20px;text-align:end;"></span></b>
+            </div>*@
+                <div class="row">
+
+                    <div class="col-md-offset-8 col-md-4">
+                        <button class="k-button margin-10" type="button" id="btnSave" onclick="SaveDoc()">
+                            <i class="fas fa-plus"></i>&nbsp; Save
+                        </button>
+                        @Html.Hidden("FineAmt")
+
+                    </div>
+                </div>
+
+                @*<div class="row">
+                <div class="col-md-12 col-sm-12" id="tbl">
+
+                    <h5 id="poldet" style="float: right"></h5>
+                    <br />
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Policy No</th>
+                                <th>Designation</th>
+                                <th>Fine Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbldtl">
+                        </tbody>
+                    </table>
+                </div>
+            </div>*@
+
+                @*<div class="row">
+                <div class="col-md-12 col-sm-12">
+                    @(Html.Kendo()
+            .Grid<CrcFinesVM>()
+            .Name("gridCrcFine")
+            .Columns(c =>
+            {
+                c.Bound(v => v.AccountNo);
+                c.Bound(v => v.EmpName).ClientTemplate("<strong>#: EmpName # - </strong>#: DesgName #");
+                c.Bound(v => v.FineAmt);
+                c.Bound(v => v.FineReason);
+                //c.Bound(v => v.CRC);
+            })
+            .Scrollable()
+            .AutoBind(false)
+            .HtmlAttributes(new { style = "height:360px;font-size:12px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .Batch(true)
+            .Model(model =>
+            {
+                model.Id(m => m.AccountNo);
+            })
+            .Read(read => read.Action("CrcFines_Read", "Sale"))
+            ))
+                </div>
+            </div>*@
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //$('#m_19000000').addClass('active');
+        //$('#d_19000000').css("display", "block");
+        //$('#m_19050000').addClass('active');
+        //$('#a_19050000').addClass('active');
+
+        $('#gridCrcFine').data('kendoGrid').dataSource.read();
+    });
+
+    function PolChange() {
+        var SelObj = $('#PolicyId').data('kendoMultiColumnComboBox').dataItem();
+
+        //$('#desgtext').text(SelObj.DesgName);
+        //$('#politext').text(SelObj.PolicyDetail);
+        //$('#FineAmt').data('kendoNumericTextBox').value(SelObj.Amount);
+        if (SelObj.PolicyId != 54) {
+
+            var numtxt = $("#Amt").data("kendoNumericTextBox");
+            //policy.enable(false);
+            numtxt.enable(false);
+
+                
+
+        }
+        else {
+            $('#tbldtl').html('');
+            $('#poldet').text('');
+            var numtxt = $("#Amt").data("kendoNumericTextBox");
+            numtxt.enable(true);
+        }
+
+        $('#FineToEmp').data('kendoMultiColumnComboBox').dataSource.read();
+    }
+
+    function GetFineByEmp() {
+        var obj = $('#FineToEmp').data('kendoMultiColumnComboBox').dataItem();
+
+        if (obj == null) {
+            return {
+                DesgId: 0
+            }
+        }
+        else {
+            return {
+                DesgId: obj.DesgId
+            }
+        }
+    }
+
+    function UpdateAmt() {
+        var amt = $('#Amt').val();
+        $('#FineAmt').val(amt);
+    }
+
+    function AccNoChange() {
+        var AccNo = $('#AccountNo').data("kendoNumericTextBox").value();
+
+        console.log('helloo');
+        if (AccNo > 0) {
+            $.getJSON("/Sale/AccByNo", { AccNo: AccNo })
+                .done(function (data) {
+                    if (data.msg == "OK") {
+                        //if (data.LocId != LocId) {
+                        //    kendo.alert(data.LocName);
+                        //alert('Account does not exist on your Branch');
+                        //ClearAll();
+                        //return;
+                        //}
+                        //$('#TotalPrice').data("kendoNumericTextBox").value(data.InstPrice);
+                        //$('#ActualAdvance').data("kendoNumericTextBox").value(data.ActualAdvance);
+                        //$('#Advance').data("kendoNumericTextBox").value(data.Advance);
+                        //$('#PreviousBalance').data("kendoNumericTextBox").value(data.PrevBalance);
+                        //$('#ArrearInstallment').data("kendoNumericTextBox").value(data.Arrear);
+                        //$('#ActualInstallment').data("kendoNumericTextBox").value(data.MonthlyInstallment);
+                        //$('#Recovery').val(data.Recovery);
+                        $('#AccBranch').val(data.LocName);
+                        //$('#Company').val(data.Company);
+                        //$('#Product').val(data.Product);
+                        //$('#SKU').val(data.SKU);
+                        $('#CustName').val(data.CustName);
+                        //$('#FName').val(data.FName);
+                        //$('#Comments').val(data.Comments);
+                        //InstChargesChange();
+                        //$('#gridInstDetail').data('kendoGrid').dataSource.read();
+
+                        //if (data.Status == 3) {
+                        //    $('#btnSave').removeAttr("disabled");
+                        //}
+                        //else if (data.Status == 4) {
+                        //    $('#btnSave').attr("disabled", true);
+                        //}
+                        //if (AccNo > 0) {
+                        //    $(".ImgDiv").show();
+                        //    $("#CustImg").attr("src", "../../Content/CustImg/" + AccNo + ".jpg");
+                        //}
+                        //else {
+                        //    $(".ImgDiv").hide();
+                        //}
+                    }
+                    else {
+                        alert(data.msg);
+                        ClearAll();
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Account does not exist');
+                    ClearAll();
+                });
+        } else {
+            $('#AccBranch').val("");
+            $('#CustName').val("");
+        }
+    }
+    var advanceForm = $("#formAdvance").kendoValidator().data("kendoValidator");
+    function SaveDoc() {
+
+        if (advanceForm.validate()) {
+            $.confirm({
+                title: 'Confirmation',
+                content: 'Are you sure that you want to proceed?',
+                buttons: {
+                    confirm: function () {
+                        $('#frm').submit();
+                        kendo.ui.progress($('.card'), true);
+                    },
+                    cancel: function () {
+                    }
+                }
+            });
+        }
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+        console.log('Id=', result.Id);
+        if (result.Id > 0) {
+              $.confirm({
+                title: 'Sucess',
+                content: 'Saved Successfully',
+                ok: {
+                   
+                }
+            });
+            $('#FineAmt').val(0);
+            $('#Amt').data('kendoNumericTextBox').value(0);
+            $('#FineReason').val("");
+            $('#AccountNo').val("");
+            $('#CustName').val("");
+            $('#AccBranch').val("");
+            $('#PolicyId').val(0);
+            $('#FineToEmp').val(0);
+            //myconfirm("Save Successfully", "Do you want to print?").then(function () {
+            //    $("#rpt").val("Processing");
+            //    $("#TransId").val(result.AccNo);
+            //    $("#rptForm").submit();
+            //});
+
+             window.location.reload();
+        }
+        else {
+            $.confirm({
+                title: 'Error',
+                content: 'Not Save Successfully',
+                ok: {
+                   
+                }
+            });
+
+        }
+    }
+
+
+    function filterEmp() {
+        return {
+            //DeptId: $('#DeptId').val(),
+            accno: $('#AccountNo').val() || 0,
+            PolicyId: $('#PolicyId').val() || 0,
+            str: $('#FineToEmp').data("kendoMultiColumnComboBox").input.val() || "",
+            LocId: $('#LocId').val() || 0
+        }
+    }
+    function EmpChange() {
+        var dat = $('#FineToEmp').data('kendoMultiColumnComboBox').dataItem();
+        
+
+        if (dat != null) {
+            $("#Amt").data("kendoNumericTextBox").value(dat.Amount);
+            $('#FineAmt').val(dat.Amount)
+        }
+
+        $('#Username').val(dat.EmpId);
+        $('#FullName').val(dat.EmpName);
+        $('#Username').change();
+        $('#FullName').change();
+    }
+
+
+    $('input[type=radio][name=rpt]').change(function () {
+        if (this.value == '1') {
+            $('#AccountNo').val('');
+            $("#divacc").css("display", "block");
+            $("#divloc").css("display", "none");
+           
+        }
+        if (this.value == '2') {
+            $("#divacc").css("display", "none");
+            $("#divloc").css("display", "block");
+
+        }
+
+    });
+</script>
+
+
+

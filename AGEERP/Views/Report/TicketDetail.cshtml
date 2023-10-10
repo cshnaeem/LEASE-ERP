@@ -1,0 +1,150 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "TicketDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Ticket Detail Report</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                    <li class="breadcrumb-item active">Ticket Detail Report</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("TicketDetail", "Report", FormMethod.Post, new { target = "_blank" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-4">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-4">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-4">
+
+                    @Html.Label("Status")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("Status")
+                .SelectedIndex(0)
+                .BindTo(SelectListVM.TicketStatus)
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+                </div>
+            </div>
+            <div class="row ">
+
+                <div class="col-3">
+                    @Html.Label("City")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CityId")
+                    .OptionLabel("All")
+                    .DataValueField("CityId")
+                    .DataTextField("City")
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("loadLocation"))
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CityList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+
+                <div class="col-md-3">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    //.SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationByCityList", "Setup").Data("filterLocation"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-3">
+                    @Html.Label("Main Category")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("MCategoryId")
+                .OptionLabel("All Category ...")
+                //.SelectedIndex(0)
+                .DataValueField("CategoryId")
+                .DataTextField("Category")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CrmMCategoryList", "CRM"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+                </div>
+                <div class="col-3">
+                    @Html.Label("Category")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("CategoryId")
+                .OptionLabel("All Category ...")
+                //.SelectedIndex(0)
+                .DataValueField("CategoryId")
+                .DataTextField("Category")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CrmCategoryMapppedList", "CRM"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+                </div>
+
+
+
+
+                <div class="col-md-3" style="margin-top:6px;">
+                    <br />
+                    <button class="k-button k-primary" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Print
+                    </button>
+                </div>
+            </div>
+
+        }
+    </div>
+</div>
+<script>
+    function loadLocation() {
+        $('#LocId').data('kendoMultiColumnComboBox').dataSource.read();
+    }
+    function filterLocation() {
+        return {
+            CityId: $('#CityId').val()
+        }
+    }
+</script>
+
+
+
+

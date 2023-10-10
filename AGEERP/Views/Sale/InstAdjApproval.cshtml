@@ -1,0 +1,195 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "InstAdj";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Installment Adjustment Approval</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Sale</a></li>
+                    <li class="breadcrumb-item active">Installment Adjustment Approval</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("locChange").DataBound("locChange"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            @*<div class="col-md-3">
+                @Html.Label("Paid By")
+                @(Html.Kendo().DropDownList().Name("PaidBy")//.Events(e => e.Select("onPaidSelect"))
+                                                            .Events(e => e.Change("paidByChange").DataBound("paidByChange"))
+                                                            .DataValueField("Sr")
+                                                            .DataTextField("Head")
+                                                            .CascadeFrom("LocId")
+                                                            .SelectedIndex(0)
+                                                            .DataSource(ds =>
+                                                            {
+                                                                ds.Read(read => read.Action("GetClosingVoucherAdj", "Sale").Data("filterOutStand")).ServerFiltering(true);
+                                                            })
+                            .HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-2">
+                @Html.Label("Target Inc")
+                @Html.Kendo().TextBox().Name("TargetInc").HtmlAttributes(new { @style = "width:100%" }).Enable(false)
+            </div>
+            <div class="col-md-2">
+                @Html.Label("Adjustment")
+                @Html.Kendo().TextBox().Name("Adjustment").HtmlAttributes(new { @style = "width:100%" }).Enable(false)
+            </div>
+            <div class="col-md-2">
+                @Html.Label("Balance")
+                @Html.Kendo().TextBox().Name("Balance").HtmlAttributes(new { @style = "width:100%" }).Enable(false)
+            </div>*@
+        </div>
+        <div class="row">
+
+            <div class="col-sm-12">
+                @(Html.Kendo()
+        .Grid<OutStandVM>()
+        .Name("gridOutStands")
+        .Columns(columns =>
+        {
+            //columns.Select().Width(50);
+            columns.Bound(c => c.AccNo).Width(110).Filterable(false);
+            //columns.Bound(c => c.OldAccNo).Width(110).Filterable(false);
+            //columns.Bound(c => c.OutStandDate).Format("{0: dd/MM/yyyy}").Title("Date").Width(100).Filterable(false);
+            columns.Bound(c => c.Customer).Width(200);
+            //columns.Bound(c => c.RecoveryId).Hidden().Filterable(false);
+            //columns.Bound(c => c.Recovery).Width(200);
+            //columns.Bound(c => c.Inst).Filterable(false);
+            columns.Bound(c => c.OutStandAmt).Title("Amount").Filterable(false);
+            columns.Bound(c => c.RecvAmt).Title("Approved").Filterable(false).Editable("disabl");
+            columns.Bound(c => c.IsCheck)
+            .ClientTemplate("# if (IsCheck) { #" +
+            "Approved" +
+            "# } #").Title("");
+
+            //columns.Bound(c => c.Remaning).Title("Remain").Filterable(false);
+        })
+        //.Sortable()
+        //.PersistSelection()
+        .ToolBar(t => { t.Save(); })
+        .Editable(e => e.Mode(GridEditMode.InCell))
+        //.Filterable(f => f.Mode(GridFilterMode.Menu).Extra(false).Operators(operators =>
+        //{
+        //    operators.ForString(str => str.Clear().Contains("Contains"));
+        //    //operators.ForNumber(str => str.Clear().IsEqualTo("IsEqualTo"));
+        //}))
+        //.Search(s => { s.Field(a => a.OldAccNo); s.Field(a => a.AccNo); })
+        .Scrollable()
+        .AutoBind(false)
+        .Navigatable()
+        //.Events(x => x.DataBound("gridDataBound"))
+        //.Events(e => e.DataBound("SelectTheRows"))
+        //.Selectable(x => x.Mode(GridSelectionMode.Multiple).Type(GridSelectionType.Row))
+        .HtmlAttributes(new { style = "height:300px;font-size:12px;" })
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        //.ServerOperation(false)
+        .Events(x => x.Change("gridChange"))
+        .Model(model =>
+        {
+            model.Id(m => m.TransId);
+            model.Field(m => m.AccNo).Editable(false);
+            model.Field(m => m.OutStandDate).Editable(false);
+            model.Field(m => m.Inst).Editable(false);
+            model.Field(m => m.OutStandAmt).Editable(false);
+            model.Field(m => m.Customer).Editable(false);
+        })
+        .Read(read => read.Action("InstAdjApproval_Read", "Sale").Data("filterOutStand"))
+        .Create(create => create.Action("InstAdjApproval_Update", "Sale").Data("filterOutStand"))
+              .Update(update => update.Action("InstAdjApproval_Update", "Sale").Data("filterOutStand"))
+        ))
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterOutStand() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+    function disabl() {
+        return false;
+    }
+    function locChange() {
+        $('#gridOutStands').data('kendoGrid').dataSource.read();
+    }
+    //function paidByChange() {
+    //    //$('#PaidBy').data('kendoDropDownList').dataItem();
+    //    $('#gridOutStands').data('kendoGrid').dataSource.read();
+    //}
+    //function gridDataBound() {
+    //    var data = $('#gridOutStands').data('kendoGrid').dataSource.data();
+    //    var dat = $('#PaidBy').data('kendoDropDownList').dataItem();
+    //    $('#TargetInc').val(dat.Amount);
+    //    var adj = 0;
+    //    for (var i = 0; i < data.length; i++) {
+    //        adj += data[i].RecvAmt;
+    //    }
+    //    $('#Adjustment').val(adj);
+    //    $('#Balance').val(dat.Amount - adj);
+    //    //console.log(dat.Amount);
+    //    //console.log(adj);
+    //}
+    function gridChange(e) {
+        if (e.action === "itemchange") {
+            //var data = $('#gridOutStands').data('kendoGrid').dataSource.data();
+            //var dat = $('#PaidBy').data('kendoDropDownList').dataItem();
+            //var targ = $('#TargetInc').val();
+            //var adj = 0;
+            //for (var i = 0; i < data.length; i++) {
+            //    adj += data[i].RecvAmt;
+            //}
+            var model = e.items[0];
+            if (model.IsCheck == true) {
+                    model.RecvAmt = model.OutStandAmt;
+            }
+            else {
+                model.RecvAmt = 0;
+            }
+            $('#gridOutStands').data('kendoGrid').refresh();
+        }
+    }
+    //function OnQtyChange(e) {
+    //    if (e.action === "itemchange") {
+    //        var model = e.items[0];
+    //        if (model.Qty < model.Amount) {
+    //            model.set("Qty", model.Amount);
+    //            kendo.alert("Order Qty cannot be less than Recv Qty");
+    //        }
+    //    }
+    //}
+</script>

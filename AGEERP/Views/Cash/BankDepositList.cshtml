@@ -1,0 +1,399 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Bank Deposit Posting";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Bank Deposit Posting</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Cash</a></li>
+                    <li class="breadcrumb-item active">Bank Deposit Posting</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Cash Collection Center")
+                @(Html.Kendo().DropDownList()
+                .Name("LocId")
+                .OptionLabel("Select Center ...")
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                .Events(e => e.Change("loadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("CashCollectionCenterList", "Cash"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @class = "browser-default" })
+                )
+            </div>
+            @*<div class="col-md-3 col-sm-4 ">
+                    @Html.Label("DepositTo")
+                    @(Html.Kendo().DropDownList()
+                    .Name("DepositTo")
+                    .Events(e => e.Change("SelCashierBranch"))
+                    .SelectedIndex(1)
+
+                    .BindTo(new List<SelectListItem>() {
+                    new SelectListItem() {
+                    Text = "Cashier",
+                    Value = "Cashier"
+                    },
+                    new SelectListItem() {
+                    Text = "Bank",
+                    Value = "Bank"
+                    }
+                    })
+                    .Events(e => e.Change("loadGrid"))
+                    .HtmlAttributes(new { @style = "width:100%",@readonly = true }))
+                </div>*@
+            @*<div class="col-md-3 col-sm-4" style="display:block;" id="CashDiv">
+                    @Html.Label("Cashier")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("EmpId")
+                    .OptionLabel("All")
+                    //.SelectedIndex(0)
+                    .DataValueField("EmpId")
+                    .DataTextField("EmpName")
+                    .Events(e => e.Change("loadGrid"))
+                    //.Suggest(true)
+                    //.CascadeFrom("CityId")
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("CashierList", "Cash").Data("filterCashier"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+
+                </div>*@
+            <div class="col-md-3 col-sm-4" id="BankDiv">
+                @Html.Label("Bank")
+                @(Html.Kendo().DropDownList()
+                                        .Name("AccId")
+                                         .OptionLabel("All Bank....")
+                                        .DataValueField("BankId")
+                                        .DataTextField("BankName")
+                                        .ValuePrimitive(true)
+                                         .Filter(FilterType.Contains)
+                                         .Events(e => e.Change("loadGrid"))
+                                        .DataSource(ds =>
+                                        {
+                                            ds.Read(read => read.Action("GetMapBankByLocation", "Cash").Data("GetLocId"));
+                                        })
+                                        .HtmlAttributes(new { @style = "width:100%", @class = "browser-default" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-4 ">
+                @Html.Label("WorkingDate")
+                @Html.Kendo().DatePicker().Name("WorkingDate").Events(e => e.Change("loadGrid")).Value(ViewBag.WorkingDate).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-4" style="text-align:right">
+                @*<br />*@
+                <button class="k-button margin-10" onclick="SaveDoc()">Post Vouchers</button>
+            </div>
+            <div class="col-md-12 col-xs-12">
+                <label>Select File to Import</label>
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control importfile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Select File" aria-describedby="basic-addon1">
+                    <div class="input-group-append">
+                        <button class="btn btn-info btnLoadFile k-button" type="button">LOAD FILE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-xs-12">
+                @(Html.Kendo()
+      .Grid<CashCollectionListVM>()
+      .Name("gridCashCollection")
+      .Columns(columns =>
+      {
+          columns.Bound(c => c.DocId).Hidden();
+          columns.Select().Width(50);
+          columns.Bound(c => c.LocName);
+          //columns.Bound(c => c.DocType);
+          columns.Bound(c => c.CashPayable).Format("{0:n0}");
+          columns.Bound(c => c.CashAmount).Format("{0:n0}").ClientFooterTemplate("Total: #=sum#");
+          columns.ForeignKey(c => c.CashierId, (System.Collections.IEnumerable)ViewData["Bank"], "Id", "Name").Title("Bank");
+          columns.Bound(c => c.Remarks);
+          //columns.Bound(c => c.CashierDate).Format("{0: dd/MM/yyyy}");
+          //columns.Bound(c => c.ReceivedAmount).Editable("IsEdit");
+          //columns.Bound(c => c.Remarks).Editable("IsEdit");
+          columns.Command(c => { c.Custom("Doc").Click("ViewDoc"); c.Edit(); c.Destroy(); });
+      })
+      //.Pageable()
+      //.Sortable()
+      .Scrollable()
+      .PersistSelection()
+      .Navigatable()
+      //.ToolBar(t => t.Save())
+      .Editable(GridEditMode.InLine)
+      .HtmlAttributes(new { style = "height:400px;font-size:12px" })
+      //.Events(e => e.DataBound("gridDataBound"))
+      .AutoBind(false)
+      .DataSource(dataSource => dataSource
+      .Ajax()
+      //.PageSize(20)
+      //.Batch(true)
+      .Aggregates(aggregates =>
+      {
+          aggregates.Add(p => p.CashAmount).Sum();
+      })
+      .Events(e => e.Error("error_handler"))
+      .Model(model =>
+      {
+          model.Id(m => m.DocId);
+          model.Field(m => m.DocType).Editable(false);
+          model.Field(m => m.CashierId);
+          model.Field(m => m.LocName).Editable(false);
+          model.Field(m => m.CashPayable).Editable(false);
+          model.Field(m => m.Remarks);
+          model.Field(m => m.CashAmount);
+          //model.Field(m => m.CashierDate).Editable(false);
+      })
+      .Read(read => read.Action("CashCollectionList_Read", "Cash").Data("LocData"))
+      .Create(create => create.Action("CashCollectionList_Create", "Cash"))
+      .Update(update => update.Action("CashCollectionList_Update", "Cash"))
+      .Destroy(update => update.Action("CashCollectionList_Destroy", "Cash"))
+      ))
+            </div>
+        </div>
+
+    </div>
+</div>
+<div hidden="hidden">@Html.Partial("~/Views/Document/_Doc.cshtml")</div>
+
+@section scripts
+{
+    <script type="text/javascript" src="/scripts/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="/scripts/jszip.js"></script>
+    <script>
+        $(".btnLoadFile").click(function () {
+            var fileUpload = $(".importfile")[0];
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+            if (regex.test(fileUpload.value.toLowerCase())) {
+                if (typeof (FileReader) != "undefined") {
+                    var reader = new FileReader();
+                    if (reader.readAsBinaryString) {
+                        reader.onload = function (e) {
+                            ProcessExcel(e.target.result);
+                        };
+                        reader.readAsBinaryString(fileUpload.files[0]);
+                    } else {
+                        reader.onload = function (e) {
+                            var data = "";
+                            var bytes = new Uint8Array(e.target.result);
+                            for (var i = 0; i < bytes.byteLength; i++) {
+                                data += String.fromCharCode(bytes[i]);
+                            }
+                            ProcessExcel(data);
+                        };
+                        reader.readAsArrayBuffer(fileUpload.files[0]);
+                    }
+                } else {
+                    $(".btnLoadFile").html("LOAD FILE");
+                    alert('This browser does not support HTML5.');
+                }
+            } else {
+                $(".btnLoadFile").html("LOAD FILE");
+                alert('Please upload a valid Excel file.');
+            }
+        });
+        function ProcessExcel(data) {
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+            var firstSheet = workbook.SheetNames[0];
+            var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+            //console.log(excelRows.length);
+            var arr = [];
+            var grid = $("#gridCashCollection").data("kendoGrid");
+            var rows = grid.items();
+            grid.clearSelection();
+            for (var i = 0; i < excelRows.length; i++) {
+                //var dt = typeof excelRows[i]["Deposit Slip Date"] === 'undefined' ? "" : excelRows[i]["Deposit Slip Date"];
+                var Amount = typeof excelRows[i]["Amount"] === 'undefined' ? "" : excelRows[i]["Amount"];
+                //var dealerCode = typeof excelRows[i]["Dealer Code"] === 'undefined' ? "" : excelRows[i]["Dealer Code"];
+                var dealerName = typeof excelRows[i]["Dealer Name"] === 'undefined' ? "" : excelRows[i]["Dealer Name"];
+                dealerName = dealerName.replace(" ", "");
+                for (var j = 0; j < rows.length; j++) {
+                    var row = $(rows[j]);
+                    var dataItem = grid.dataItem(row);
+                    var amt = dataItem.get("CashAmount");
+                    var dealer = dataItem.get("LocName");
+                    dealer = dealer.replace("_", "");
+                    if (amt == Amount && dealerName == dealer) {
+                        grid.select(row);
+                    }
+                }
+            }
+        }
+        var gridElement = $("#gridCashCollection");
+        $(document).ready(function () {
+            resizeGrid();
+            //$('#m_19000000').addClass('active');
+            //$('#d_19000000').css("display", "block");
+            //$('#m_19020000').addClass('active');
+            //$('#a_19020000').addClass('active');
+        });
+        //function LocChange() {
+        //    var locId = $('#LocId').data('kendoMultiColumnComboBox').value() || 0;
+        //    $.ajax({
+        //        dataType: "json",
+        //        url: '/Sale/GetWorkingDate?LocId=' + locId,
+        //        success: (function (data) {
+        //            $('#WorkingDate').data('kendoDatePicker').value(data.WorkingDate);
+        //            $('#gridCashCollection').data('kendoGrid').dataSource.read();
+        //        })
+        //    });
+        //}
+        //function gridDataBound() {
+        //    var payable = 0;
+        //    var data = $('#gridCashCollection').data('kendoGrid').dataSource.data();
+        //    for (var i = 0; i < data.length; i++) {
+        //        payable += data[i].CashAmount;
+        //    }
+        //    $('#CashPayable').data('kendoNumericTextBox').value(payable);
+        //    CashDepositChange();
+        //}
+        //function CashDepositChange() {
+        //    $('#Balance').data('kendoNumericTextBox').value($('#CashPayable').val() - $('#CashDeposit').val());
+        //}
+        //function CashData() {
+        //    return {
+        //        LocId: $('#LocId').val(),
+        //        WorkingDate: $('#WorkingDate').val(),
+        //        DepositTo: $('#DepositTo').val(),
+        //        CashDeposit: $('#CashDeposit').val(),
+        //        CashierRemarks: $('#CashierRemarks').val(),
+        //    }
+        //}
+        //function SelCashierBranch() {
+        //    var SelObj = $('#DepositTo').val();
+        //    if (SelObj == 'Cashier') {
+        //        $('#CashDiv').css('display', 'block');
+        //        $('#BankDiv').css('display', 'none');
+        //        $('#EmpId').data('kendoDropDownList').dataSource.read();
+        //    }
+        //    else if (SelObj == 'Bank') {
+        //        $('#CashDiv').css('display', 'none');
+        //        $('#BankDiv').css('display', 'block');
+        //        $('#AccId').data('kendoDropDownList').dataSource.read();
+        //    }
+        //    else {
+        //        $('#CashDiv').css('display', 'none');
+        //        $('#BankDiv').css('display', 'none');
+        //    }
+        //}
+        //function IsEdit(e) {
+        //    return !e.IsReceived
+        //}
+        function ViewDoc(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            $("#DocId").val(dataItem.DocId);
+            $("#RefObjId").val(7);
+            $("#frmDoc").submit();
+        }
+        function loadGrid() {
+            $('#gridCashCollection').data('kendoGrid').dataSource.read();
+            //$('#EmpId').data('kendoDropDownList').dataSource.read();
+            $('#AccId').data('kendoDropDownList').dataSource.read();
+        }
+        function LocData() {
+            //var cashDeposit = $('#DepositTo').val();
+            return {
+                WorkingDate: $('#WorkingDate').val(),
+                DepositTo: 'Bank',
+                LocId: $('#LocId').val(),
+                EmpId: ($('#AccId').val() || 0)
+            }
+        }
+        function filterCashier() {
+            return {
+                LocId: $('#LocId').val()
+            }
+        }
+        function GetLocId() {
+            return {
+                locid: $('#LocId').val()
+            }
+        }
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridCashCollection").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+        function SaveDoc() {
+            if (confirm("Are you sure?")) {
+                var TransLst = $('#gridCashCollection').data('kendoGrid').selectedKeyNames();
+                var dat = { "TransLst": TransLst };
+                if (TransLst.length > 0) {
+                    $.ajax({
+                        url: '/Cash/CashCollectionPosting',
+                        type: 'POST',
+                        data: JSON.stringify(dat),
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            if (data == true) {
+                                var dia = $("#msgBox").data("kendoDialog");
+                                dia.title("Success");
+                                dia.content("Save Successfully");
+                                dia.open();
+                                loadGrid();
+                            }
+                            else {
+                                var dia = $("#msgBox").data("kendoDialog");
+                                dia.title("Error");
+                                dia.content("Not Save Successfully");
+                                dia.open();
+                            }
+                        },
+                        error: function () {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Not Save Successfully");
+                            dia.open();
+                        }
+                    });
+                }
+                else {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Validation");
+                    dia.content("Please select Locations");
+                    dia.open();
+                }
+            }
+        }
+    </script>
+}

@@ -1,0 +1,69 @@
+﻿@model IEnumerable<AGEERP.Models.UserMenuInfo>
+@{
+    ViewBag.Title = "CRM";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //var stkStp = Model.Where(it => it.Menu2 == 1).OrderBy(it => it.SortOrder).ToList();
+    var stkFrm = Model.Where(it => it.Menu2 == 31).OrderBy(it => it.SortOrder).ToList();
+    var stkRpt = Model.Where(it => it.Menu2 == 24).OrderBy(it => it.SortOrder).ToList();
+}
+
+<div class="row">
+    @if (stkFrm.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        CRM Forms
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in stkFrm)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (stkRpt.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        CRM Reports
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in stkRpt)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+</div>

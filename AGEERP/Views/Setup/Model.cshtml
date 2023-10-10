@@ -1,0 +1,134 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Model";
+    ViewBag.Parent = "Setup";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Model</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Model</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body" style="padding-top: 0px;">
+        <div class="row">
+            <div class="col-md-12">
+                <a class="float-right">
+                    @Html.Label("Status")
+                    @(Html.Kendo().DropDownList()
+          .Name("StatusId")
+          .SelectedIndex(0)
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .Events(x => x.Change("ReloadGrid"))
+          .BindTo(ViewBag.Status)
+          .HtmlAttributes(new { style = "width: 100%" }))
+                </a>
+            </div>
+            <div class="col-lg-12 col-md-12 col-xs-12">
+              
+                @(Html.Kendo()
+                .Grid<ModelVM>()
+                .Name("gridModel")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.ModelId).Filterable(false).Hidden();
+                    columns.Bound(c => c.Model);
+                    columns.ForeignKey(c => c.TypeId, (System.Collections.IEnumerable)ViewData["TypeVD"], "TypeId", "Name").Title("Type");
+                    columns.ForeignKey(c => c.ProductClassId, (System.Collections.IEnumerable)ViewData["ProductClassVD"], "ProductClassId", "ProductClass").Title("Product Class");
+                    columns.Command(c => { c.Edit(); c.Destroy(); }).Width(250);
+                })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+        .ToolBar(t => { t.Search(); })
+              .Search(s =>
+                      {
+                  s.Field(c => c.Model);
+
+              })
+.ToolBar(t => t.Create())
+.Editable(e => e.Mode(GridEditMode.PopUp))
+.HtmlAttributes(new { style = "height:400px;" })
+.DataSource(dataSource => dataSource
+.Ajax()
+.PageSize(20)
+.Events(e => e.Error("error_handler"))
+.Model(model =>
+{
+model.Id(m => m.ModelId);
+model.Field(m => m.Model);
+model.Field(m => m.TypeId);
+})
+.Read(read => read.Action("Model_Read", "Setup").Data("GetStatus"))
+.Create(create => create.Action("Model_Create", "Setup"))
+.Update(update => update.Action("Model_Update", "Setup"))
+.Destroy(update => update.Action("Model_Destroy", "Setup"))
+))
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script Model="text/javascript">
+        var gridElement = $("#gridModel");
+        $(document).ready(function () {
+            resizeGrid();
+            //$('#m_10000000').addClass('active');
+            //$('#d_10000000').css("display", "block");
+            //$('#m_10010000').addClass('active');
+            //$('#d_10010000').css("display", "block");
+            //$('#m_10010400').addClass('active');
+            //$('#a_10010400').addClass('active');
+        })
+         function ReloadGrid() {
+            $("#gridModel").data('kendoGrid').dataSource.read();
+        }
+
+          function GetStatus() {
+        return {
+            status: $('#StatusId').val()
+        }
+    }
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridModel").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    </script>
+}

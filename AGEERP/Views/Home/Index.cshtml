@@ -1,0 +1,294 @@
+﻿@{
+    ViewBag.Title = "Home";
+
+}
+@*<style>
+    #myVideo {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+    }
+</style>*@
+@*<script src="~/Scripts/randomColor.js"></script>
+<script src="~/Scripts/confettiKit.js"></script>
+
+
+<button id="bottom-btn" style="visibility:hidden;"></button>
+<button id="top-btn" style="visibility:hidden;"></button>*@
+@*<video autoplay muted loop id="myVideo">
+    <source src="~/Content/video/AfzalSoftwareTest.mp4" type="video/mp4">
+</video>*@
+
+
+
+@if (!ViewBag.isBranch)
+{
+    @*<link href="~/Content/jqcloud.css" rel="stylesheet" />*@
+    <!--<div id="PView">-->
+            @*<div id="branchesdat" style="height:600px;"></div>*@
+        <!--</div>-->
+<div id="PView">
+    @*<p style="font-size:40px;"><b>Congratulations! Phaseout completed</b></p>
+            <p style="font-size:40px;">Now All Branches are working only on AGE ERP</p>
+
+        <br />
+        <br />*@
+
+    @*<img class="img-responsive" style="        /*opacity: 0.05;*/
+        position: absolute;
+        text-align: center;
+        width: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);" src="~/Content/Resources/newyear.gif" alt="AGE ERP">*@
+    <img class="img-responsive" style="        opacity: 0.05;
+        position: absolute;
+        text-align: center;
+        width: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);" src="~/app-assets/Login/Images/AGE_LOGO.png" alt="AGE ERP">
+    @*<img class="img-responsive" style="        opacity: 0.06;
+        position: absolute;
+        text-align: center;
+        width: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        " src="~/Content/Resources/defence.jpg" alt="AGE ERP">*@
+</div>
+    @*<script src="~/Scripts/jqcloud.js"></script>
+    <script>
+
+        $(function () {
+            $.getJSON("/DashBoard/GetDashboardCloud", function (data) {
+                $("#branchesdat").jQCloud(data, {
+                    autoResize: true, shape: 'square', classPattern: null,
+                    //colors: ["#0065be", "#0057a4", "#004a8b", "#003c71", "#002e58", "#00213e", "#dc3545"],
+                    //colors: ["#800026", "#bd0026", "#e31a1c", "#fc4e2a", "#fd8d3c", "#feb24c", "#fed976"],
+                    //colors: ["#8d222c", "#b02a37", "#dc3545"],
+                    fontSize: {
+                        from: 0.09,
+                        to: 0.01
+                    }
+
+                });
+            });
+            //setTimeout(function () {
+            //    var obj = $("#branchesdat").data("jqcloud");
+            //    var dat = obj.word_array;
+            //    for (var i in dat) {
+            //        $("#" + dat[i]["attr"]["id"]).css("color", dat[i]["color"]);
+            //    }
+            //}, 100);
+        });
+
+    </script>*@
+}
+else
+{
+<div id="Branchpar">
+    @*<img class="img-responsive" style="        /*opacity: 0.05;*/
+        position: absolute;
+        text-align: center;
+        width: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);" src="~/Content/Resources/newyear.gif" alt="AGE ERP">*@
+    <img class="img-responsive" style="        opacity: 0.05;
+        position: absolute;
+        text-align: center;
+        width: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);" src="~/app-assets/Login/Images/AGE_LOGO.png" alt="AGE ERP">
+    @*<img class="img-responsive" style="        opacity: 0.06;
+        position: absolute;
+        text-align: center;
+        width: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);" src="~/Content/Resources/pak.gif" alt="AGE ERP">*@
+    @*<div id="PView" class="text-center">
+                    <p style="font-size:40px;"><b>Congratulations! Phaseout completed</b></p>
+                    <p style="font-size:40px;">Now All Branches working on AGE ERP only</p>
+
+                    <br />
+                    <br />
+
+                <img class="img-responsive " src="~/app-assets/Login/Images/AGE_LOGO.png" alt="AGE ERP">
+        </div>*@
+</div>
+<script>
+        $(document).ready(function () {
+            setTimeout(function () {
+                $('#Branchpar').load("/Home/_BranchDB?LocId=" +@ViewBag.LocId);
+            }
+                , 5000);
+        });
+</script>
+}
+
+
+@*<script>
+    var i = 0;
+    $(document).ready(function () {
+        document.querySelector('#bottom-btn').addEventListener('click', function (e) {
+
+            new confettiKit({
+                confettiCount: 40,
+                angle: 90,
+                startVelocity: 50,
+                colors: randomColor({ hue: 'blue', count: 18 }),
+                elements: {
+                    'confetti': {
+                        direction: 'down',
+                        rotation: true,
+                    },
+                    'star': {
+                        count: 10,
+                        direction: 'down',
+                        rotation: true,
+                    },
+                    'ribbon': {
+                        count: 5,
+                        direction: 'down',
+                        rotation: true,
+                    },
+                    'custom': [{
+                        count: 1,
+                        width: 50,
+                        textSize: 15,
+                        content: '/Content/Resources/1194986736244974413balloon-red-aj.svg.thumb.png',
+                        contentType: 'image',
+                        direction: 'up',
+                        rotation: false,
+                    }]
+                },
+                position: 'bottomLeftRight',
+            });
+        });
+
+        document.querySelector('#top-btn').addEventListener('click', function (e) {
+
+            new confettiKit({
+                colors: randomColor({ hue: 'pink', count: 18 }),
+                confettiCount: 40,
+                angle: 90,
+                startVelocity: 50,
+                elements: {
+                    'confetti': {
+                        direction: 'down',
+                        rotation: true,
+                    },
+                    'star': {
+                        count: 10,
+                        direction: 'down',
+                        rotation: true,
+                    },
+                    'ribbon': {
+                        count: 5,
+                        direction: 'down',
+                        rotation: true,
+                    },
+                },
+                position: 'topLeftRight',
+            });
+        });
+
+        //////////////////14 August//////////////////////////////////////
+        //$(document).ready(function () {
+        //    document.querySelector('#bottom-btn').addEventListener('click', function (e) {
+
+        //        new confettiKit({
+        //            confettiCount: 40,
+        //            angle: 90,
+        //            startVelocity: 50,
+        //            colors: randomColor({ hue: 'green', count: 18 }),
+        //            elements: {
+        //                //'confetti': {
+        //                //    direction: 'down',
+        //                //    rotation: true,
+        //                //},
+        //                //'star': {
+        //                //    count: 10,
+        //                //    direction: 'down',
+        //                //    rotation: true,
+        //                //},
+        //                //'ribbon': {
+        //                //    count: 5,
+        //                //    direction: 'down',
+        //                //    rotation: true,
+        //                //},
+        //                'custom': [{
+        //                    count: 1,
+        //                    width: 30,
+        //                    textSize: 15,
+        //                    content: '/Content/Resources/pakistan.png',
+        //                    contentType: 'image',
+        //                    direction: 'down',
+        //                    //rotation: false,
+        //                }]
+        //            },
+        //            position: 'bottomLeftRight',
+        //        });
+        //    });
+
+        //    document.querySelector('#top-btn').addEventListener('click', function (e) {
+
+        //        new confettiKit({
+        //            colors: randomColor({ hue: 'green', count: 18 }),
+        //            confettiCount: 40,
+        //            angle: 90,
+        //            startVelocity: 50,
+        //            elements: {
+        //                //'confetti': {
+        //                //    direction: 'down',
+        //                //    rotation: true,
+        //                //},
+        //                //'star': {
+        //                //    count: 10,
+        //                //    direction: 'down',
+        //                //    rotation: true,
+        //                //},
+        //                //'ribbon': {
+        //                //    count: 5,
+        //                //    direction: 'down',
+        //                //    rotation: true,
+        //                //},
+        //                'custom': [{
+        //                    count: 1,
+        //                    width: 30,
+        //                    textSize: 15,
+        //                    content: '/Content/Resources/pakistan.png',
+        //                    contentType: 'image',
+        //                    direction: 'down',
+        //                    //rotation: false,
+        //                }]
+        //            },
+        //            position: 'topLeftRight',
+        //        });
+        //    });
+
+        setInterval(
+            function () {
+                if (i <= 10) {
+                    $('#bottom-btn').click();
+                    //$('#top-btn').click();
+               
+                    i++;
+                }
+            }, 500);
+    });
+
+
+</script>*@

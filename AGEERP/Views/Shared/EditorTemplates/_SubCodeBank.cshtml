@@ -1,0 +1,42 @@
+﻿@model AGEERP.Models.BankBookVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("SubCode")
+            @(Html.Kendo().ComboBoxFor(m => m.SubCode)
+            .DataTextField("Name")
+            .DataValueField("Code")
+            .Suggest(true)
+            .IgnoreCase(true)
+            .Filter(FilterType.Contains)
+            .DataSource(dataSource =>
+            {
+                dataSource.Read(read => read.Action("SubCodeBankList", "Account"));
+            })
+
+            )
+        </div>
+        <div class="col-md-4">
+            @Html.Label("StartChqNo")
+            @(Html.Kendo().TextBoxFor(x => x.StartChqNo).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("EndChqNo")
+            @(Html.Kendo().TextBoxFor(x => x.EndChqNo).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+}
+
+

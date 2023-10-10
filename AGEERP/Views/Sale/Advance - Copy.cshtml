@@ -1,0 +1,452 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Advance";
+}
+
+<div class="col s12 m12 l12">
+    <div class="card card card-default scrollspy">
+        <div class="card-content">
+            <h4 class="card-title">Advance</h4>
+            <div class="col s12">
+                @using (Html.BeginForm())
+                {
+                    <div class="row">
+                        <div class="col-md-3">
+                            @Html.Label("Location")
+                            @(Html.Kendo()
+                            .ComboBox()
+                            .Name("LocId")
+                            .Placeholder("Select Locations ...")
+                            .SelectedIndex(0)
+                            .DataValueField("LocId")
+                            .DataTextField("LocName")
+                            .Suggest(true)
+                            .Filter(FilterType.Contains)
+                            .Events(e => e.Change("changeLoc"))
+                            .DataSource(ds =>
+                            {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                            })
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("Customer No")
+                            @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("CustId")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Events(e => e.Change("CustIdChange"))
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            @Html.Label("Customer Name")
+                            @(Html.Kendo()
+                            .TextBox()
+                            .Name("CustName")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("S/O")
+                            @(Html.Kendo()
+                            .TextBox()
+                            .Name("SO")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("ProcessFee")
+                            @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("ProcessFee")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                    </div>
+                    <div class="row">
+                        @*<div class="col-md-3">
+                            @Html.Label("Model")
+                            @(Html.Kendo().ComboBox()
+                            .Name("ModelId")
+                            .AutoBind(false)
+                            .Placeholder("Select Model...")
+                            .DataTextField("Model")
+                            .DataValueField("ModelId")
+                            .Suggest(true)
+                            .Filter(FilterType.StartsWith)
+                            .Events(e => e.Change("ModelChange"))
+                            .DataSource(dataSource =>
+                            {
+                            dataSource.Read(read => read.Action("ModelByLocList", "Setup").Data("filterModel")).ServerFiltering(true);
+                            })
+                            .CascadeFrom("LocId")
+                            .IgnoreCase(true)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                            </div>*@
+                        <div class="col-md-3">
+                            @Html.Label("Model")
+                            @(Html.Kendo().MultiColumnComboBox()
+                            .Name("ModelId")
+                            .AutoBind(false)
+                            .Placeholder("Select Model...")
+                            .DataTextField("Model")
+                            .DataValueField("ModelId")
+                            .Columns(columns =>
+                            {
+                            columns.Add().Field("Model").Width("200px");
+                            columns.Add().Field("Company").Width("200px");
+                            columns.Add().Field("Product").Width("200px");
+                            })
+                            .Suggest(true)
+                            .Filter(FilterType.Contains)
+                            .FilterFields(new string[] { "Model", "Company", "Product" })
+                            //.MinLength(3)
+                            .Events(e => e.Change("ModelChange"))
+                            .DataSource(dataSource =>
+                            {
+                            dataSource.Read(read => read.Action("ModelByLocSearchList", "Setup").Data("filterModel")).ServerFiltering(true);
+                            })
+                            .CascadeFrom("LocId")
+                            .IgnoreCase(true)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("Company")
+                            @(Html.Kendo()
+                            .TextBox()
+                            .Name("Company")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("Product")
+                            @(Html.Kendo()
+                            .TextBox()
+                            .Name("Product")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("SerialNo")
+                            @(Html.Kendo().ComboBox()
+                            .Name("ItemId")
+                            .AutoBind(false)
+                            .Placeholder("Select Serial...")
+                            .DataTextField("SerialNo")
+                            .DataValueField("ItemId")
+                            .Suggest(true)
+                            .Filter(FilterType.StartsWith)
+                            .Events(e => e.Change("SrNoChange"))
+                            .DataSource(dataSource =>
+                            {
+                            dataSource.Read(read => read.Action("ItemByModelLoc", "Sale").Data("filterItem")).ServerFiltering(true);
+                            })
+                            .CascadeFrom("ModelId")
+                            .IgnoreCase(true)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            @Html.Label("Duration")
+                            @(Html.Kendo().MultiColumnComboBox()
+                            .Name("Duration")
+                            .AutoBind(false)
+                            .Placeholder("Select Duration...")
+                            .DataTextField("Duration")
+                            .DataValueField("RowId")
+                            .Columns(columns =>
+                            {
+                            columns.Add().Field("Advance").Width("200px");
+                            columns.Add().Field("Inst").Width("200px");
+                            columns.Add().Field("Duration").Width("200px");
+                            columns.Add().Field("InstPrice").Width("200px");
+                            })
+                            //.Suggest(true)
+                            //.Filter(FilterType.Contains)
+                            //.FilterFields(new string[] { "Model", "Company", "Product" })
+                            //.MinLength(3)
+                            .Events(e => e.Change("durChange").DataBound("durLoad"))
+                            .DataSource(dataSource =>
+                            {
+                            dataSource.Read(read => read.Action("InstPriceByModel", "Sale").Data("filterDuration")).ServerFiltering(true);
+                            })
+                            .CascadeFrom("ModelId")
+                            //.IgnoreCase(true)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("Advance")
+                            @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("ActualAdvance")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Events(e => e.Change("advChange"))
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        @*<div class="col-md-3">
+                            @Html.Label("Duration")
+                            @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("Duration")
+                            .Format("###")
+                            .Events(e => e.Change("advChange"))
+                            .Min(2)
+                            .Max(12)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                            </div>*@
+                        <div class="col-md-3">
+                            @Html.Label("MonthlyInstallment")
+                            @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("MonthlyInstallment")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("Installment Price")
+                            @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("InstPrice")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        @*<div class="col-md-3">
+                            @Html.Label("Amount Received")
+                            @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("AmountReceived")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                            </div>*@
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            @Html.Label("Marketing")
+                            @(Html.Kendo()
+                            .ComboBox()
+                            .Name("InspectorId")
+                            .Placeholder("Select Inspector ...")
+                            //.SelectedIndex(0)
+                            .DataValueField("EmpId")
+                            .DataTextField("EmpName")
+                            .Suggest(true)
+                            .CascadeFrom("LocId")
+                            .Enable(false)
+                            .DataSource(ds =>
+                            {
+                            ds.Read(read => read.Action("EmpByDesgLoc", "Sale").Data("filterInspector")).ServerFiltering(true);
+                            })
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("Inquiry Officer")
+                            @(Html.Kendo()
+                            .ComboBox()
+                            .Name("InqOfficerId")
+                            .Placeholder("Select Inquiry Officer ...")
+                            //.SelectedIndex(0)
+                            .DataValueField("EmpId")
+                            .DataTextField("EmpName")
+                            .Suggest(true)
+                            .CascadeFrom("LocId")
+                            .Enable(false)
+                            .DataSource(ds =>
+                            {
+                            ds.Read(read => read.Action("EmpByDesgLoc", "Sale").Data("filterInqOfficer")).ServerFiltering(true);
+                            })
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("Manager")
+                            @(Html.Kendo()
+                            .ComboBox()
+                            .Name("MangId")
+                            .Placeholder("Select Manager ...")
+                            //.SelectedIndex(0)
+                            .DataValueField("EmpId")
+                            .DataTextField("EmpName")
+                            .Suggest(true)
+                            .CascadeFrom("LocId")
+                            .Enable(false)
+                            .DataSource(ds =>
+                            {
+                            ds.Read(read => read.Action("EmpByDesgLoc", "Sale").Data("filterManager")).ServerFiltering(true);
+                            })
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <br />
+                            <button class="k-button k-primary" type="submit">
+                                <i class="material-icons left">save</i> Save
+                            </button>
+                        </div>
+                    </div>
+                }
+                <br />
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        //$('#m_14000000').addClass('active');
+        //$('#d_14000000').css("display", "block");
+        //$('#m_14030000').addClass('active');
+        //$('#d_14030000').css("display", "block");
+        //$('#m_14030300').addClass('active');
+        //$('#a_14030300').addClass('active');
+    });
+    function CustIdChange() {
+        var CustId = $('#CustId').val();
+        var LocId = $('#LocId').data("kendoComboBox").value();
+        if (CustId > 0 && LocId > 0) {
+            $.getJSON("/Sale/CustomerById", { CustId: CustId })
+                .done(function (data) {
+                    if (data != null) {
+                        console.log(data.LocId);
+                        console.log(LocId);
+                        if (data.LocId == LocId) {
+                            $('#CustName').val(data.CustName);
+                            $('#SO').val(data.SO);
+                            $('#InspectorId').data("kendoComboBox").value(data.InspectorId);
+                            $('#InqOfficerId').data("kendoComboBox").value(data.InqOfficerId);
+                            $('#MangId').data("kendoComboBox").value(data.MangId);
+                            $('#ActualAdvance').data("kendoNumericTextBox").value(data.ActualAdvance);
+                            $('#MonthlyInstallment').data("kendoNumericTextBox").value(data.MonthlyInstallment);
+                            $("#ProcessFee").data("kendoNumericTextBox").value(data.ProcessFee);
+                            $("#InstPrice").data("kendoNumericTextBox").value(data.InstPrice);
+                            $("#ModelId").data("kendoMultiColumnComboBox").value(data.ModelId);
+                            $('#Duration').data("kendoMultiColumnComboBox").value(data.PlanId);
+                            ModelChange();
+                            
+                            //durChange();
+                        }
+                        else {
+                            alert('This Customer is registered on another Location');
+                        }
+                    }
+                    else {
+                        alert('Customer does not exist');
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Customer does not exist');
+                });
+        }
+    }
+    var modelData = [];
+    function filterModel() {
+        return {
+            LocId: $('#LocId').val(),
+            filterModel: $("#ModelId").data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+    function filterItem() {
+        return {
+            LocId: $('#LocId').val(),
+            ModelId: $('#ModelId').val()
+        }
+    }
+    function changeLoc() {
+        $("#ModelId").data("kendoMultiColumnComboBox").dataSource.read();
+    }
+
+    function ModelChange() {
+        var LocId = $('#LocId').val() || 0;
+        var ModelId = $('#ModelId').val() || 0;
+        if (ModelId > 0 && LocId > 0) {
+            var modelData = $('#ModelId').data('kendoMultiColumnComboBox').dataItem();
+            $('#Company').val(modelData.Company);
+            $('#Product').val(modelData.Product);
+        }
+    }
+    function durLoad() {
+        var instData = $('#Duration').data('kendoMultiColumnComboBox').dataItem();
+        $('#ActualAdvance').data("kendoNumericTextBox").min(instData.Advance);
+    }
+    function durChange() {
+        var instData = $('#Duration').data('kendoMultiColumnComboBox').dataItem();
+        $('#ActualAdvance').data("kendoNumericTextBox").value(instData.Advance);
+        $('#MonthlyInstallment').data("kendoNumericTextBox").value(instData.Inst);
+        $("#ProcessFee").data("kendoNumericTextBox").value(instData.ProcessFee);
+        $("#ActualAdvance").data("kendoNumericTextBox").min(instData.Advance);
+        $("#InstPrice").data("kendoNumericTextBox").value(instData.InstPrice);
+    }
+    function advChange() {
+        var instData = $('#Duration').data('kendoMultiColumnComboBox').dataItem();
+        if (instData != null) {
+            var adv = $('#ActualAdvance').data("kendoNumericTextBox").value();
+            var inst = (instData.InstPrice - adv) / (instData.Duration - 1);
+            $('#MonthlyInstallment').data("kendoNumericTextBox").value(inst);
+        }
+    }
+
+    function filterDuration() {
+        return {
+            LocId: $('#LocId').val(),
+            ModelId: $('#ModelId').val()
+        }
+    }
+    function filterInspector() {
+        return {
+            LocId: $('#LocId').val(),
+            DesgId: 28
+        }
+    }
+    function filterInqOfficer() {
+        return {
+            LocId: $('#LocId').val(),
+            DesgId: 111
+        }
+    }
+    function filterManager() {
+        return {
+            LocId: $('#LocId').val(),
+            DesgId: 15
+        }
+    }
+    function SrNoChange() {
+        var modelData = $('#ItemId').data('kendoComboBox').dataItem();
+    }
+</script>

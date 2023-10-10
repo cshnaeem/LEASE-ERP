@@ -1,0 +1,399 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "SKU Cash Price";
+}
+<div class="card">
+    <div class="content-header">
+
+        <div class="card-header">
+            <h3 class="card-title">Installment Plan</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Installment Plan</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-xs-12" style="margin-top:-6px">
+                @Html.Label("Company")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("ComId")
+                .OptionLabel("All")
+                .DataValueField("ComId")
+                .DataTextField("ComName")
+                .Filter(FilterType.Contains)
+                //.Events(e => e.Change("LoadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("CompanyList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-xs-4" style="margin-top:-6px">
+                @Html.Label("Product")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("ProductId")
+                .OptionLabel("All")
+                .DataValueField("ProductId")
+                .DataTextField("Name")
+                .Filter(FilterType.Contains)
+                //.Events(e => e.Change("LoadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("ProductList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-xs-4">
+                @Html.Label("Model")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("ModelId")
+                .OptionLabel("All")
+                .DataValueField("ModelId")
+                .DataTextField("Model")
+                .CascadeFrom("ProductId")
+                //.Events(e => e.Change("LoadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("ModelByComProList", "Setup").Data("filterModel"))
+                .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-xs-4">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="LoadGrid()">
+                    <i class="fa fa-arrow-right"></i>&nbsp; Load SKU
+                </button>
+            </div>
+        </div>
+        <div class="row" id="frm">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("City")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("CityId")
+                .DataValueField("CityId")
+                .DataTextField("City")
+                .OptionLabel("All")
+                .Filter(FilterType.Contains)
+                //.Events(e => e.Change("LoadLoc"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("CityList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3" style="margin-top:6px">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                .CascadeFrom("CityId")
+                .AutoBind(false)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("LocationByCityList", "Setup").Data("filterCity")).ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-4">
+                <label>Select File to Import</label>
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control importfile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Select File" aria-describedby="basic-addon1">
+                    <div class="input-group-append">
+                        <button class="btn btn-info btnLoadFile k-button" type="button">LOAD FILE</button>
+                    </div>
+                </div>
+                <small>Select XLS, XLSX File only</small>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="col-md-12">
+                    <h4 class="card-title">Installment Plan</h4>
+                    @(Html.Kendo()
+                        .Grid<SKUPlanVM>()
+                        .Name("gridItemCashPrice")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.RowId).Hidden();
+                            columns.Bound(c => c.SKUId).Hidden();
+                            columns.Bound(c => c.Model);
+                            columns.Bound(c => c.Type);
+                            columns.ForeignKey(p => p.CityId, (System.Collections.IEnumerable)ViewData["CityVD"], "CityId", "City").Title("City").Hidden();
+                            columns.ForeignKey(p => p.LocId, (System.Collections.IEnumerable)ViewData["LocVD"], "LocId", "LocName").Title("Location").Hidden();
+                            columns.Bound(c => c.BasePrice);
+                            columns.Bound(c => c.InstPrice);
+                            columns.Bound(c => c.Duration);
+                            columns.Bound(c => c.Advance);
+                            columns.Bound(c => c.Inst);
+                            columns.Bound(c => c.EffectedDate).Format("{0: dd/MM/yyyy}");
+                        })
+                        .Pageable()
+                        .Sortable()
+                        .Scrollable()
+                        .ToolBar(t =>
+                        {
+                            t.Save(); t.Excel();
+                        })
+                        .Editable(e => e.Mode(GridEditMode.InCell))
+                        .HtmlAttributes(new { style = "height:400px;" })
+                        .Navigatable()
+                        .AutoBind(false)
+                        .Events(e => e.SaveChanges("onSaveChanges"))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Batch(true)
+                            .PageSize(20)
+                            .Events(e => e.Error("error_handler").RequestEnd("onRequestEnd").Change("CalculateInst"))
+                            .Model(model =>
+                            {
+                                model.Id(m => m.RowId);
+                                model.Field(m => m.SKUId).Editable(false);
+
+                                model.Field(m => m.CityId).Editable(false);
+                                model.Field(m => m.LocId).Editable(false);
+                                model.Field(m => m.BasePrice).Editable(true);
+                                model.Field(m => m.InstPrice).Editable(true);
+                                model.Field(m => m.Duration).Editable(true);
+                                model.Field(m => m.Model).Editable(false);
+                                model.Field(m => m.Type).Editable(false);
+                                model.Field(m => m.Advance).Editable(true);
+                                model.Field(m => m.Inst).Editable(true);
+                                model.Field(m => m.EffectedDate).Editable(true);
+
+
+                            })
+                            .Read(read => read.Action("ItemCashPriceV2_Read", "Setup").Data("filterModelPrice"))
+                            .Update(update => update.Action("ItemCashPriceV2_Update", "Setup"))
+                        ))
+                </div>
+            </div>
+     
+        </div>
+    
+    </div>
+</div>
+@section scripts
+{
+    <script type="text/javascript" src="~/scripts/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="~/scripts/jszip.js"></script>
+    <script>
+        var gridElement = $("#gridItemCashPrice");
+        $('body').addClass('sidebar-collapse');
+        var validator = $("#frm").kendoValidator().data("kendoValidator");
+        $(document).ready(function () {
+            resizeGrid();
+        });
+        function filterModel() {
+            return {
+                ComId: $('#ComId').val() || 0,
+                ProductId: $('#ProductId').val() || 0
+            }
+        }
+        $(".btnLoadFile").click(function () {
+            var fileUpload = $(".importfile")[0];
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+            if (regex.test(fileUpload.value.toLowerCase())) {
+                if (typeof (FileReader) != "undefined") {
+                    var reader = new FileReader();
+                    if (reader.readAsBinaryString) {
+                        reader.onload = function (e) {
+                            ProcessExcel(e.target.result);
+                        };
+                        reader.readAsBinaryString(fileUpload.files[0]);
+                    } else {
+                        //For IE Browser.
+                        reader.onload = function (e) {
+                            var data = "";
+                            var bytes = new Uint8Array(e.target.result);
+                            for (var i = 0; i < bytes.byteLength; i++) {
+                                data += String.fromCharCode(bytes[i]);
+                            }
+                            ProcessExcel(data);
+                        };
+                        reader.readAsArrayBuffer(fileUpload.files[0]);
+                    }
+                } else {
+                    $(".btnLoadFile").html("LOAD FILE");
+                    alert('This browser does not support HTML5.');
+                }
+            } else {
+                $(".btnLoadFile").html("LOAD FILE");
+                alert('Please upload a valid Excel file.');
+            }
+        });
+        function ProcessExcel(data) {
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+            var firstSheet = workbook.SheetNames[0];
+            var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+            var lst = [];
+            for (var i = 0; i < excelRows.length; i++) {
+                var Model = typeof excelRows[i]["Model"] === 'undefined' ? "" : excelRows[i]["Model"];
+                var Type = typeof excelRows[i]["Type"] === 'undefined' ? "" : excelRows[i]["Type"];
+                var BasePrice = typeof excelRows[i]["Base Price"] === 'undefined' ? "" : excelRows[i]["Base Price"];
+                var InstPrice = typeof excelRows[i]["Inst Price"] === 'undefined' ? "" : excelRows[i]["Inst Price"];
+                var Duration = typeof excelRows[i]["Duration"] === 'undefined' ? "" : excelRows[i]["Duration"];
+                var Advance = typeof excelRows[i]["Advance"] === 'undefined' ? "" : excelRows[i]["Advance"];
+                var Inst = typeof excelRows[i]["Inst"] === 'undefined' ? "" : excelRows[i]["Inst"];
+                var EffectedDate = typeof excelRows[i]["Effected Date"] === 'undefined' ? "" : excelRows[i]["Effected Date"];
+                lst.push({
+                    Model: Model,
+                    Type: Type,
+                    BasePrice: BasePrice,
+                    InstPrice: InstPrice,
+                    Duration: Duration,
+                    Advance: Advance,
+                    Inst: Inst,
+                    EffectedDate: EffectedDate
+                });
+            }
+            $("#gridItemCashPrice").data('kendoGrid').dataSource.data(lst);
+        }
+        function CalculateInst(e) {
+              var field = e.field;
+             if (e.field == "InstPrice") {
+                var instPrice = e.items[0].InstPrice;
+                 var duration = e.items[0].Duration;
+                 var finaladvance = duration > 0 ? (instPrice / duration) : 0;
+                 var finalinst = duration > 0 ? (instPrice / duration) : 0;
+                e.items[0].set("Advance", finaladvance.toFixed(2));
+                e.items[0].set("Inst",finalinst.toFixed(2));
+            }
+            else if (e.field == "Duration") {
+                  var instPrice = e.items[0].InstPrice;
+                 var duration = e.items[0].Duration;
+                 var finalinst = duration > 0 ? (instPrice / duration) : 0;
+                 var finaladvance = duration > 0 ? (instPrice / duration) : 0;
+                 e.items[0].set("Advance", finaladvance.toFixed(2));
+                 e.items[0].set("Inst", finalinst.toFixed(2));
+            }
+            else if (e.field == "Advanace") {
+                 var instPrice =  e.items[0].InstPrice - e.items[0].Advanace;
+                 var duration = e.items[0].Duration - 1;
+                 var finalinst = (instPrice / duration);
+                 e.items[0].set("Inst", finalinst.toFixed(2));
+            }
+        }
+        function filterModelPrice() {
+            return {
+                ComId: $('#ComId').val() || 0,
+                ProductId: $('#ProductId').val() || 0,
+                ModelId: $('#ModelId').val() || 0
+            }
+        }
+        function filterModelPriceData() {
+            return {
+                ComId: $('#ComId').val() || 0,
+                ProductId: $('#ProductId').val() || 0,
+                ModelId: $('#ModelId').val() || 0,
+                CityLst: $('#CityId').val() || [0],
+                LocLst: $('#LocId').val() || [0]
+            }
+        }
+        function LoadLoc() {
+            $('#LocId').data('kendoMultiSelect').dataSource.read();
+        }
+
+        function filterCity() {
+            return {
+                CityLst: $('#CityId').val()
+            };
+        }
+      
+        //function LoadGridList() {
+        //    $('#gridItemCashPriceList').data('kendoGrid').dataSource.read();
+        //}
+        function LoadGrid() {
+            $('#gridItemCashPrice').data('kendoGrid').dataSource.read();
+          //  $('#gridItemCashPriceList').data('kendoGrid').dataSource.read();
+        }
+        var IsSave = false;
+        function onSaveChanges(e) {
+            if (IsSave) {
+                IsSave = false;
+                return;
+            }
+            e.preventDefault();
+            if ($('#gridItemCashPrice').data('kendoGrid').dataSource.data().length == 0) {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.content("Nothing to Save");
+                dia.open();
+            }
+            else if (validator.validate()) {
+                kendo.confirm("Are you sure that you want to proceed?")
+                    .then(function () {
+                        IsSave = true;
+                        $('#gridItemCashPrice').data('kendoGrid').saveChanges();
+                    });
+            }
+        }
+
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridItemCashPrice").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+        
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+        function onRequestEnd(e) {
+            if (e.type == "update" && !e.response.Errors) {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Success");
+                dia.content("Save Successfully");
+                dia.open();
+                $('#gridItemCashPrice').data('kendoGrid').dataSource.data([]);
+            }
+        }
+    </script>
+}

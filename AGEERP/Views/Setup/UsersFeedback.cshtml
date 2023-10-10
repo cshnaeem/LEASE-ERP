@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "UsersFeedback";
+    ViewBag.Parent = "Setup";
+}
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+
+
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Users Feedback</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Users Feedback</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Ajax.BeginForm("UsersFeedback", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+        {
+            @Html.ValidationSummary()
+        <div class="row">
+
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Title")
+                @Html.Kendo().TextBox().Name("Title").HtmlAttributes(new { @style = "width:100%", @required = true, @value = "" })
+            </div>
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Description")
+                @Html.Kendo().TextBox().Name("Description").HtmlAttributes(new { @style = "width:100%", @required = true })
+            </div>
+
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Mobile No")
+                @Html.Kendo().TextBox().Name("MobileNo").HtmlAttributes(new { @style = "width:100%", @required = true })
+            </div>
+        </div>
+     
+
+            <div class="row">
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="button" id="btnSave" onclick="SaveDoc()">
+                        <i class="fas fa-plus"></i>&nbsp; Save
+                    </button>
+                </div>
+
+            </div>
+        }
+    </div>
+</div>
+
+
+
+<script>
+
+        function SaveDoc() {
+        $.confirm({
+            title: 'Confirmation',
+            content: 'Are you sure that you want to proceed?',
+            buttons: {
+                confirm: function () {
+                    $('#frm').submit();
+                    kendo.ui.progress($('.card'), true);
+                },
+                cancel: function () {
+                }
+            }
+        });
+        //myconfirm("Confirmation", "Are you sure that you want to proceed?").then(function () {
+        //    kendo.ui.progress($('.card'), true);
+        //    $('#frm').submit();
+        //});
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+        if (result.RowId > 0) {
+            dia.title("Msg");
+            dia.content("Save Successfully");
+            dia.open();
+            //myconfirm("Save Successfully", "Do you want to print?").then(function () {
+            //    $("#rpt").val("Processing");
+            //    $("#TransId").val(result.AccNo);
+            //    $("#rptForm").submit();
+            //});
+        }
+        else {
+            dia.title("Error");
+            dia.content("Not Save Successfully");
+            dia.open();
+        }
+    }
+
+</script>
+
+
+
+
+
+

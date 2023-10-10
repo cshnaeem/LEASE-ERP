@@ -1,0 +1,219 @@
+﻿@model IEnumerable<AGEERP.Models.UserMenuInfo>
+@{
+    ViewBag.Title = "Sale";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var salStp = Model.Where(it => it.Menu2 == 3).OrderBy(it => it.SortOrder).ToList();
+    var lseFrm = Model.Where(it => it.Menu2 == 8).OrderBy(it => it.SortOrder).ToList();
+    var salFrm = Model.Where(it => it.Menu2 == 7).OrderBy(it => it.SortOrder).ToList();
+    var salRpt = Model.Where(it => it.Menu2 == 15).OrderBy(it => it.SortOrder).ToList();
+    var lseRpt = Model.Where(it => it.Menu2 == 16).OrderBy(it => it.SortOrder).ToList();
+
+    var taxFrm = Model.Where(it => it.Menu2 == 34).OrderBy(it => it.SortOrder).ToList();
+    var taxRpt = Model.Where(it => it.Menu2 == 36).OrderBy(it => it.SortOrder).ToList();
+}
+
+<div class="row">
+    @if (salStp.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Sale Setup
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in salStp)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (salFrm.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Sale Forms
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in salFrm)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (salRpt.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Sale Reports
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in salRpt)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (lseFrm.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Lease Forms
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in lseFrm)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (lseRpt.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Lease Reports
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in lseRpt)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (taxFrm.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Tax Forms
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in taxFrm)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (taxRpt.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Tax Reports
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in taxRpt)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,161 @@
+﻿@model AGEERP.Models.ExpenseTransactionVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.TransId)
+    @*@Html.HiddenFor(m => m.LocId)
+        @Html.HiddenFor(m => m.WorkingDate)*@
+    <div class="row">
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Location")
+            @(Html.Kendo()
+                        .MultiColumnComboBoxFor(m => m.LocId)
+                        //.Name("LocId")
+                        .Placeholder("Select Locations ...")
+                        .DataValueField("LocId")
+                        .DataTextField("LocName")
+                       // .SelectedIndex(0)
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("LocCode").Width("100px");
+                            columns.Add().Field("LocName").Width("200px");
+                        })
+                        .FilterFields(new string[] { "LocCode", "LocName" })
+                        .Filter(FilterType.Contains)
+                        //.Events(e => e.DataBound("LocChange"))
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%",  @required = "required" })
+                            )
+        </div>
+        <div class="col-md-3 col-sm-4">
+            @Html.Label("WorkingDate")
+            @Html.Kendo().DatePickerFor(x => x.WorkingDate).Name("WorkingDate").HtmlAttributes(new { @style = "width:100%", @required = "required" })
+        </div>
+        <div class="col-md-3 col-sm-3">
+            @Html.Label("Cost Center")
+            @(Html.Kendo()
+                            .DropDownListFor(m => m.CCCode)
+                            .OptionLabel("Select Expense")
+                            .DataValueField("CCCode")
+                            .DataTextField("CCDesc")
+                            .Filter(FilterType.Contains)
+                            .BindTo((System.Collections.IEnumerable)ViewData["CCVD"])
+                            .HtmlAttributes(new { @style = "width:100%", @required = "required" })
+                        )
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Expense") <label id="glcode"></label>
+            @*@(Html.Kendo()
+                    .DropDownListFor(m => m.ExpHeadId)
+                    .OptionLabel("Select Expense")
+                    .DataValueField("ExpHeadId")
+                    .DataTextField("ExpHead")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("ExpenseList", "Sale"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = "required" })
+                )*@
+            @(Html.Kendo().MultiColumnComboBoxFor(m => m.ExpHeadId)
+                .Placeholder("All Expense")
+                .DataValueField("ExpHeadId")
+                .DataTextField("ExpHead")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("SubCode").Title("GL Code").Width("200px");
+                    columns.Add().Field("ExpHead").Title("Expense Head").Width("600px");
+                })
+                .AutoBind(true)
+                .Height(400)
+
+                //        .Template("#= data.SubCode# | #= data.ExpHead#")
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "SubCode", "ExpHead" })
+                 .FooterTemplate("Total #: instance.dataSource.total() # items found")
+                .Events(e => { e.DataBound("setSpanInnerHtml");e.Change("setSpanInnerHtml"); })
+                //.MinLength(3)
+                .DataSource(dataSource =>
+                {
+                    dataSource.Read(read => read.Action("ExpenseListBySubCode", "Sale")).ServerFiltering(false);
+                })
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%" })
+            )
+        </div>
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Subsidiary A/C")
+            @(Html.Kendo()
+                .MultiColumnComboBoxFor(m => m.SubId)
+                .Name("SubId")
+                .Placeholder("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("200px");
+                    columns.Add().Field("Name").Width("200px");
+                })
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                //.MinLength(3)
+                .CascadeFrom("ExpHeadId")
+                //.Events(e => e.Change("loadGrid"))
+                .AutoBind(false)
+                //.BindTo(ViewBag.COA4)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SubsidaryCodeList", "Account").Data("filterSubsidaryCode")).ServerFiltering(true);
+                })
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-9 col-sm-9">
+            @Html.Label("Description")
+            @(Html.TextAreaFor(m => m.Description,4,1, new { @style = "width:100%", @required = "required", @maxlength = "250" }))
+            <div id="Description_feedback"></div>
+        </div>
+        <div class="col-md-3 col-sm-3">
+            <div>
+                @Html.Label("Ref BillNo")
+                @(Html.Kendo().TextBoxFor(m => m.RefBillNo)
+                        .HtmlAttributes(new { @style = "width:100%"}))
+            </div>
+            <div>
+                @Html.Label("Amount")
+                @(Html.Kendo().NumericTextBoxFor(m => m.Amount)
+                        .HtmlAttributes(new { @style = "width:100%", @required = "required" }))
+                </div>
+            </div>
+    </div>
+}
+<script>
+    $(document).ready(function () {
+        $('#Description').keyup(function () {
+            var text_length = $('#Description').val().length;
+            var text_remaining = text_max - text_length;
+
+            $('#Description_feedback').html(text_remaining + ' characters remaining');
+        });
+    });
+</script>

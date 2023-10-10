@@ -1,0 +1,158 @@
+﻿@model AGEERP.Models.SupplierDetailVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.SuppId)
+
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Supplier Name")
+            @(Html.Kendo().TextBoxFor(x => x.SuppName).HtmlAttributes(new { @style = "width:100%", @maxlength = "50", required = "true" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("ContactPerson")
+            @(Html.Kendo().TextBoxFor(x => x.ContactPerson).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Email")
+            @(Html.Kendo().TextBoxFor(x => x.Email).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Mobile")
+            @(Html.Kendo().MaskedTextBoxFor(x => x.Mobile).Mask("0000-0000000").HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("PhoneOff")
+            @(Html.Kendo().MaskedTextBoxFor(x => x.PhoneOff).Mask("0000-0000000").HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("PhoneRes")
+            @(Html.Kendo().MaskedTextBoxFor(x => x.PhoneRes).Mask("0000-0000000").HtmlAttributes(new { @style = "width:100%"}))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            @Html.Label("STRN")
+            @(Html.Kendo().TextBoxFor(x => x.STRN).HtmlAttributes(new { @style = "width:100%", @maxlength = "15" }))
+        </div>
+        <div class="col-md-2">
+            @Html.Label("NTN")
+            @(Html.Kendo().TextBoxFor(x => x.NTN).HtmlAttributes(new { @style = "width:100%", @maxlength = "15" }))
+        </div>
+        <div class="col-md-2">
+            @Html.Label("TaxRate")
+            @(Html.Kendo().NumericTextBoxFor(x => x.TaxRate).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-2">
+            @Html.Label("WHT")
+            @(Html.Kendo().NumericTextBoxFor(x => x.WHT).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-2">
+            @Html.Label("GST")
+            @(Html.Kendo().NumericTextBoxFor(x => x.GST).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-2">
+            @Html.Label("Registered")<br />
+            @(Html.Kendo().CheckBoxFor(x => x.IsReg)@*.HtmlAttributes(new { @style = "width:100%" })*@)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Label("Address")
+            @(Html.Kendo().TextBoxFor(x => x.Address).HtmlAttributes(new { @style = "width:100%", @maxlength = "100" }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("GLCode")
+            @(Html.Kendo().TextBoxFor(x => x.GLCode).HtmlAttributes(new { @style = "width:100%", @maxlength = "14" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("PaymentTerms")
+            @(Html.Kendo().DropDownListFor(x => x.PaymentTermId)
+                                   .OptionLabel("Select Payment Term")
+                                   .DataValueField("PaymentTermId")
+                                   .DataTextField("Description")
+                                   .DataSource(ds =>
+                                   {
+                                       ds.Read(read => read.Action("PaymentTermsList", "Setup"));
+                                   })
+                                   .HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Category")
+            @(Html.Kendo().DropDownListFor(x => x.CategoryId)
+                                   .OptionLabel("Select Category")
+                                   .DataValueField("CategoryId")
+                                   .DataTextField("CategoryTitle")
+                                   .DataSource(ds =>
+                                   {
+                                       ds.Read(read => read.Action("SupplierCatList", "Setup"));
+                                   })
+                                   .HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Company")
+            @(Html.Kendo().MultiSelectFor(x => x.CompanyLst)
+                                   .Placeholder("Select Company ...")
+                                   .DataValueField("ComId")
+                                   .DataTextField("ComName")
+                                   .ValuePrimitive(true)
+                                   .DataSource(ds =>
+                                   {
+                                       ds.Read(read => read.Action("CompanyList", "Setup"));
+                                   })
+                                   .HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("City")
+            @(Html.Kendo().MultiSelectFor(x => x.CityLst)
+                .Placeholder("Select Company ...")
+                .DataValueField("CityId")
+                .DataTextField("CityCode")
+                .ValuePrimitive(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CityList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Tax Applied On")
+            @(Html.Kendo().DropDownListFor(x => x.TaxAppliedOn)
+                .DataTextField("Text")
+                .Value("M")
+                .DataValueField("Value")
+                .ValuePrimitive(true)
+                .BindTo((System.Collections.IEnumerable)ViewBag.IsMrpTp)
+                .HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Registered Name")
+            @(Html.Kendo().TextBoxFor(x => x.RegisteredName).HtmlAttributes(new { @style = "width:100%", @maxlength = "100" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Registered Address")
+            @(Html.Kendo().TextBoxFor(x => x.RegisteredAddress).HtmlAttributes(new { @style = "width:100%", @maxlength = "200" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Company Name")
+            @(Html.Kendo().TextBoxFor(x => x.CompanyName).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+    </div>
+}

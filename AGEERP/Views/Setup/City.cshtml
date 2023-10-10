@@ -1,0 +1,99 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "City";
+}
+
+<div class="card">
+    <div class="content-header">
+
+        <div class="card-header">
+            <h3 class="card-title">City</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">City</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            @(Html.Kendo()
+   .Grid<CityVM>()
+   .Name("gridCity")
+   .Columns(columns =>
+   {
+       columns.Bound(c => c.CityId).Filterable(false).Hidden();
+       columns.Bound(c => c.City).Title("City");
+       columns.Bound(c => c.CityCode);
+       columns.Command(c => { c.Edit(); }).Width(250);
+   })
+   .Pageable()
+   .Sortable()
+   .Scrollable()
+   //.Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+   .ToolBar(t => { t.Create(); t.Search(); })
+   .Search(s => s.Field(a => a.City))
+   .Editable(e => e.Mode(GridEditMode.InLine))
+   .HtmlAttributes(new { style = "height:400px;font-size:12px;" })
+   .DataSource(dataSource => dataSource
+   .Ajax()
+   .PageSize(20)
+   .Events(e => e.Error("error_handler"))
+   .Model(model =>
+   {
+       model.Id(m => m.CityId);
+       model.Field(m => m.CityCode).Editable(false);
+   })
+   .Read(read => read.Action("City_Read", "Setup"))
+   .Create(create => create.Action("City_Create", "Setup"))
+   .Update(update => update.Action("City_Update", "Setup"))
+   .Destroy(update => update.Action("City_Destroy", "Setup"))
+   ))
+        </div>
+    </div>
+
+</div>
+
+
+
+
+<script type="text/javascript">
+    var gridElement = $("#gridCity");
+    $(document).ready(function () {
+        resizeGrid();
+    });
+
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 120;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridCity").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Error");
+            dia.content(message);
+            dia.open();
+            $("#gridCity").data("kendoGrid").dataSource.read();
+        }
+    }
+</script>

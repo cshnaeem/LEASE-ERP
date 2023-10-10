@@ -1,0 +1,124 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Purchase Invoice Report";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Purchase Invoice Report</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                    <li class="breadcrumb-item active">Purchase Invoice Report</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("PurchaseInvoice", "Report", FormMethod.Post, new { target = "_blank" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row ">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Supplier Category")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("SuppCatId")
+                .SelectedIndex(0)
+                .DataValueField("CategoryId")
+                .DataTextField("CategoryTitle")
+                .Events(e => e.Change("suppCatChange").DataBound("suppCatChange"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SupplierCatList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("SuppId")
+                .OptionLabel("All Supplier ...")
+                .DataValueField("SuppId")
+                .DataTextField("SuppName")
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SupplierByCatList", "Setup").Data("filterSupplier"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Status")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("Status")
+                .SelectedIndex(0)
+                .BindTo(SelectListVM.PaymentStatusSL)
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+
+    function suppCatChange() {
+        $("#SuppId").data("kendoDropDownList").dataSource.read();
+    }
+    function dBound(e) {
+        var grid = this;
+        $(".k-grouping-row").each(function (e) {
+            grid.collapseGroup(this);
+        });
+    }
+    function POInv(grnId) {
+        window.open("/Purchase/POInvG?GRNId=" + grnId, "_blank");
+    }
+    function filterSupplier() {
+        return {
+            CategoryId: $('#SuppCatId').val()
+        }
+    }
+</script>

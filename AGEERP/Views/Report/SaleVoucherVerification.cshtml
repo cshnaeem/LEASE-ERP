@@ -1,0 +1,76 @@
+﻿
+@{
+    ViewBag.Title = "Sale Voucher Exceptions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <style>
+        .margin-15 {
+            margin-top: 15px;
+        }
+    </style>
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Sale Voucher Exceptions</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Accounts</a></li>
+                        <li class="breadcrumb-item active">Sale Voucher Exceptions</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            @using (Html.BeginForm("SaleVoucherVerification", "Report", FormMethod.Post, new { target = "_blank" }))
+            {
+                @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-md-4 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    //.SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%"})
+                )
+                </div>
+                <div class="col-md-4">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-4">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-7">
+                    <br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Cash Sale Exceptions").Value("1").HtmlAttributes(new { @checked = true, @id = "chkYes" })
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Installment Sale Exceptions").Value("2")
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Installment Exceptions").Value("3")
+                </div>
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-15" type="submit">
+                        <i class="fas fa-print"></i> Show
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+    </div>

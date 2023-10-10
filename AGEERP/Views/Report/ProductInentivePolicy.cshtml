@@ -1,0 +1,90 @@
+﻿
+@{
+    ViewBag.Title = "ProductInentivePolicy";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+@using (Html.BeginForm("ProductInentivePolicy", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Product Incentive Report</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                        <li class="breadcrumb-item active">Product Incentive Report</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-4" id="MonthCalendar">
+                    @Html.Label("Month")
+                    @Html.Kendo().DatePicker().Name("SalMon").Events(x => x.Change("Refresh")).Depth(CalendarView.Year).Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1)).Start(CalendarView.Year).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Product Incentive Policy")
+                    @(Html.Kendo().DropDownList()
+                .Name("PeriodId")
+                .OptionLabel("Select Period")
+                .DataValueField("RowId")
+                .DataTextField("Month")
+                .Template("<div style=\"display: flex\"><span class=\"k-state-default\" style=\"flex: 1;text-align:center;\"><p ><b>Period</b> #: data.FromDate #  #: data.ToDate # </p></span> <span class=\"k-state-default\" style=\"flex: 1;text-align:center;\"><p><b>Week</b> #: data.Week # </p></span> <span class=\"k-state-default\" style=\"flex: 1\"><p><b>Month</b> #: data.Month #</p></span></div>")
+                .ValueTemplate("#: data.FromDate # - #: data.ToDate #")
+                .AutoBind(false)
+                .Filter(FilterType.Contains)
+                .DataSource(dataSource =>
+                {
+                    dataSource.Read(read => read.Action("ProductIncPerList", "Employee").Data("filterPeriod")).ServerFiltering(true);
+                })
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("City")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CityId")
+                    .OptionLabel("Select City")
+                    .DataValueField("CityId")
+                    .DataTextField("City")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CityList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+}
+<script>
+    function filterPeriod() {
+        return {
+            Month: $('#SalMon').val() || ""
+        }
+    }
+    function Refresh() {
+        $('#PeriodId').data('kendoDropDownList').dataSource.read();
+    }
+</script>

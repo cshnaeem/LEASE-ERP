@@ -1,0 +1,249 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "SaleTarget";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Sale Target</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Sale Target</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-md-4">
+                    @Html.Label("Month")
+                    @(Html.Kendo().DatePicker()
+                    .Name("Month")
+                    .Value(DateTime.Now.Date)
+                    .Start(CalendarView.Year)
+                    .Depth(CalendarView.Year)
+                    .Format("MMM yyyy")
+                    .Events(e => e.Change("changeMonth"))
+                    .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+                <div class="col-md-4 col-sm-4">
+                    @Html.Label("Sale Target Type")
+                    @(Html.Kendo()
+                        .DropDownList()
+                        .Name("TTpeId")
+                        .OptionLabel("Select Target Type")
+                        //.Placeholder("Select Locations ...")
+                        //.SelectedIndex(0)
+                        .DataValueField("TargetTypeId")
+                        .DataTextField("TargetType")
+                        .Events(e => e.Change("changeMonth"))
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("GetSaleTargetType", "Sale"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%", @required = "required" })
+                    )
+                </div>
+                <div class="col-md-4 col-xs-12">
+                    <label>Select File to Import</label>  <a href="~/content/samp.xlsx" download="Sample SKU Plan @DateTime.Now.ToString("yyyyMMddHHmmss") .xlsx" type="button">DOWNLOAD SAMPLE FILE</a>
+                    <div class="input-group mb-3">
+                        <input type="file" class="form-control importfile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Select File" aria-describedby="basic-addon1">
+                        <div class="input-group-append">
+                            <button class="btn btn-info btnLoadFile k-button" type="button">LOAD FILE</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12">
+                    @Html.Label("Sales Target")
+                    @(Html.Kendo()
+                    .Grid<SaleTargetVM>()
+                    .Name("gridSaleTarget")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.TargetId).Hidden();
+                        columns.Bound(c => c.LocId).Hidden();
+                        columns.Bound(c => c.City);
+                        columns.Bound(c => c.LocCode);
+                        columns.Bound(c => c.LocName);
+                        columns.Bound(c => c.Target);
+                    })
+
+                    //.Pageable()
+                    .Sortable()
+                    .Scrollable()
+                    .AutoBind(false)
+                    .Navigatable()
+
+                    .ToolBar(t => t.Save())
+                    .Editable(e => e.Mode(GridEditMode.InCell))
+                    .HtmlAttributes(new { style = "height:300px;" })
+
+                    //.Events(e => e.DataBound("ApplyPolicy"))
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Batch(true)
+
+                    .Events(e => e.Error("error_handler"))
+                    .Model(model =>
+                    {
+                        model.Id(m => m.TargetId);
+                        model.Field(m => m.LocId).Editable(false);
+                        model.Field(m => m.LocCode).Editable(false);
+                        model.Field(m => m.LocName).Editable(false);
+                           model.Field(m => m.TargetMonth).Editable(false);
+                           model.Field(m => m.TargetYear).Editable(false);
+                        model.Field(m => m.City).Editable(false);
+                    })
+                    .Read(read => read.Action("SaleTarget_Read", "Target").Data("filterSaleTarget"))
+                    .Create(create => create.Action("SaleTarget_Create", "Target").Data("SaleTarget"))
+                    .Update(update => update.Action("SaleTarget_Update", "Target"))
+                    ))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="~/scripts/xlsx.full.min.js"></script>
+<script type="text/javascript" src="~/scripts/jszip.js"></script>
+<script>
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_14000000').addClass('active');
+        //$('#d_14000000').css("display", "block");
+        //$('#m_14080000').addClass('active');
+        //$('#a_14080000').addClass('active');
+        //  changeMonth();
+    });
+    var gridElement = $("#gridSaleTarget");
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridSaleTarget").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+    $(".btnLoadFile").click(function () {
+        var fileUpload = $(".importfile")[0];
+        var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+        if (regex.test(fileUpload.value.toLowerCase())) {
+            if (typeof (FileReader) != "undefined") {
+                var reader = new FileReader();
+                if (reader.readAsBinaryString) {
+                    reader.onload = function (e) {
+                        ProcessExcel(e.target.result);
+                    };
+                    reader.readAsBinaryString(fileUpload.files[0]);
+                } else {
+                    //For IE Browser.
+                    reader.onload = function (e) {
+                        var data = "";
+                        var bytes = new Uint8Array(e.target.result);
+                        for (var i = 0; i < bytes.byteLength; i++) {
+                            data += String.fromCharCode(bytes[i]);
+                        }
+                        ProcessExcel(data);
+                    };
+                    reader.readAsArrayBuffer(fileUpload.files[0]);
+                }
+            } else {
+                $(".btnLoadFile").html("LOAD FILE");
+                alert('This browser does not support HTML5.');
+            }
+        } else {
+            $(".btnLoadFile").html("LOAD FILE");
+            alert('Please upload a valid Excel file.');
+        }
+    });
+    function ProcessExcel(data) {
+        var workbook = XLSX.read(data, {
+            type: 'binary'
+        });
+        var firstSheet = workbook.SheetNames[0];
+        var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+        var lst = [];
+        for (var i = 0; i < excelRows.length; i++) {
+
+            var TargetId = 0;
+            var LocId = typeof excelRows[i]["LocId"] === 'undefined' ? "" : excelRows[i]["LocId"];
+            var City = typeof excelRows[i]["City"] === 'undefined' ? "" : excelRows[i]["City"];
+            var LocCode = typeof excelRows[i]["LocCode"] === 'undefined' ? "" : excelRows[i]["LocCode"];
+            var LocName = typeof excelRows[i]["LocName"] === 'undefined' ? "" : excelRows[i]["LocName"];
+            var TargetMonth = typeof excelRows[i]["TargetMonth"] === 'undefined' ? "" : excelRows[i]["TargetMonth"];
+            var TargetYear = typeof excelRows[i]["TargetYear"] === 'undefined' ? "" : excelRows[i]["TargetYear"];
+
+            var Target = typeof excelRows[i]["Target"] === 'undefined' ? "" : excelRows[i]["Target"];
+
+            lst.push({
+                TargetId: TargetId,
+                LocId: LocId,
+                City: City,
+                LocCode: LocCode,
+                LocName: LocName,
+                Target: Target,
+                TargetMonth: TargetMonth,
+                TargetYear: TargetYear
+            });
+        }
+        $("#gridSaleTarget").data('kendoGrid').dataSource.data(lst);
+    }
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    function filterSaleTarget() {
+        return {
+            month: $('#Month').data('kendoDatePicker').value(),
+            TypeId: $('#TTpeId').data('kendoDropDownList').value()
+        }
+    }
+
+    function SaleTarget() {
+        return {
+            TypeId: $('#TTpeId').data('kendoDropDownList').value()
+
+        }
+    }
+    function changeMonth() {
+        $('#gridSaleTarget').data('kendoGrid').dataSource.read();
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message.indexOf("Saved") > -1) {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Success");
+                dia.content(message);
+                dia.open();
+                changeMonth()();
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+</script>

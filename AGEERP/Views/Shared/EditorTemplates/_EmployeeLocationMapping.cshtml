@@ -1,0 +1,48 @@
+﻿@model AGEERP.Models.EmployeeLocationMappingVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("Employee")
+        @(Html.Kendo().ComboBoxFor(x => x.EmpId)
+            .Placeholder("Select Employee ...")
+            .DataValueField("EmpId")
+            .DataTextField("EmpName")
+            .DataSource(ds =>
+            {
+                ds.Read(read => read.Action("EmployeeList", "Employee"));
+            })
+            .HtmlAttributes(new { @style = "width:100%" ,@readonly = "readonly"}))
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        @Html.Label("Location")
+        @(Html.Kendo().MultiSelectFor(x=>x.LocId)
+              .Name("LocId")
+              .HtmlAttributes(new { style = "width:100%" })
+              .DataTextField("LocName")
+              .DataValueField("LocId")
+              .Filter(FilterType.Contains)
+              .ValuePrimitive(true)
+              .DataSource(source =>
+              {
+                  source.Read(read =>
+                  {
+                      read.Action("LocationListAll", "Setup");
+                      //read.Action("DeptByHDeptList", "Employee").Data("filterDept");
+                  });
+              })
+        )
+    </div>
+</div>   
+}

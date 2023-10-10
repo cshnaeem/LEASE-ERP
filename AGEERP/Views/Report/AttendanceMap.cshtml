@@ -1,0 +1,196 @@
+﻿
+@{
+    ViewBag.Title = "AttendanceMap";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    #map {
+        height: 500px;
+    }
+
+    /* Optional: Makes the sample page fill the window. */
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    .customMarker {
+        position: absolute;
+        cursor: pointer;
+        background: #424242;
+        width: 100px;
+        height: 100px;
+        /* -width/2 */
+        margin-left: -50px;
+        /* -height + arrow */
+        margin-top: -110px;
+        border-radius: 50%;
+        padding: 0px;
+    }
+
+        .customMarker:after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 40px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #424242 transparent;
+            display: block;
+            width: 0;
+        }
+
+        .customMarker img {
+            width: 90px;
+            height: 90px;
+            margin: 5px;
+            border-radius: 50%;
+        }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">AttendanceMap</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Report</a></li>
+                    <li class="breadcrumb-item active">AttendanceMap</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+
+                    @Html.Label("Date")
+                    @(Html.Kendo()
+                            .DatePicker()
+                            .Name("Date")
+                            .Value(DateTime.Now.Date)
+                            .Events(e => e.Change("statusChange"))
+                            .HtmlAttributes(new { @style = "width:100%"})
+                        )
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+                
+                @section scripts{
+                    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+                    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA67ScTBJp-W03hEb0Hk4Vk1jfU3pBuIcg"
+                            async></script>
+                    <script>
+                        let map;
+                        //function initMap() {
+                        //    map = new google.maps.Map(document.getElementById("map"), {
+                        //        center: { lat: 31.49, lng: 74.33 },
+                        //        zoom: 8,
+                        //    });
+                        //}
+                        function toggleBounce() {
+                            if (marker.getAnimation() !== null) {
+                                marker.setAnimation(null);
+                            } else {
+                                marker.setAnimation(google.maps.Animation.BOUNCE);
+                            }
+                        }
+                        function statusChange() {
+                            var dt = $('#Date').data('kendoDatePicker').value();
+                            var dat = { "dt": dt };
+                            $.ajax({
+                                url: '/Report/GetAttendanceMap',
+                                type: 'POST',
+                                data: JSON.stringify(dat),
+                                contentType: 'application/json; charset=utf-8',
+                                success: function (data) {
+                                    map = new google.maps.Map(document.getElementById("map"), {
+                                        center: { lat: 31.49, lng: 74.33 },
+                                        zoom: 8,
+                                    });
+                                    for (var i = 0; i < data.length; i++) {
+                                        var myLatlng = new google.maps.LatLng(data[i].Lat, data[i].Long);
+                                        new CustomMarker(myLatlng, map, '../Content/EmpImg/img_face_' + data[i].EmpId.toString() + '.jpg');
+                                        //var marker = new google.maps.Marker({
+                                        //    position: myLatlng,
+                                        //    animation: google.maps.Animation.DROP,
+                                        //    title: data[i].EmpId.toString(),
+                                        //    icon: '../Content/EmpImg/img_face_' + data[i].EmpId.toString() + '.jpg'
+                                        //});
+
+                                        //// To add the marker to the map, call setMap();
+                                        //marker.setMap(map);
+
+                                    }
+                                },
+                                error: function () {
+                                    var dia = $("#msgBox").data("kendoDialog");
+                                    dia.title("Error");
+                                    dia.content("Not Save Successfully");
+                                    dia.open();
+                                }
+                            });
+                        }
+                        function CustomMarker(latlng, map, imageSrc) {
+                            this.latlng_ = latlng;
+                            this.imageSrc = imageSrc;
+                            // Once the LatLng and text are set, add the overlay to the map.  This will
+                            // trigger a call to panes_changed which should in turn call draw.
+                            this.setMap(map);
+                        }
+
+                        CustomMarker.prototype = new google.maps.OverlayView();
+
+                        CustomMarker.prototype.draw = function () {
+                            // Check if the div has been created.
+                            var div = this.div_;
+                            if (!div) {
+                                // Create a overlay text DIV
+                                div = this.div_ = document.createElement('div');
+                                // Create the DIV representing our CustomMarker
+                                div.className = "customMarker"
+
+
+                                var img = document.createElement("img");
+                                img.src = this.imageSrc;
+                                div.appendChild(img);
+                                var me = this;
+                                google.maps.event.addDomListener(div, "click", function (event) {
+                                    google.maps.event.trigger(me, "click");
+                                });
+
+                                // Then add the overlay to the DOM
+                                var panes = this.getPanes();
+                                panes.overlayImage.appendChild(div);
+                            }
+
+                            // Position the overlay 
+                            var point = this.getProjection().fromLatLngToDivPixel(this.latlng_);
+                            if (point) {
+                                div.style.left = point.x + 'px';
+                                div.style.top = point.y + 'px';
+                            }
+                        };
+
+                        CustomMarker.prototype.remove = function () {
+                            // Check if the overlay was on the map and needs to be removed.
+                            if (this.div_) {
+                                this.div_.parentNode.removeChild(this.div_);
+                                this.div_ = null;
+                            }
+                        };
+
+                        CustomMarker.prototype.getPosition = function () {
+                            return this.latlng_;
+                        };
+                    </script>
+                }

@@ -1,0 +1,318 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Order Manager Dashboard";
+}
+<style>
+    .info-box {
+        box-shadow: 0 0 1px rgba(0,0,0,.125),0 1px 3px rgba(0,0,0,.2);
+        border-radius: 0.25rem;
+        background: #fff;
+        display: -ms-flexbox;
+        display: flex;
+        margin-bottom: 1rem;
+        min-height: 55px;
+        padding: .3rem;
+        position: relative;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Order Manager Dashboard</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Order</a></li>
+                    <li class="breadcrumb-item active">Order Manager Dashboard</li>
+                </ol>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-2">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-2">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-2">
+                @Html.Label("City")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("CityId")
+                //.Placeholder("Select City ...")
+                //.SelectedIndex(0)
+                .OptionLabel("All")
+                .DataValueField("CityId")
+                .DataTextField("City")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("CityList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-2">
+                @Html.Label("PO Status")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("StatusId")
+                //.Placeholder("All Locations ...")
+                //.SelectedIndex(0)
+                //.OptionLabel("All")
+                .OptionLabel("All")
+                .DataValueField("StatusId")
+                .DataTextField("Status")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("POStatusList", "Order"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-2 col-sm-2">
+                @Html.Label("Supplier")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("SuppId")
+                .OptionLabel("All")
+                //.SelectedIndex(0)
+                .DataValueField("SuppId")
+                .DataTextField("SuppName")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("SupplierList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;", @required = true })
+                )
+            </div>
+            <div class="col-2">
+                @Html.Label("Category")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("POTypeId")
+                //.Placeholder("All Locations ...")
+                //.SelectedIndex(0)
+                //.OptionLabel("All")
+                .OptionLabel("All")
+                .DataValueField("POTypeId")
+                .DataTextField("POType")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("POTypeList", "Order"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Company")
+                @(Html.Kendo()
+                      .DropDownList()
+                      .Name("ComId")
+                      .OptionLabel("All")
+                      //.SelectedIndex(0)
+                      .DataValueField("ComId")
+                      .DataTextField("ComName")
+                      .Filter(FilterType.Contains)
+                      .DataSource(ds =>
+                      {
+                      ds.Read(read => read.Action("CompanyList", "Setup"));
+                      })
+                      .HtmlAttributes(new { @style = "width:100%", @required = true }))
+
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Product")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("ProductId")
+                .OptionLabel("All")
+                .SelectedIndex(0)
+                .DataValueField("ProductId")
+                .DataTextField("Name")
+                //.Suggest(true)
+                //.CascadeFrom("ComId")
+                //.Events(e => e.Change("LoadModel"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("ProductList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                )
+            </div>
+            <div class="col-2">
+                <br />
+                <button class="k-button" type="submit" style="margin-top: 10px;" onclick="ShowDashboarOrderManager()">
+                    <i class="fas fa-print"></i>&nbsp; Show
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body" id="statsorder" style="padding-top:2px;">
+        <div class="row">
+            @*<div class="col-md-3 col-sm-6 col-12">*@
+            @*<br />
+                    <h2>Orders Statistics</h2>
+                </div>
+
+                <div class="col-md-3 col-sm-6 col-12">
+
+
+                </div>
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-success"><i class="far fa-flag"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Total Received</span>
+                            <span class="info-box-number counter" id="totalrecived"></span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-danger"><i class="far fa-envelope"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Total Pending</span>
+                            <span class="info-box-number counter" id="totalpending"></span>
+                        </div>
+
+                    </div>
+
+                </div>*@
+
+            @(Html.Kendo()
+            .Grid<OrderManagerDashboardVM>()
+            .Name("gridordermanager")
+            .Columns(columns =>
+            {
+                columns.Template(t => { }).Title("#").ClientTemplate(
+                      "#= renderNumber(data) #"
+                 ).Width(100);
+                columns.Bound(c => c.POId).Hidden(true);
+                columns.Bound(c => c.ComName).Title("Company");
+                columns.Bound(c => c.PONo).ClientTemplate("<a style='color:blue;pointer:cursor;' onclick='PrintPO(#=POId#)'>#=PONo#</a>");
+                columns.Bound(c => c.PODate).Format("{0:dd/MM/yyyy}");
+                columns.Bound(c => c.POStatus);
+                columns.Bound(c => c.Pending).Title("Order");
+                columns.Bound(c => c.Recived);
+                 columns.Bound(c => c.Recived).Title("").ClientTemplate("# if(Recived == 0 && POStatusId!=7 && POStatusId!=8) " +
+                                           "{# <div><a class='k-button'  onclick='ChangeStatus(8,#= POId #)'>Cancel</a></div> #}" +
+                                           "else if(Recived > 0 && POStatusId!=6 && POStatusId!=7 && POStatusId!=8) {# <div><a class='k-button'  onclick='ChangeStatus(7,#= POId #)'>Close</a></div> #}#"); 
+            })
+            .Sortable()
+            .Pageable()
+            .Scrollable()
+            //.AutoBind(false)
+            .Navigatable()
+            .HtmlAttributes(new { style = "height:300px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(100)
+            .Model(model =>
+            {
+                model.Id(m => m.POId);
+                model.Field(m => m.ComName);
+                model.Field(m => m.PONo);
+                model.Field(m => m.PODate);
+                model.Field(m => m.POStatus);
+                model.Field(m => m.Pending);
+                model.Field(m => m.Recived);
+
+
+            })
+            .Read(read => read.Action("OrderManagerDashboard_Read", "Order").Data("FormatData"))
+            ))
+        </div>
+    </div>
+</div>
+<form action="/Report/PrintSlip" method="post" target="_blank" id="rptForm" hidden="hidden">
+    @Html.AntiForgeryToken()
+    @Html.Hidden("rpt")
+    @Html.Hidden("POId")
+</form>
+<script>
+    var gridElement = $("#gridordermanager");
+    $(document).ready(function () {
+        //$('#m_17000000').addClass('active');
+        //$('#d_17000000').css("display", "block");
+        //$('#m_17020000').addClass('active');
+        //$('#a_17020000').addClass('active');
+        $('.counter').counterUp();
+        $('.nav-link').click();
+        resizeGrid();
+    });
+    var rowNumber = 0;
+    function resetRowNumber(e) {
+        rowNumber = 0;
+    }
+    function PrintPO(poid) {
+        $("#POId").val(poid);
+        $("#rpt").val("PO");
+        $("#rptForm").submit();
+    }
+    function ChangeStatus(statusid, poid) {
+        $.getJSON("/Order/PoStatusUpdate?PoId=" + poid + "&PoStatus=" + statusid, function (result) {
+            if (result == true) {
+                $("#gridordermanager").data("kendoGrid").dataSource.read();
+            }
+        });
+    }
+
+    function renderNumber(data) {
+        return ++rowNumber;
+    }
+    function ShowDashboarOrderManager() {
+        $("#gridordermanager").data("kendoGrid").dataSource.read();
+    }
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridordermanager").css("height", height);
+        $("#gridordermanager").data("kendoGrid").resize();
+    }
+    function FormatData() {
+        return {
+            FromDate: $('#FromDate').val(),
+            ToDate: $('#ToDate').val(),
+            RegionId: $('#CityId').val() || 0,
+            POStatusId: $('#StatusId').val() || 0,
+            CategoryId: $('#POTypeId').val() || 0,
+            CompanyId: $('#ComId').val() || 0,
+            SupplierId: $('#SuppId').val() || 0,
+            ProductId: $('#ProductId').val() || 0
+        }
+        //      $('#totalrecived').html('100');
+        //$('#totalpending').html('100');
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+
+
+</script>

@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="14243fd2ade2426b848f003d4f861d63" Name="Diagram1" ZoomLevel="52">
+        <EntityTypeShape EntityType="AGEModel.Comp_City" Width="1.5" PointX="0.75" PointY="9.375" />
+        <EntityTypeShape EntityType="AGEModel.Comp_DocumentTypes" Width="1.5" PointX="2.75" PointY="2.5" />
+        <EntityTypeShape EntityType="AGEModel.Comp_GeoLocation" Width="1.5" PointX="2.75" PointY="5.375" />
+        <EntityTypeShape EntityType="AGEModel.Comp_LocationIP" Width="1.5" PointX="4.75" PointY="2.375" />
+        <EntityTypeShape EntityType="AGEModel.Comp_LocationType" Width="1.5" PointX="0.75" PointY="12" />
+        <EntityTypeShape EntityType="AGEModel.Comp_PaymentTerms" Width="1.5" PointX="0.75" PointY="15.375" />
+        <EntityTypeShape EntityType="AGEModel.Comp_Profile" Width="1.5" PointX="18.75" PointY="14.375" />
+        <EntityTypeShape EntityType="AGEModel.Comp_SystemIntegration" Width="1.5" PointX="13.75" PointY="12.375" />
+        <EntityTypeShape EntityType="AGEModel.Comp_Tax" Width="1.5" PointX="11.75" PointY="18.375" />
+        <EntityTypeShape EntityType="AGEModel.Comp_TransactionType" Width="1.5" PointX="13.75" PointY="18.375" />
+        <EntityTypeShape EntityType="AGEModel.Fin_AcClasses" Width="1.5" PointX="3.5" PointY="46.25" />
+        <EntityTypeShape EntityType="AGEModel.Fin_AcControls" Width="1.5" PointX="8" PointY="45.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_Accounts" Width="1.5" PointX="10.25" PointY="45.375" />
+        <EntityTypeShape EntityType="AGEModel.Fin_AcGroups" Width="1.5" PointX="5.75" PointY="46" />
+        <EntityTypeShape EntityType="AGEModel.Fin_AutoVoucherLog" Width="1.5" PointX="18.75" PointY="18.375" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BankBook" Width="1.5" PointX="12.5" PointY="45.625" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BankBookCancelCheqs" Width="1.5" PointX="14.75" PointY="46" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BankBookTrans" Width="1.5" PointX="12.5" PointY="9.25" />
+        <EntityTypeShape EntityType="AGEModel.Fin_Category" Width="1.5" PointX="10.25" PointY="42.375" />
+        <EntityTypeShape EntityType="AGEModel.Fin_CostCenters" Width="1.5" PointX="20.75" PointY="14.375" />
+        <EntityTypeShape EntityType="AGEModel.Fin_PaymentAdvice" Width="1.5" PointX="33.75" PointY="30.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_PaymentAdviceDetail" Width="1.5" PointX="36" PointY="31.375" />
+        <EntityTypeShape EntityType="AGEModel.Fin_Period" Width="1.5" PointX="8" PointY="4.875" />
+        <EntityTypeShape EntityType="AGEModel.Fin_ProfitCenters" Width="1.5" PointX="13.75" PointY="29.375" />
+        <EntityTypeShape EntityType="AGEModel.Fin_Subsidary" Width="1.5" PointX="14.75" PointY="41.5" />
+        <EntityTypeShape EntityType="AGEModel.Fin_SubsidaryType" Width="1.5" PointX="12.5" PointY="41.5" />
+        <EntityTypeShape EntityType="AGEModel.Fin_Voucher" Width="1.5" PointX="10.25" PointY="3.125" />
+        <EntityTypeShape EntityType="AGEModel.Fin_VoucherCounter" Width="1.5" PointX="10.25" PointY="50.625" />
+        <EntityTypeShape EntityType="AGEModel.Fin_VoucherTypes" Width="1.5" PointX="8" PointY="0.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_Year" Width="1.5" PointX="5.75" PointY="5" />
+        <EntityTypeShape EntityType="AGEModel.Inv_GRN" Width="1.5" PointX="25.875" PointY="43.875" />
+        <EntityTypeShape EntityType="AGEModel.Inv_GRNDetail" Width="1.5" PointX="28" PointY="35.25" />
+        <EntityTypeShape EntityType="AGEModel.Inv_Issue" Width="1.5" PointX="28.75" PointY="31.25" />
+        <EntityTypeShape EntityType="AGEModel.Inv_IssueDetail" Width="1.5" PointX="31" PointY="35.25" />
+        <EntityTypeShape EntityType="AGEModel.Inv_PaymentMode" Width="1.5" PointX="19.75" PointY="2.375" />
+        <EntityTypeShape EntityType="AGEModel.Inv_PO" Width="1.5" PointX="20.5" PointY="36" />
+        <EntityTypeShape EntityType="AGEModel.Inv_PODetail" Width="1.5" PointX="22.75" PointY="28.875" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POMapping" Width="1.5" PointX="22.75" PointY="26" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POPlan" Width="1.5" PointX="24" PointY="3.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POPlanDetail" Width="1.5" PointX="26.25" PointY="2.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POPlanMapping" Width="1.5" PointX="26.25" PointY="6.25" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POReturn" Width="1.5" PointX="23.5" PointY="15.375" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POReturnDtl" Width="1.5" PointX="25.75" PointY="30.25" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POSchedule" Width="1.5" PointX="25" PointY="40.25" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POStatus" Width="1.5" PointX="18.25" PointY="41.375" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POType" Width="1.5" PointX="21.75" PointY="4.625" />
+        <EntityTypeShape EntityType="AGEModel.Inv_Sale" Width="1.5" PointX="17" PointY="4.125" />
+        <EntityTypeShape EntityType="AGEModel.Inv_Status" Width="1.5" PointX="23.5" PointY="43.625" />
+        <EntityTypeShape EntityType="AGEModel.Inv_StockOpening" Width="1.5" PointX="0.75" PointY="36.375" />
+        <EntityTypeShape EntityType="AGEModel.Inv_Store" Width="1.5" PointX="25.75" PointY="34" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SuppliersCat" Width="1.5" PointX="14.5" PointY="15.875" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SuppliersMapping" Width="1.5" PointX="19" PointY="25.5" />
+        <EntityTypeShape EntityType="AGEModel.Itm_Category" Width="1.5" PointX="27.75" PointY="27.375" />
+        <EntityTypeShape EntityType="AGEModel.Itm_Color" Width="1.5" PointX="18.25" PointY="32.625" />
+        <EntityTypeShape EntityType="AGEModel.Itm_Company" Width="1.5" PointX="13.75" PointY="25.5" />
+        <EntityTypeShape EntityType="AGEModel.Itm_DiscountPolicy" Width="1.5" PointX="30.75" PointY="21.125" />
+        <EntityTypeShape EntityType="AGEModel.Itm_DiscountPolicyModel" Width="1.5" PointX="33" PointY="19.75" />
+        <EntityTypeShape EntityType="AGEModel.Itm_DiscountPolicySlab" Width="1.5" PointX="33" PointY="22.5" />
+        <EntityTypeShape EntityType="AGEModel.Itm_Model" Width="1.5" PointX="18.25" PointY="29.25" />
+        <EntityTypeShape EntityType="AGEModel.Itm_PairPolicy" Width="1.5" PointX="13.75" PointY="32.375" />
+        <EntityTypeShape EntityType="AGEModel.Itm_PPrice" Width="1.5" PointX="25.75" PointY="24.375" />
+        <EntityTypeShape EntityType="AGEModel.Itm_Products" Width="1.5" PointX="13.75" PointY="21.5" />
+        <EntityTypeShape EntityType="AGEModel.Itm_SKUPlan" Width="1.5" PointX="22.75" PointY="60.5" />
+        <EntityTypeShape EntityType="AGEModel.Itm_SPrice" Width="1.5" PointX="22.75" PointY="53" />
+        <EntityTypeShape EntityType="AGEModel.Itm_Type" Width="1.5" PointX="16" PointY="25.125" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CashCollectionHeads" Width="1.5" PointX="30.75" PointY="30.375" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CashTransfer" Width="1.5" PointX="33.75" PointY="2.375" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Category" Width="1.5" PointX="3.75" PointY="15.625" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Cheque" Width="1.5" PointX="8.25" PointY="10.125" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Customer" Width="1.5" PointX="8.25" PointY="36.375" />
+        <EntityTypeShape EntityType="AGEModel.Lse_DayClosing" Width="1.5" PointX="33.75" PointY="36.375" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Detail" Width="1.5" PointX="22.75" PointY="21.375" />
+        <EntityTypeShape EntityType="AGEModel.Lse_ExpenseTransaction" Width="1.5" PointX="33.25" PointY="8.625" />
+        <EntityTypeShape EntityType="AGEModel.Lse_ExpType" Width="1.5" PointX="28.75" PointY="9.25" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Guarantor" Width="1.5" PointX="8.25" PointY="75" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Installment" Width="1.5" PointX="8.25" PointY="21.5" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Outstand" Width="1.5" PointX="11.25" PointY="30.5" />
+        <EntityTypeShape EntityType="AGEModel.Lse_SaleTarget" Width="1.5" PointX="5.25" PointY="65.125" />
+        <EntityTypeShape EntityType="AGEModel.Lse_SaleTargetLog" Width="1.5" PointX="7.5" PointY="65.125" />
+        <EntityTypeShape EntityType="AGEModel.Lse_SearchCriteria" Width="1.5" PointX="10.75" PointY="36.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Allowance" Width="1.5" PointX="35.75" PointY="2.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_AllowanceTrans" Width="1.5" PointX="35.75" PointY="5.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_AllownaceAllocation" Width="1.5" PointX="35.75" PointY="9.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Attendance" Width="1.5" PointX="5.25" PointY="56.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_AttendanceAdjReason" Width="1.5" PointX="28.75" PointY="12.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_AttendanceFinal" Width="1.5" PointX="11.25" PointY="25.875" />
+        <EntityTypeShape EntityType="AGEModel.Pay_AttendanceLog" Width="1.5" PointX="7.5" PointY="57.5" />
+        <EntityTypeShape EntityType="AGEModel.Pay_AttendanceStatus" Width="1.5" PointX="9" PointY="33.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_BranchStaffStrength" Width="1.5" PointX="4.75" PointY="37.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_BranchStaffStrengthLog" Width="1.5" PointX="12.75" PointY="37.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Deduction" Width="1.5" PointX="35.75" PointY="17.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_DeductionAllocation" Width="1.5" PointX="35.75" PointY="20.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_DeductionTrans" Width="1.5" PointX="35.75" PointY="24.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Department" Width="1.5" PointX="0.75" PointY="22.625" />
+        <EntityTypeShape EntityType="AGEModel.Pay_DepartmentLog" Width="1.5" PointX="8.25" PointY="30.125" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Designation" Width="1.5" PointX="0.75" PointY="26.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_DesignationLog" Width="1.5" PointX="5.25" PointY="26.125" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Education" Width="1.5" PointX="11.25" PointY="21.875" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpFine" Width="1.5" PointX="25.75" PointY="48.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpFineDetail" Width="1.5" PointX="28" PointY="19.625" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpFineType" Width="1.5" PointX="25.75" PointY="20.25" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpLeave" Width="1.5" PointX="31" PointY="2.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpLoanTransaction" Width="1.5" PointX="35" PointY="13.5" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpLocationMapping" Width="1.5" PointX="5.25" PointY="22" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpPerformance" Width="1.5" PointX="28" PointY="14.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpPerformanceType" Width="1.5" PointX="25.75" PointY="15.5" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpReportingHierarchy" Width="1.5" PointX="37.75" PointY="6.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpRole" Width="1.5" PointX="8.25" PointY="26.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpSalary" Width="1.5" PointX="5.25" PointY="29.875" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpStatus" Width="1.5" PointX="0.75" PointY="29.875" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpTax" Width="1.5" PointX="37.75" PointY="10.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpTaxSlabs" Width="1.5" PointX="37.75" PointY="15.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpTemplate" Width="1.5" PointX="5.25" PointY="61.875" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpTemplateFace" Width="1.5" PointX="37.75" PointY="19.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpVehicles" Width="1.5" PointX="35.75" PointY="28.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Experience" Width="1.5" PointX="5.25" PointY="40.625" />
+        <EntityTypeShape EntityType="AGEModel.Pay_HDepartment" Width="1.5" PointX="1.5" PointY="20" />
+        <EntityTypeShape EntityType="AGEModel.Pay_LeaveCategory" Width="1.5" PointX="28.75" PointY="1" />
+        <EntityTypeShape EntityType="AGEModel.Pay_LeaveRoster" Width="1.5" PointX="37.75" PointY="24.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_LoanTypes" Width="1.5" PointX="37.75" PointY="28.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_PayScales" Width="1.5" PointX="27.75" PointY="39.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Qualification" Width="1.5" PointX="9" PointY="18.625" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Role" Width="1.5" PointX="6" PointY="34.625" />
+        <EntityTypeShape EntityType="AGEModel.Pay_SalaryTypes" Width="1.5" PointX="3" PointY="33.5" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Shift" Width="1.5" PointX="0.75" PointY="32.25" />
+        <EntityTypeShape EntityType="AGEModel.Users_Group" Width="1.5" PointX="16" PointY="37.375" />
+        <EntityTypeShape EntityType="AGEModel.Users_GroupAccess" Width="1.5" PointX="28" PointY="24" />
+        <EntityTypeShape EntityType="AGEModel.Users_GroupMenuObjectAccess" Width="1.5" PointX="11" PointY="15.5" />
+        <EntityTypeShape EntityType="AGEModel.Users_Log" Width="1.5" PointX="37.75" PointY="36.375" />
+        <EntityTypeShape EntityType="AGEModel.Users_Login" Width="1.5" PointX="18.25" PointY="36.125" />
+        <EntityTypeShape EntityType="AGEModel.Users_LoginLog" Width="1.5" PointX="38.75" PointY="31.375" />
+        <EntityTypeShape EntityType="AGEModel.Users_Menu" Width="1.5" PointX="23.75" PointY="10.5" />
+        <EntityTypeShape EntityType="AGEModel.Users_MenuObject" Width="1.5" PointX="8.75" PointY="14" />
+        <EntityTypeShape EntityType="AGEModel.Users_MobileMenu" Width="1.5" PointX="37.75" PointY="40.375" />
+        <EntityTypeShape EntityType="AGEModel.Users_UserAccess" Width="1.5" PointX="26" PointY="11.125" />
+        <EntityTypeShape EntityType="AGEModel.Users_UserMenuObjectAccess" Width="1.5" PointX="11" PointY="12.75" />
+        <EntityTypeShape EntityType="AGEModel.Inventory_ItemsDetail" Width="1.5" PointX="39.75" PointY="2.375" />
+        <AssociationConnector Association="AGEModel.FK_Fin_AcGroups_Fin_AcClasses" />
+        <AssociationConnector Association="AGEModel.FK_Fin_AcControls_Fin_AcGroups" />
+        <AssociationConnector Association="AGEModel.FK_Fin_Accounts_Fin_AcControls" />
+        <AssociationConnector Association="AGEModel.FK_Fin_BankBook_Fin_Accounts" />
+        <AssociationConnector Association="AGEModel.FK_Fin_SubsidaryType_Fin_Accounts" />
+        <AssociationConnector Association="AGEModel.FK_Fin_BankBookCancelledCheques_Fin_BankBooks" />
+        <AssociationConnector Association="AGEModel.FK_Fin_BankBookTrans_Fin_BankBooks" />
+        <AssociationConnector Association="AGEModel.FK_Fin_SubsidaryType_Fin_Category" />
+        <AssociationConnector Association="AGEModel.FK_Fin_PaymentAdviceDetail_Fin_PaymentAdvice" />
+        <AssociationConnector Association="AGEModel.FK_Fin_Period_Fin_Period" />
+        <AssociationConnector Association="AGEModel.FK_Fin_Voucher_Fin_Period" />
+        <AssociationConnector Association="AGEModel.FK_Fin_Subsidary_Fin_SubsidaryType" />
+        <AssociationConnector Association="AGEModel.FK_Fin_Voucher_Fin_VoucherTypes" />
+        <AssociationConnector Association="AGEModel.FK_Fin_Voucher_Fin_Year" />
+        <AssociationConnector Association="AGEModel.FK_Fin_VoucherCounter_Fin_VoucherTypes" />
+        <AssociationConnector Association="AGEModel.FK_Inv_GRN_Inv_PO" />
+        <AssociationConnector Association="AGEModel.FK_Inv_GRNDetail_Inv_GRN" />
+        <AssociationConnector Association="AGEModel.FK_Inv_GRNDetail_Inv_Store" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_IssueDetail_Inventory_Issue" />
+        <AssociationConnector Association="AGEModel.FK_Inv_IssueDetail_Inv_Store" />
+        <AssociationConnector Association="AGEModel.FK_Inv_PO_Inv_POStatus" />
+        <AssociationConnector Association="AGEModel.FK_Inv_PO_Users_Login" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_PurchaseOrderDetail_Inventory_PurchaseOrder" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_PurchaseOrderMapping_Inventory_PurchaseOrder" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_POLoc_Inventory_PurchaseOrderDetail" />
+        <AssociationConnector Association="AGEModel.FK_Inv_POPlan_Inv_POType" />
+        <AssociationConnector Association="AGEModel.FK_Inv_POPlanMapping_Inv_POPlan" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_OrderPlanDetail_Inventory_OrderPlan" />
+        <AssociationConnector Association="AGEModel.FK_Inv_POReturnDtl_Inv_POReturn" />
+        <AssociationConnector Association="AGEModel.FK_Inv_Store_Inv_Status" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_SupplierMapping_Items_Company" />
+        <AssociationConnector Association="AGEModel.FK_Items_Type_Items_Company" />
+        <AssociationConnector Association="AGEModel.FK_Items_ModelDiscountDetail_Items_ModelDiscount" />
+        <AssociationConnector Association="AGEModel.FK_Itm_DiscountPolicySlab_Itm_DiscountPolicy" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_Items1_Items_Type" />
+        <AssociationConnector Association="AGEModel.FK_Items_Type_Inventory_Products" />
+        <AssociationConnector Association="AGEModel.FK_Lse_SaleTargetLog_Lse_SaleTarget" />
+        <AssociationConnector Association="AGEModel.FK_Pay_AttendanceLog_Pay_Attendance" />
+        <AssociationConnector Association="AGEModel.FK_Pay_AttendanceFinal_Pay_AttendanceStatus" />
+        <AssociationConnector Association="AGEModel.FK_Pay_Department_Pay_HDepartment" />
+        <AssociationConnector Association="AGEModel.FK_Pay_LocLog_Pay_Department" />
+        <AssociationConnector Association="AGEModel.FK_Pay_DesgLog_Pay_Designation" />
+        <AssociationConnector Association="AGEModel.FK_Pay_Education_Pay_Qualification" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpFineDetail_Pay_EmpFine" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpFineDetail_Pay_EmpFineType" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpLeave_Pay_LeaveCategory" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpPerformance_Pay_EmpPerformanceType" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpRole_Pay_Role" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmployeeSalary_Pay_SalaryTypes" />
+        <AssociationConnector Association="AGEModel.FK_Users_GroupAccess_Users_Group" />
+        <AssociationConnector Association="AGEModel.FK_Users_Login_Users_Group" />
+        <AssociationConnector Association="AGEModel.FK_Users_GroupAccess_Users_Menu" />
+        <AssociationConnector Association="AGEModel.FK_Users_GroupMenuObjectAccess_Users_MenuObject" />
+        <AssociationConnector Association="AGEModel.FK_Users_UserAccess_Users_Menu" />
+        <AssociationConnector Association="AGEModel.FK_Users_UserMenuObjectAccess_Users_MenuObject" />
+        <EntityTypeShape EntityType="AGEModel.Inv_OpeningStock" Width="1.5" PointX="5.375" PointY="8.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POPlanCity" Width="1.5" PointX="40.375" PointY="11" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POPlanCityDetail" Width="1.5" PointX="42.625" PointY="11" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SuppliersCity" Width="1.5" PointX="10.375" PointY="0.75" />
+        <AssociationConnector Association="AGEModel.FK_Inv_POPlanCityDetail_Inv_POPlanCity" />
+        <AssociationConnector Association="AGEModel.FK_Inv_SuppliersCity_Comp_City" />
+        <EntityTypeShape EntityType="AGEModel.Inv_Complain" Width="1.5" PointX="40.375" PointY="19.75" />
+        <EntityTypeShape EntityType="AGEModel.Itm_ProductClass" Width="1.5" PointX="16" PointY="21.75" />
+        <AssociationConnector Association="AGEModel.FK_Itm_ProductClass_Itm_Products" />
+        <EntityTypeShape EntityType="AGEModel.Comp_Documents" Width="1.5" PointX="40.375" PointY="14.75" />
+        <AssociationConnector Association="AGEModel.FK_Users_MenuObject_Users_Menu" />
+        <EntityTypeShape EntityType="AGEModel.Inv_StoreLog" Width="1.5" PointX="12.375" PointY="0.75" />
+        <EntityTypeShape EntityType="AGEModel.Itm_Master" Width="1.5" PointX="20.5" PointY="28.875" />
+        <AssociationConnector Association="AGEModel.FK_Inv_PODetail_Itm_Master" />
+        <AssociationConnector Association="AGEModel.FK_Inv_POReturnDtl_Itm_Master" />
+        <AssociationConnector Association="AGEModel.FK_Inv_Store_Inv_Master" />
+        <AssociationConnector Association="AGEModel.FK_Itm_Master_Itm_Color" />
+        <AssociationConnector Association="AGEModel.FK_Items_Master_Items_Model" />
+        <AssociationConnector Association="AGEModel.FK_Itm_PPrice_Itm_Master" />
+        <AssociationConnector Association="AGEModel.FK_Itm_SKUPlan_Itm_Master" />
+        <AssociationConnector Association="AGEModel.FK_Itm_SPrice_Itm_Master" />
+        <AssociationConnector Association="AGEModel.FK_Lse_Detail_Itm_Master" />
+        <EntityTypeShape EntityType="AGEModel.Comp_LocationsMapping" Width="1.5" PointX="14.375" PointY="1" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpReferences" Width="1.5" PointX="5.25" PointY="69.375" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpCheque" Width="1.5" PointX="16.375" PointY="0.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_BasicSalaryPolicyLocations" Width="1.5" PointX="44.625" PointY="1.875" />
+        <EntityTypeShape EntityType="AGEModel.Pay_BasicSalarySlab" Width="1.5" PointX="41.375" PointY="31.125" />
+        <EntityTypeShape EntityType="AGEModel.Pay_BasicSalarySlabDtl" Width="1.5" PointX="43.625" PointY="31.125" />
+        <EntityTypeShape EntityType="AGEModel.Pay_DesignationSection" Width="1.5" PointX="16.375" PointY="11" />
+        <AssociationConnector Association="AGEModel.FK_Pay_BasicSalSlabDtl_Pay_BasicSalSlab" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpPerformanceDetail" Width="1.5" PointX="30.25" PointY="14.5" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpPerformanceDetail_Pay_EmpPerformance" />
+        <EntityTypeShape EntityType="AGEModel.Pay_BasicSalaryPolicy" Width="1.5" PointX="42.375" PointY="1.5" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpBSalPolicyLocations_Pay_EmpBSalPolicy" />
+        <EntityTypeShape EntityType="AGEModel.Lse_PendingRecovery" Width="1.5" PointX="10.5" PointY="54.625" />
+        <AssociationConnector Association="AGEModel.FK_Lse_PendingRecovery_Lse_Installment" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Status" Width="1.5" PointX="4.375" PointY="18.875" />
+        <EntityTypeShape EntityType="AGEModel.Users_Feedback" Width="1.5" PointX="5.375" PointY="11.75" />
+        <EntityTypeShape EntityType="AGEModel.Lse_BlockCustomer" Width="1.5" PointX="42.375" PointY="15" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CashDeposit" Width="1.5" PointX="42.375" PointY="19" />
+        <EntityTypeShape EntityType="AGEModel.Inv_StockVerification" Width="1.5" PointX="42.375" PointY="23.125" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BankMapping" Width="1.5" PointX="7.375" PointY="43" />
+        <EntityTypeShape EntityType="AGEModel.Users_Notifications" Width="1.5" PointX="42.375" PointY="27" />
+        <AssociationConnector Association="AGEModel.FK_Users_Notifications_Users_Login" />
+        <EntityTypeShape EntityType="AGEModel.Lse_ExpenseHead" Width="1.5" PointX="31" PointY="8.625" />
+        <AssociationConnector Association="AGEModel.FK_Lse_ExpenseHead_Lse_ExpType" />
+        <AssociationConnector Association="AGEModel.FK_Lse_ExpenseTransaction_Lse_ExpenseHead" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SuppCatGL" Width="1.5" PointX="42.375" PointY="34.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_VoucherDetail" Width="1.5" PointX="30.5" PointY="25.5" />
+        <AssociationConnector Association="AGEModel.FK_Fin_VoucherDetail_Fin_Accounts" />
+        <AssociationConnector Association="AGEModel.FK_Fin_VoucherDetail_Fin_Voucher" />
+        <EntityTypeShape EntityType="AGEModel.Itm_SerialPlan" Width="1.5" PointX="40.375" PointY="42.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_OpeningStockMobile" Width="1.5" PointX="0.75" PointY="45" />
+        <EntityTypeShape EntityType="AGEModel.Itm_SKUPair" Width="1.5" PointX="23.125" PointY="40.5" />
+        <AssociationConnector Association="AGEModel.FK_Itm_SKUPair_Itm_Master" />
+        <EntityTypeShape EntityType="AGEModel.Users_MobileMAccess" Width="1.5" PointX="44.375" PointY="5" />
+        <EntityTypeShape EntityType="AGEModel.Users_NotificationMapping" Width="1.5" PointX="44.375" PointY="8" />
+        <EntityTypeShape EntityType="AGEModel.Pay_IncentivePolicy" Width="1.5" PointX="42.375" PointY="38" />
+        <EntityTypeShape EntityType="AGEModel.Pay_IncentivePolicyLocations" Width="1.5" PointX="44.625" PointY="38.5" />
+        <AssociationConnector Association="AGEModel.FK_Pay_IncentivePolicyLocations_Pay_IncentivePolicy" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CashReceive" Width="1.5" PointX="44.375" PointY="15" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POPayment" Width="1.5" PointX="44.375" PointY="26.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_SalarySheet_E" Width="1.5" PointX="32" PointY="48.125" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpAppointmentTypes" Width="1.5" PointX="44.375" PointY="19.75" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Return" Width="1.5" PointX="24.25" PointY="0.75" />
+        <EntityTypeShape EntityType="AGEModel.Tax_Invoice" Width="1.5" PointX="44.375" PointY="42.125" />
+        <EntityTypeShape EntityType="AGEModel.Tax_InvoiceItems" Width="1.5" PointX="46.625" PointY="42.75" />
+        <AssociationConnector Association="AGEModel.FK_Tax_InvoiceItems_Tax_Invoice" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Master" Width="1.5" PointX="0.75" PointY="31.75" />
+        <AssociationConnector Association="AGEModel.FK_Lse_CustomerCheque_Lse_Master" />
+        <AssociationConnector Association="AGEModel.FK_Lse_Customer_Lse_Master" />
+        <AssociationConnector Association="AGEModel.FK_Lse_Detail_Lse_Master" />
+        <AssociationConnector Association="AGEModel.FK_Lse_Guarantor_Lse_Master" />
+        <AssociationConnector Association="AGEModel.FK_Lse_Installment_Lse_Master" />
+        <AssociationConnector Association="AGEModel.FK_Lse_OutStand_Lse_Master" />
+        <AssociationConnector Association="AGEModel.FK_Lse_Return_Lse_Master" />
+        <AssociationConnector Association="AGEModel.FK_Lse_Master_Lse_Category" />
+        <AssociationConnector Association="AGEModel.FK_Lse_Master_Lse_Status" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpTransferLog" Width="1.5" PointX="5.25" PointY="0.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_SalarySheet" Width="1.5" PointX="29.75" PointY="48.375" />
+        <AssociationConnector Association="AGEModel.FK_Pay_SalarySheet_E_Pay_SalarySheet" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpMaster" Width="1.5" PointX="3" PointY="49.125" />
+        <AssociationConnector Association="AGEModel.FK_Lse_Outstand_Pay_EmpMaster" />
+        <AssociationConnector Association="AGEModel.FK_Pay_Attendance_Pay_Employee" />
+        <AssociationConnector Association="AGEModel.FK_Pay_AttendanceFinal_Pay_EmpMaster" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpMaster_Pay_Department" />
+        <AssociationConnector Association="AGEModel.FK_Pay_LocLog_Pay_Employee" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpMaster_Pay_Designation" />
+        <AssociationConnector Association="AGEModel.FK_Pay_DesgLog_Pay_Employee" />
+        <AssociationConnector Association="AGEModel.FK_Pay_Education_Pay_Employee" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpLocationMapping_Pay_EmpMaster" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmployeeSalary_Pay_Employee" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmployeeTemplate_Pay_Employee" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpMaster_Pay_EmpStatus" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpMaster_Pay_Shift" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpReferences_Pay_EmpMaster" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpRole_Pay_EmpMaster" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpTransferLog_Pay_EmpMaster" />
+        <AssociationConnector Association="AGEModel.FK_Pay_Experience_Pay_Employee" />
+        <EntityTypeShape EntityType="AGEModel.Lse_MOS" Width="1.5" PointX="30.5" PointY="38.75" />
+        <EntityTypeShape EntityType="AGEModel.Lse_SaleTargetTypes" Width="1.5" PointX="44.5" PointY="34.875" />
+        <AssociationConnector Association="AGEModel.FK_Lse_SaleTarget_Lse_SaleTargetTypes" />
+        <EntityTypeShape EntityType="AGEModel.Fin_YearLog" Width="1.5" PointX="46.375" PointY="5.125" />
+        <EntityTypeShape EntityType="AGEModel.Lse_OutstandLog" Width="1.5" PointX="46.375" PointY="15" />
+        <EntityTypeShape EntityType="AGEModel.Lse_InstallmentLog" Width="1.5" PointX="46.375" PointY="26.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_PeriodLog" Width="1.5" PointX="46.375" PointY="19.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_SalarySheet_VD" Width="1.5" PointX="46.375" PointY="30.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_PurchaseDetail" Width="1.5" PointX="22.75" PointY="36.25" />
+        <AssociationConnector Association="AGEModel.FK_Inv_PurchaseDetail_Itm_Master" />
+        <EntityTypeShape EntityType="AGEModel.Inv_PR" Width="1.5" PointX="47.5" PointY="9" />
+        <EntityTypeShape EntityType="AGEModel.Inv_PRDetail" Width="1.5" PointX="49.75" PointY="9.625" />
+        <AssociationConnector Association="AGEModel.FK_Inv_PRDetail_Inv_PR" />
+        <EntityTypeShape EntityType="AGEModel.Comp_Dashboard" Width="1.5" PointX="30.5" PointY="41.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_LeaveTypes" Width="1.5" PointX="28.75" PointY="4" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpLeave_Pay_LeaveTypes" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SuppPayment" Width="1.5" PointX="47.375" PointY="34.75" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CashPayment" Width="1.5" PointX="34.375" PointY="47.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpBank" Width="1.5" PointX="47.375" PointY="0.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_StoreHistory" Width="1.5" PointX="36.375" PointY="47.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_Suppliers" Width="1.5" PointX="16.75" PointY="51.375" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_PurchaseOrder_Inventory_Suppliers" />
+        <AssociationConnector Association="AGEModel.FK_Inv_POReturn_Inv_Suppliers" />
+        <AssociationConnector Association="AGEModel.FK_Inv_Store_Inv_Suppliers" />
+        <AssociationConnector Association="AGEModel.FK_Inv_Supplier_Inv_SupplierCat" />
+        <AssociationConnector Association="AGEModel.FK_Inv_SuppliersCity_Inv_Suppliers" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_SupplierMapping_Inventory_Suppliers" />
+        <AssociationConnector Association="AGEModel.FK_Itm_PPrice_Inv_Suppliers" />
+        <EntityTypeShape EntityType="AGEModel.Itm_PDisc" Width="1.5" PointX="47.375" PointY="22.75" />
+        <EntityTypeShape EntityType="AGEModel.Itm_PDiscType" Width="1.5" PointX="28.375" PointY="45.75" />
+        <AssociationConnector Association="AGEModel.FK_Itm_PDisc_Itm_PDiscType" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpPromotions" Width="1.5" PointX="40.375" PointY="47.75" />
+        <EntityTypeShape EntityType="AGEModel.Itm_UOM" Width="1.5" PointX="0.75" PointY="17.75" />
+        <EntityTypeShape EntityType="AGEModel.Itm_TypePlan" Width="1.5" PointX="18.25" PointY="21.375" />
+        <AssociationConnector Association="AGEModel.FK_Itm_TypePlan_Itm_Type" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CustomerTemplate" Width="1.5" PointX="3" PointY="41.125" />
+        <AssociationConnector Association="AGEModel.FK_Lse_CustomerTemplate_Lse_Master" />
+        <EntityTypeShape EntityType="AGEModel.Pay_BankSalaryTransfer" Width="1.5" PointX="48.375" PointY="15" />
+        <EntityTypeShape EntityType="AGEModel.Pay_BankSalaryTransferDetail" Width="1.5" PointX="50.625" PointY="15.375" />
+        <AssociationConnector Association="AGEModel.FK_Pay_BankSalaryTransferDetail_Pay_BankSalaryTransfer" />
+        <EntityTypeShape EntityType="AGEModel.Users_Modification" Width="1.5" PointX="48.375" PointY="4.75" />
+        <EntityTypeShape EntityType="AGEModel.Lse_PaidBy" Width="1.5" PointX="30.375" PointY="46" />
+        <EntityTypeShape EntityType="AGEModel.Inv_Purchase" Width="1.5" PointX="25.75" PointY="52.25" />
+        <AssociationConnector Association="AGEModel.FK_Inv_Purchase_Inv_PO" />
+        <AssociationConnector Association="AGEModel.FK_Inv_Purchase_Inv_Suppliers" />
+        <AssociationConnector Association="AGEModel.FK_Inv_Purchase_Users_Login" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_PurchaseDetail_Inventory_Purchase" />
+        <EntityTypeShape EntityType="AGEModel.Lse_SMS" Width="1.5" PointX="19.5" PointY="44.75" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CER" Width="1.5" PointX="22.375" PointY="46.75" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CashCollectionDetail" Width="1.5" PointX="7.625" PointY="51.375" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CashPaymentHeads" Width="1.5" PointX="48.375" PointY="19.75" />
+        <EntityTypeShape EntityType="AGEModel.Comp_DocShare" Width="1.5" PointX="48.375" PointY="27.125" />
+        <EntityTypeShape EntityType="AGEModel.Comp_DocShareDetail" Width="1.5" PointX="50.625" PointY="27" />
+        <EntityTypeShape EntityType="AGEModel.Itm_SaleRate" Width="1.5" PointX="48.375" PointY="30.75" />
+        <AssociationConnector Association="AGEModel.FK_Comp_DocShareDetail_Comp_DocShare" />
+        <EntityTypeShape EntityType="AGEModel.Lse_SMSSchedule" Width="1.5" PointX="12.375" PointY="49.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpLoan" Width="1.5" PointX="32.875" PointY="54.125" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpLoanTransaction_Pay_EmpLoan" />
+        <EntityTypeShape EntityType="AGEModel.Itm_PlanPolicy" Width="1.5" PointX="49.375" PointY="22.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_SalaryDisbursementTypes" Width="1.5" PointX="32.375" PointY="16.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_SalarySheet_TI" Width="1.5" PointX="49.375" PointY="34.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpStatusLog" Width="1.5" PointX="49.375" PointY="39.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_SalaryDisbursementLog" Width="1.5" PointX="42.375" PointY="49.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_SalaryDisbursementControlPanel" Width="1.5" PointX="50.5" PointY="4.75" />
+        <EntityTypeShape EntityType="AGEModel.Itm_Barcode" Width="1.5" PointX="22.75" PointY="50.375" />
+        <AssociationConnector Association="AGEModel.FK_Itm_Barcode_Itm_Master" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POScheduleLog" Width="1.5" PointX="50.5" PointY="19.125" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POSchMaster" Width="1.5" PointX="49.375" PointY="44.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_StockVerificationDtl" Width="1.5" PointX="44.625" PointY="22.75" />
+        <AssociationConnector Association="AGEModel.FK_Inv_StockVerificationDtl_Inv_StockVerification" />
+        <EntityTypeShape EntityType="AGEModel.Lse_LatLng" Width="1.5" PointX="50.375" PointY="30.75" />
+        <EntityTypeShape EntityType="AGEModel.Users_Chat" Width="1.5" PointX="50.375" PointY="47.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_ProductIncPolicy" Width="1.5" PointX="46.375" PointY="53.125" />
+        <EntityTypeShape EntityType="AGEModel.Pay_ProductIncPolicyDetail" Width="1.5" PointX="48.625" PointY="52.125" />
+        <EntityTypeShape EntityType="AGEModel.Pay_ProductIncPolicyLocations" Width="1.5" PointX="48.625" PointY="55.625" />
+        <EntityTypeShape EntityType="AGEModel.Pay_TargetIncentivePolicy" Width="1.5" PointX="51.375" PointY="36.5" />
+        <EntityTypeShape EntityType="AGEModel.Pay_TargetIncentivePolicyDetail" Width="1.5" PointX="53.625" PointY="35.125" />
+        <EntityTypeShape EntityType="AGEModel.Pay_TargetIncentivePolicyLocations" Width="1.5" PointX="53.625" PointY="38.375" />
+        <AssociationConnector Association="AGEModel.FK_Pay_ProductIncPolicyDetail_Pay_ProductIncPolicy" />
+        <AssociationConnector Association="AGEModel.FK_Pay_ProductIncPolicyLocations_Pay_ProductIncPolicy" />
+        <AssociationConnector Association="AGEModel.FK_Pay_TargetIncentivePolicyDetail_Pay_TargetIncentivePolicy" />
+        <AssociationConnector Association="AGEModel.FK_Pay_TargetIncentivePolicyLocations_Pay_TargetIncentivePolicy" />
+        <EntityTypeShape EntityType="AGEModel.Pay_ProductInc" Width="1.5" PointX="51.375" PointY="56" />
+        <EntityTypeShape EntityType="AGEModel.Pay_ProductIncCash" Width="1.5" PointX="53.625" PointY="52.5" />
+        <EntityTypeShape EntityType="AGEModel.Pay_ProductIncIMEI" Width="1.5" PointX="51.375" PointY="1" />
+        <EntityTypeShape EntityType="AGEModel.Pay_ProductIncInst" Width="1.5" PointX="53.625" PointY="57.75" />
+        <AssociationConnector Association="AGEModel.FK_Pay_ProductIncCash_Pay_ProductInc" />
+        <AssociationConnector Association="AGEModel.FK_Pay_ProductIncInst_Pay_ProductInc" />
+        <AssociationConnector Association="AGEModel.FK_Fin_VoucherDetail_Fin_ProfitCenters" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CrcFines" Width="1.5" PointX="51.375" PointY="22.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SaleOrderDetail" Width="1.5" PointX="19.25" PointY="62" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpHierarchy" Width="1.5" PointX="28.375" PointY="52.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SaleOrder" Width="1.5" PointX="17" PointY="44.25" />
+        <AssociationConnector Association="AGEModel.FK_Inv_SaleOrderDetail_Inv_SaleOrder" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpBasicSalary" Width="1.5" PointX="46.375" PointY="48.125" />
+        <EntityTypeShape EntityType="AGEModel.Pay_SalaryDisbursement" Width="1.5" PointX="19.375" PointY="50.125" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpJoiningLog" Width="1.5" PointX="51.375" PointY="41.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SaleDiscount" Width="1.5" PointX="52.375" PointY="10" />
+        <EntityTypeShape EntityType="AGEModel.Inv_POPocket" Width="1.5" PointX="52.375" PointY="30.75" />
+        <EntityTypeShape EntityType="AGEModel.Itm_TypePlanMaster" Width="1.5" PointX="35.375" PointY="53" />
+        <AssociationConnector Association="AGEModel.FK_Itm_TypePlan_Itm_TypePlanMaster" />
+        <EntityTypeShape EntityType="AGEModel.Inv_BikeLetter" Width="1.5" PointX="37.375" PointY="52.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_BikeReg" Width="1.5" PointX="39.375" PointY="52.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SaleDetail" Width="1.5" PointX="19.25" PointY="54.375" />
+        <AssociationConnector Association="AGEModel.FK_Inv_SaleDetail_Inv_Sale" />
+        <EntityTypeShape EntityType="AGEModel.Pay_BranchClosingLog" Width="1.5" PointX="19.375" PointY="9.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_ProductIncCalendar" Width="1.5" PointX="52.375" PointY="45.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SuppTaxExemption" Width="1.5" PointX="52.375" PointY="48.75" />
+        <EntityTypeShape EntityType="AGEModel.Users_MobileMenuObject" Width="1.5" PointX="36.375" PointY="43.75" />
+        <EntityTypeShape EntityType="AGEModel.Lse_Audit" Width="1.5" PointX="3" PointY="24.375" />
+        <EntityTypeShape EntityType="AGEModel.Lse_AuditLog" Width="1.5" PointX="53.375" PointY="0.75" />
+        <AssociationConnector Association="AGEModel.FK_Lse_CustomerAudit_Lse_Master" />
+        <EntityTypeShape EntityType="AGEModel.Pay_HolidayDetail" Width="1.5" PointX="50.375" PointY="12.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_HolidayMaster" Width="1.5" PointX="53.375" PointY="12.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_Holidays" Width="1.5" PointX="13.375" PointY="53.75" />
+        <EntityTypeShape EntityType="AGEModel.Users_LoginRequest" Width="1.5" PointX="53.375" PointY="16.75" />
+        <EntityTypeShape EntityType="AGEModel.Crm_Category" Width="1.5" PointX="53.375" PointY="21.625" />
+        <EntityTypeShape EntityType="AGEModel.Crm_ComplainMapping" Width="1.5" PointX="53.375" PointY="24.75" />
+        <EntityTypeShape EntityType="AGEModel.Crm_Respondent" Width="1.5" PointX="57.875" PointY="21.625" />
+        <EntityTypeShape EntityType="AGEModel.Crm_Response" Width="1.5" PointX="57.875" PointY="30" />
+        <EntityTypeShape EntityType="AGEModel.Crm_Ticket" Width="1.5" PointX="55.625" PointY="21" />
+        <AssociationConnector Association="AGEModel.FK_Crm_Ticket_Crm_Category" />
+        <AssociationConnector Association="AGEModel.FK_Crm_Respondent_Crm_Ticket" />
+        <AssociationConnector Association="AGEModel.FK_Crm_Response_Crm_Ticket" />
+        <AssociationConnector Association="AGEModel.FK_Crm_Response_Users_Login" />
+        <EntityTypeShape EntityType="AGEModel.Inv_StockAdj" Width="1.5" PointX="53.375" PointY="41.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SaleCart" Width="1.5" PointX="53.375" PointY="27.75" />
+        <EntityTypeShape EntityType="AGEModel.Lse_InstAdj" Width="1.5" PointX="41.375" PointY="53.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_SaleCreditReceive" Width="1.5" PointX="19.25" PointY="0.75" />
+        <AssociationConnector Association="AGEModel.FK_Inv_SaleCreditReceive_Inv_Sale" />
+        <EntityTypeShape EntityType="AGEModel.Fin_GroupAccess" Width="1.5" PointX="43.375" PointY="53.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_UserAccess" Width="1.5" PointX="7.375" PointY="54.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_BikeLetter_Old" Width="1.5" PointX="54.375" PointY="46.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_BikeReg_Old" Width="1.5" PointX="55.375" PointY="0.75" />
+        <EntityTypeShape EntityType="AGEModel.Inv_AdjOut" Width="1.5" PointX="55.375" PointY="8.375" />
+        <EntityTypeShape EntityType="AGEModel.Inv_AdjOutDetail" Width="1.5" PointX="57.625" PointY="8" />
+        <EntityTypeShape EntityType="AGEModel.Inv_AdjType" Width="1.5" PointX="55.375" PointY="31.5" />
+        <AssociationConnector Association="AGEModel.FK_Inv_AdjOutDetail_Inv_AdjOutDetail" />
+        <AssociationConnector Association="AGEModel.FK_Inv_AdjOutDetail_Inv_AdjType" />
+        <EntityTypeShape EntityType="AGEModel.Fin_Notes" Width="1.5" PointX="55.375" PointY="11.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_OpeningBalance" Width="1.5" PointX="55.375" PointY="15.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_SubsidiaryMapping" Width="1.5" PointX="55.375" PointY="25.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_VoucherPostingLog" Width="1.5" PointX="55.375" PointY="41.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_HierarchyLog" Width="1.5" PointX="13.375" PointY="56.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_CharityDonationTrans" Width="1.5" PointX="56.375" PointY="35.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_CharityDonationTransDtl" Width="3.125" PointX="58.625" PointY="35" />
+        <AssociationConnector Association="AGEModel.FK_Pay_CharityDonationTransDtl_Pay_CharityDonationTrans" />
+        <EntityTypeShape EntityType="AGEModel.Comp_Region" Width="1.5" PointX="0.75" PointY="0.75" />
+        <AssociationConnector Association="AGEModel.FK_Comp_City_Comp_Region" />
+        <EntityTypeShape EntityType="AGEModel.Pay_DesgRole" Width="1.5" PointX="35.375" PointY="56.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_CharityDonation" Width="1.5" PointX="43.375" PointY="57" />
+        <AssociationConnector Association="AGEModel.FK_Pay_CharityDonationTransDtl_Pay_CharityDonation" />
+        <EntityTypeShape EntityType="AGEModel.Lse_CashCollection" Width="1.5" PointX="5.25" PointY="73.125" />
+        <AssociationConnector Association="AGEModel.FK_Lse_CashCollectionDetail_Lse_CashCollection" />
+        <EntityTypeShape EntityType="AGEModel.LSE_CrcFinePolicy" Width="1.5" PointX="56.375" PointY="45.375" />
+        <EntityTypeShape EntityType="AGEModel.LSE_CrcFinePolicyDtl" Width="1.5" PointX="58.625" PointY="45.875" />
+        <AssociationConnector Association="AGEModel.FK_LSE_CrcFinePolicyDtl_LSE_CrcFinePolicy" />
+        <EntityTypeShape EntityType="AGEModel.Lse_ReturnReason" Width="1.5" PointX="56.375" PointY="49.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_AICManager" Width="1.5" PointX="56.375" PointY="52.75" />
+        <EntityTypeShape EntityType="AGEModel.Comp_DocTransfer" Width="1.5" PointX="56.375" PointY="56.75" />
+        <EntityTypeShape EntityType="AGEModel.Pro_GRN" Width="1.5" PointX="68.125" PointY="46.375" />
+        <EntityTypeShape EntityType="AGEModel.Pro_GRNDetail" Width="1.5" PointX="70.375" PointY="54.5" />
+        <EntityTypeShape EntityType="AGEModel.Pro_Item" Width="1.5" PointX="65.125" PointY="54" />
+        <EntityTypeShape EntityType="AGEModel.Pro_ItemCategory" Width="1.5" PointX="60.625" PointY="54.875" />
+        <EntityTypeShape EntityType="AGEModel.Pro_ItemNature" Width="1.5" PointX="58.375" PointY="55" />
+        <EntityTypeShape EntityType="AGEModel.Pro_PODetail" Width="1.5" PointX="67.375" PointY="54.5" />
+        <AssociationConnector Association="AGEModel.FK_Pro_GRNDetail_Pro_GRN" />
+        <AssociationConnector Association="AGEModel.FK_Pro_GRNDetail_Pro_Item" />
+        <AssociationConnector Association="AGEModel.FK_Pro_PODetail_Pro_Item" />
+        <AssociationConnector Association="AGEModel.FK_Pro_ItemCategory_Pro_ItemNature" />
+        <EntityTypeShape EntityType="AGEModel.Pro_PO" Width="1.5" PointX="65.125" PointY="42.125" />
+        <AssociationConnector Association="AGEModel.FK_Pro_PODetail_Pro_PO" />
+        <EntityTypeShape EntityType="AGEModel.Comp_Locations" Width="1.5" PointX="3" PointY="0.75" />
+        <AssociationConnector Association="AGEModel.FK_Comp_Locations_Comp_City" />
+        <AssociationConnector Association="AGEModel.FK_Comp_Locations_Comp_LocationType" />
+        <AssociationConnector Association="AGEModel.FK_Inv_SaleCreditReceive_Comp_Locations" />
+        <AssociationConnector Association="AGEModel.FK_Inv_Store_Comp_Locations" />
+        <AssociationConnector Association="AGEModel.FK_Inventory_PurchaseOrderMapping_Comp_Locations" />
+        <AssociationConnector Association="AGEModel.FK_Lse_CashCollection_Comp_Locations" />
+        <AssociationConnector Association="AGEModel.FK_Lse_ExpenseTransaction_Comp_Locations" />
+        <AssociationConnector Association="AGEModel.FK_Lse_SaleTarget_Comp_Locations" />
+        <AssociationConnector Association="AGEModel.FK_Pay_EmpLocationMapping_Comp_Locations" />
+        <AssociationConnector Association="AGEModel.FK_Lse_Master_Comp_Locations" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BRS" Width="1.5" PointX="57.375" PointY="13" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BRSDetail" Width="1.5" PointX="59.625" PointY="12.625" />
+        <AssociationConnector Association="AGEModel.FK_Fin_BRSDetail_Fin_BRS" />
+        <EntityTypeShape EntityType="AGEModel.Inv_Customers" Width="1.5" PointX="14.75" PointY="60.125" />
+        <AssociationConnector Association="AGEModel.FK_Inv_Sale_Order_Inv_Customers" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BackendInc" Width="1.5" PointX="37.375" PointY="60.375" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BackendIncBasis" Width="1.5" PointX="12.375" PointY="5.375" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BackendIncDtl" Width="1.5" PointX="39.625" PointY="59.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BackendIncPolicy" Width="1.5" PointX="19" PointY="67.125" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BackendIncPolicyDtl" Width="1.5" PointX="21.25" PointY="67.25" />
+        <EntityTypeShape EntityType="AGEModel.Fin_BackendIncTypes" Width="1.5" PointX="57.375" PointY="5.375" />
+        <AssociationConnector Association="AGEModel.FK_Fin_BackendIncDtl_Fin_BackendInc" />
+        <AssociationConnector Association="AGEModel.FK_Fin_BackendIncPolicy_Itm_Company" />
+        <AssociationConnector Association="AGEModel.FK_Fin_BackendIncPolicyDtl_Fin_BackendIncPolicy" />
+        <EntityTypeShape EntityType="AGEModel.Far_Allocation" Width="1.5" PointX="10.375" PointY="57.75" />
+        <EntityTypeShape EntityType="AGEModel.Far_Opening" Width="1.5" PointX="57.375" PointY="39.75" />
+        <EntityTypeShape EntityType="AGEModel.Far_Store" Width="1.5" PointX="45.375" PointY="57.75" />
+        <EntityTypeShape EntityType="AGEModel.Pay_WishEmailTemplate" Width="1.5" PointX="57.375" PointY="16.75" />
+        <EntityTypeShape EntityType="AGEModel.Pro_MTR" Width="1.5" PointX="58.375" PointY="61.875" />
+        <EntityTypeShape EntityType="AGEModel.Pro_SIN" Width="1.5" PointX="60.625" PointY="65.75" />
+        <EntityTypeShape EntityType="AGEModel.Pro_SINDetail" Width="1.5" PointX="62.875" PointY="66.25" />
+        <EntityTypeShape EntityType="AGEModel.Pro_Stock" Width="1.5" PointX="67.375" PointY="63.25" />
+        <AssociationConnector Association="AGEModel.FK_Pro_Stock_Pro_Item" />
+        <AssociationConnector Association="AGEModel.FK_Pro_SIN_Pro_MTR" />
+        <AssociationConnector Association="AGEModel.FK_Pro_SINDetail_Pro_SIN" />
+        <EntityTypeShape EntityType="AGEModel.Pro_MTRDetail" Width="1.5" PointX="60.625" PointY="61.375" />
+        <AssociationConnector Association="AGEModel.FK_Pro_MTRDetail_Pro_MTR" />
+        <EntityTypeShape EntityType="AGEModel.Pro_ItemBrand" Width="1.5" PointX="62.875" PointY="52" />
+        <EntityTypeShape EntityType="AGEModel.Pro_ItemProduct" Width="1.5" PointX="62.875" PointY="54.875" />
+        <AssociationConnector Association="AGEModel.FK_Pro_Item_Pro_ItemBrand" />
+        <AssociationConnector Association="AGEModel.FK_Pro_Item_Pro_ItemProduct" />
+        <AssociationConnector Association="AGEModel.FK_Pro_ItemProduct_Pro_ItemCategory" />
+        <EntityTypeShape EntityType="AGEModel.Far_Depreciation" Width="1.5" PointX="57.375" PointY="25.75" />
+        <EntityTypeShape EntityType="AGEModel.Fin_CostType" Width="1.5" PointX="57.375" PointY="0.75" />
+        <AssociationConnector Association="AGEModel.FK_Pro_Item_Itm_UOM" />
+        <EntityTypeShape EntityType="AGEModel.Pay_EmpBankSalary" Width="1.5" PointX="47.375" PointY="58.75" />
+        <EntityTypeShape EntityType="AGEModel.Crm_InvComplain" Width="1.5" PointX="58.375" PointY="48.75" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

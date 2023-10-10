@@ -1,0 +1,402 @@
+﻿
+@{
+    ViewBag.Title = "Chat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<style>
+        k-button k-flat k-button-icon k-button-toggle {
+            background-color: aliceblue !important;
+        }
+
+    </style>*@
+<link rel="stylesheet" type="text/css" href="~/Content/emoji/css/jquery.emojipicker.css">
+<link rel="stylesheet" type="text/css" href="~/Content/emoji/css/jquery.emojipicker.tw.css">
+
+
+
+
+<style>
+    .full-width {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+    }
+
+    .justify-content-center {
+        display: flex;
+        align-self: center;
+        width: 100%;
+    }
+
+    .lead.emoji-picker-container {
+        width: 300px;
+        display: block;
+    }
+</style>
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Chat (For official conversation only)</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Chat</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="text-center">
+                <img src="/Content/EmpImg/@((string)ViewBag.usr).jpg" onerror="imgError(this);" alt="User Avatar" class="img-size-64 mr-3 img-circle">
+                <h3>@ViewBag.fullName</h3>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        @*<button onclick="GetJit()">Call</button>
+            <div id="meet"></div>*@
+        <div class="col-lg-12 col-md-12 col-xs-12">
+
+
+            @Html.Hidden("usr", (string)ViewBag.usr)
+            @(Html.Kendo().Chat()
+                        .Name("chat")
+                        .User(user => user
+                            .Name(User.Identity.Name)
+                        .IconUrl("../../Content/EmpImg/"+(User.Identity.Name)+".jpg")
+                        )
+                        .Toolbar(toolbar =>
+                            {
+                                toolbar.Toggleable(true);
+
+                                toolbar.Buttons(buttons =>
+                                {
+                                    buttons.Add().Name("sendimage").IconClass("k-icon k-i-image");
+                                });
+                            })
+                        .Events(events => events
+                            .TypingStart("onTypingStart")
+                            .Post("onPost")
+                            .ToolClick("onToolClick")
+                        //.SendMessage("send")
+                        )
+                    )
+            @(Html.Kendo().Upload()
+                        .Name("files")
+                        .Async(a => a
+                            .Save("CustomDropZone_Save", "Setup")
+                            .Remove("CustomDropZone_Remove", "Upload")
+                            .AutoUpload(true)
+                        )
+                        .Events(e => e.Success("onSuccess"))
+                        .ShowFileList(false)
+                        .DropZone("#chat")
+                        .Validation(validation =>
+                        {
+                            validation.AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif",".pdf" });
+                            validation.MinFileSize(500);
+                            validation.MaxFileSize(5000000);
+                        })
+                    )
+        </div>
+    </div>
+</div>
+
+@section scripts  {
+    <script type="text/javascript" src="~/Content/emoji/js/jquery.emojipicker.js"></script>
+    <script type="text/javascript" src="~/Content/emoji/js/jquery.emojis.js"></script>
+    @*<script src='https://meet.jit.si/external_api.js'></script>*@
+    <script>
+
+
+
+
+    var usr = @((string)ViewBag.usr);
+    var cusr = @(User.Identity.Name);
+
+        //function uuidv4() {
+        //    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        //        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        //        return v.toString(16);
+        //    });
+        //}
+
+        //function GetJit() {
+
+        //    var rnd = 'AGE' + uuidv4();
+        //    const domain = 'meet.jit.si';
+        //    const options = {
+        //        roomName: rnd,
+        //        width: 700,
+        //        height: 700,
+        //        parentNode: document.querySelector('#meet')
+        //    };
+        //    $('.k-input').val('https://meet.jit.si/' + rnd);
+        //    $('.k-button-send').click();
+        //    const api = new JitsiMeetExternalAPI(domain, options);
+        //}
+
+
+
+    // The `typingStart` will notify the SignallR Hub that the current client is typing.
+    // The Hub, in turn, will notify all the other clients that the user has started typing.
+
+    //message.type String
+
+    //message.text String
+
+    //sender Object
+
+    //    sender.id Object
+
+    //    sender.name String
+
+    //    sender.iconUrl
+
+
+    $(document).ready(function () {
+    window.chat = $('#chat').getKendoChat();
+    window.chatHub = $.connection.notificationHub;
+
+    var IMAGE_CARD_TEMPLATE = kendo.template(
+    '<div class="k-card k-card-type-rich">' +
+        '<div class="k-card-body quoteCard">' +
+            '<a href="#:image#" target="_blank" a>' +
+                '<img class="image-attachment" style="max-height:200px;max-width:300px;" src="#: image #" />' +
+                '</a>'+
+            '</div>' +
+        '</div>'
+    );
+
+        kendo.chat.registerTemplate("image_card", IMAGE_CARD_TEMPLATE);
+
+        var FILE_CARD_TEMPLATE = kendo.template(
+            '<div class="k-card k-card-type-rich">' +
+            '<div class="k-card-body quoteCard">' +
+            '<a href="#:image#" target="_blank" a>' +
+            'PDF Document'+
+            //'<img class="image-attachment" style="max-height:200px;max-width:300px;" src="#: image #" />' +
+            '</a>' +
+            '</div>' +
+            '</div>'
+        );
+
+        kendo.chat.registerTemplate("file_card", FILE_CARD_TEMPLATE);
+
+    chat = $("#chat").data("kendoChat");
+
+    $("#files").data("kendoUpload").wrapper.hide();
+
+        $.ajax({
+            url: "/Setup/GetChat?UserId=" + usr, success: function (result) {
+                for (var i = 0; i < result.length; i++) {
+                    if (result[i].IsSeen == false) {
+                        var message = {
+                            type: "text",
+                            text: result[i].Notification,
+                            timestamp: result[i].NotificationDate
+                        };
+                        if (cusr == result[i].UserId) {
+                            var sender = chat.getUser();
+                            chat.renderMessage(message, sender);
+                        }
+                        else {
+                            var sender = {
+                                id: result[i].UserId,
+                                name: result[i].UserId,
+                                iconUrl: "../../Content/EmpImg/" + result[i].UserId + ".jpg"
+                            };
+                            chat.renderMessage(message, sender);
+                        }
+                    }
+                    else {
+                        if (cusr == result[i].UserId) {
+                            var sender = chat.getUser();
+                            if (result[i].Notification.indexOf("pdf") >= 0) {
+                                var message = {
+                                    type: "file_card",
+                                    image: result[i].Notification,
+                                    timestamp: result[i].NotificationDate
+                                };
+                                chat.renderMessage(message, sender);
+                            }
+                            else {
+                                var message = {
+                                    type: "image_card",
+                                    image: result[i].Notification,
+                                    timestamp: result[i].NotificationDate
+                                };
+                                chat.renderMessage(message, sender);
+                            }
+
+                            
+                            //chat.renderAttachments({
+                            //    attachments: [{
+                            //        contentType: "image_card",
+                            //        content: {
+                            //            image: result[i].Notification
+                            //        }
+                            //    }],
+                            //    attachmentLayout: "list"
+                            //}, sender);
+
+                        }
+                        else {
+                            var sender = {
+                                id: result[i].UserId,
+                                name: result[i].UserId,
+                                iconUrl: "../../Content/EmpImg/" + result[i].UserId + ".jpg"
+                            };
+                            if (result[i].Notification.indexOf("pdf") >= 0) {
+                                var message = {
+                                    type: "file_card",
+                                    image: result[i].Notification,
+                                    timestamp: result[i].NotificationDate
+                                };
+                                chat.renderMessage(message, sender);
+                            }
+                            else {
+                                var message = {
+                                    type: "image_card",
+                                    image: result[i].Notification,
+                                    timestamp: result[i].NotificationDate
+                                };
+                                chat.renderMessage(message, sender);
+                            }
+                            
+                            //chat.renderAttachments({
+                            //    attachments: [{
+                            //        contentType: "image_card",
+                            //        content: {
+                            //            image: result[i].Notification
+                            //        }
+                            //    }],
+                            //    attachmentLayout: "list"
+                            //}, sender);
+                        }
+                    }
+                }
+            }
+        });
+
+        chatHub.on("broadcastMessage", function (sender, message, id, ifFile) {
+            if (ifFile == false) {
+                var messag = {
+                    type: "text",
+                    text: message,
+                    timestamp: new Date()
+                };
+
+                // Render the received message in the Chat.
+                chat.renderMessage(messag, sender);
+            }
+            else {
+                //chat.renderAttachments({
+                //    attachments: [{
+                //        contentType: "image_card",
+                //        content: {
+                //            image: message
+                //        }
+                //    }],
+                //    attachmentLayout: "list"
+                //}, sender);
+                if (message.indexOf("pdf") >= 0) {
+                    var messag = {
+                        type: "file_card",
+                        image: message,
+                        timestamp: new Date()
+                    };
+                    chat.renderMessage(messag, sender);
+                }
+                else {
+                    var messag = {
+                        type: "image_card",
+                        image: message,
+                        timestamp: new Date()
+                    };
+                    chat.renderMessage(messag, sender);
+                }
+            }
+            $.ajax({
+                url: "/Setup/SeenChat?Id=" + id,
+                success: function (result) {
+                }
+            });
+        });
+
+
+
+    chatHub.on("sendTyping", function (sender) {
+    // Display the typing notification in the Chat.
+    chat.renderMessage({ type: "typing" }, sender);
+    });
+
+    $('.k-message-box .k-input').emojiPicker();
+    });
+        function onTypingStart(e) {
+            //chatHub.server.sendTyping(chat.getUser(), usr);
+            chatHub.invoke("sendTyping", chat.getUser(), usr);
+        }
+
+    // The `post` handler will send the user data and the typed text to the SignalR Hub.
+    // The Hub will then forward that info to the other clients.
+        function onPost(args) {
+            //console.log(args);
+            //chatHub.server.send(chat.getUser(), args.text, usr);
+            chatHub.invoke("send", chat.getUser(), args.text, usr, false);
+        }
+        function onToolClick(e) {
+            if (e.name === "sendimage") {
+                $("#files").click();
+            }
+        }
+
+        function onSuccess(e) {
+
+            if (e.operation === "upload") {
+                for (var i = 0; i < e.files.length; i++) {
+                    var file = e.files[i].rawFile;
+
+                    if (file) {
+                        var reader = new FileReader();
+
+                        reader.onloadend = function () {
+                            //chat.renderAttachments({
+                            //    attachments: [{
+                            //        contentType: "image_card",
+                            //        content: {
+                            //            image: this.result
+                            //        }
+                            //    }],
+                            //    attachmentLayout: "list"
+                            //}, chat.getUser());
+                            if (this.result.indexOf("pdf") >= 0) {
+                                var messag = {
+                                    type: "file_card",
+                                    image: this.result,
+                                    timestamp: new Date()
+                                };
+                                chat.renderMessage(messag, chat.getUser());
+                            }
+                            else {
+                                var messag = {
+                                    type: "image_card",
+                                    image: this.result,
+                                    timestamp: new Date()
+                                };
+                                chat.renderMessage(messag, chat.getUser());
+                            }
+                        };
+
+                        reader.readAsDataURL(file);
+                    }
+                    //console.log(e.response);
+                    chatHub.invoke("send", chat.getUser(), e.response, usr, true);
+                }
+            }
+        }
+
+    </script>
+}

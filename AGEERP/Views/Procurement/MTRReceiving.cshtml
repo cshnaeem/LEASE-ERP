@@ -1,0 +1,154 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "MTR List";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">MTR List</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Procurement</a></li>
+                    <li class="breadcrumb-item active">MTR List</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            @(Html.Kendo()
+            .Grid<MTRVM>()
+            .Name("gridOrderSearch")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.MTRNo).Title("MTR No").Filterable(f => f.Multi(true).Search(true));
+                columns.Bound(c => c.MTRDate).Filterable(f => f.Multi(true).Search(true));
+                columns.Bound(c => c.CostCenter).Filterable(f => f.Multi(true).Search(true));
+                columns.ForeignKey(c => c.Status, (System.Collections.IEnumerable)SelectListVM.MTRStatusSL, "Value", "Text").Title("Status");
+                columns.Command(c => c.Custom("Receive").Click("Approve").Visible("IsIssued"));
+                columns.Command(c => { c.Custom("Print").Click("PrintMTR"); });
+            })
+            .Pageable()
+            .Filterable()
+            .Sortable()
+            .Scrollable()
+            .AutoBind(true)
+            .Navigatable()
+            //.ToolBar(t => t.Save())
+            //.Editable(e => e.Mode(GridEditMode.InCell))
+            //.HtmlAttributes(new { style = "height:100%;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(100)
+            //.Batch(true)
+            //.Events(e => e.Error("error_handler"))
+            .Model(model =>
+            {
+                model.Id(m => m.MTRId);
+            })
+            .Read(read => read.Action("MTRReceiving_Read", "Procurement"))
+            .Destroy(destroy => destroy.Action("MTR_Destroy", "Procurement"))
+            //.Create(create => create.Action("OrderPlan_Create", "Order").Data("MasterOrderPlan"))
+            //.Update(update => update.Action("UserGroup_Update", "Security"))
+            ))
+            @*</div>*@
+        </div>
+    </div>
+</div>
+
+<form action="/Report/PrintSlip" method="post" target="_blank" id="rptForm" hidden="hidden">
+    @Html.AntiForgeryToken()
+    @Html.Hidden("rpt")
+    @Html.Hidden("TransId")
+</form>
+<div id="modalWindow">
+    <h4>Do you want to proceed this MTR?</h4>
+    <button id="yes" class="k-button">Yes</button>
+    <button id="no" class="k-button">No</button>
+</div>
+<script>
+    var dialog = $("#dialog");
+    var wnd;
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_12000000').addClass('active');
+        //$('#d_12000000').css("display", "block");
+        //$('#m_12050000').addClass('active');
+        //$('#a_12050000').addClass('active');
+        wnd = $("#modalWindow").kendoWindow({
+            title: "Confirmation",
+            modal: true,
+            visible: false,
+            resizable: false,
+            width: 300
+        }).data("kendoWindow");
+    });
+    function Approve(e) {
+        e.preventDefault();
+        var grid = this;
+        var row = $(e.currentTarget).closest("tr");
+        var data = this.dataItem(row);
+        wnd.center().open();
+        $("#yes").click(function () {
+            data.Status = "A";
+            grid.dataSource.remove(data);
+            grid.dataSource.sync();
+            wnd.close();
+        });
+        $("#no").click(function () {
+            wnd.close();
+        });
+    }
+    //function Revoke(e) {
+    //    e.preventDefault();
+    //    var grid = this;
+    //    var row = $(e.currentTarget).closest("tr");
+    //    var data = this.dataItem(row);
+    //    wnd.center().open();
+    //    $("#yes").click(function () {
+    //        data.Status = "R";
+    //        grid.dataSource.remove(data);
+    //        grid.dataSource.sync();
+    //        wnd.close();
+    //    });
+    //    $("#no").click(function () {
+    //        wnd.close();
+    //    });
+    //}
+
+    function IsIssued(e) {
+        return (e.Status == "C")
+    }
+
+    function loadGrid() {
+        $("#gridOrderSearch").data("kendoGrid").dataSource.read();
+    }
+
+    function PrintMTR(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#rpt").val("MTR");
+        $("#TransId").val(dataItem.MTRId);
+        $("#rptForm").submit();
+    }
+
+
+    var gridElement = $("#gridOrderSearch");
+
+    function resizeGrid() {
+        console.log($('.topContent').innerHeight());
+        var height = $(window).innerHeight() - $('header').innerHeight() - $('.topContent').innerHeight() - 190;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridOrderSearch").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+</script>

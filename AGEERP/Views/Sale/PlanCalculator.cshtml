@@ -1,0 +1,367 @@
+﻿@{
+    ViewBag.Title = "PlanCalculator";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Plan Calculator</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Lease</a></li>
+                    <li class="breadcrumb-item active">Plan Calculator</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("locChange").DataBound("locChange"))
+                    .Suggest(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                @Html.ValidationMessage("LocId")
+            </div>
+            <div class="col-md-3 col-sm-4">
+                <br />
+                <br />
+                @Html.Kendo().RadioButton().Name("planType").Label("Regular").HtmlAttributes(new { @id = "Regular" })
+                @Html.Kendo().RadioButton().Name("planType").Label("Local").Checked(true)
+            </div>
+            <div class="col-md-3 col-sm-4 lcl">
+                @Html.Label("Purchase Price")
+                @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("PPrice")
+                    .Format("###")
+                    .Events(e => e.Change("PolicyChange"))
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("SKU")
+                @(Html.Kendo().MultiColumnComboBox()
+                    .Name("SKUId")
+                    .AutoBind(false)
+                    .Placeholder("Select SKU...")
+                    .DataTextField("SKUName")
+                    .DataValueField("SKUId")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("SKUName").Width("350px");
+                        columns.Add().Field("Company").Width("200px");
+                        columns.Add().Field("Product").Width("200px");
+                    })
+                    .Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "SKUName", "Company", "Product" })
+                    .IgnoreCase(true)
+                    .Events(e => e.Change("SKUChange"))
+                    .MinLength(3)
+                    .BindTo(ViewBag.SKU)
+                    //.DataSource(dataSource =>
+                    //{
+                    //dataSource.Read(read => read.Action("SKUByLocList", "Setup").Data("filterSKU"));
+                    //})
+                    //.CascadeFrom("LocId")
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%"})
+                    )
+                @Html.ValidationMessage("SKUId")
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Company")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("Company")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Product")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("Product")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Duration")
+                @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("Duration")
+                    .Format("###")
+                    .Value(12)
+                    .Events(e => e.Change("loadPolicy"))
+                    //.Min(2)
+                    //.Value(12)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Policy")
+                @(Html.Kendo()
+                    .DropDownList()
+                    .Name("PolicyId")
+                    .SelectedIndex(0)
+                    .DataValueField("RowId")
+                    .DataTextField("MarkUp")
+                    .Events(e => e.Change("PolicyChange").DataBound("PolicyDataBound"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("PlanPolicyList", "Sale").Data("filterPolicy"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Actual Advance")
+                @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("dAdvance")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Spinners(false)
+                        //.Enable(false)
+                        .Events(e => e.Change("advdChange"))
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+            </div>
+
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("MonthlyInstallment")
+                @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("dMonthlyInstallment")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Spinners(false)
+                        //.Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Installment Price")
+                @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("dInstPrice")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Spinners(false)
+                        .Events(e => e.Change("instdChange"))
+                        //.Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+            </div>
+            @*<div class="col-md-3 col-sm-4">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="addItem()">
+                    <i class="fas fa-plus"></i>&nbsp; Add
+                </button>
+            </div>*@
+
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <p style="color:red;">
+                    NOTE:<br />
+                    IF CALCULATOR GENERATE RATE (LOCAL PRODUCT) LESS THAN RATE LIST PLAN THAN RATE LIST PLAN WILL BE APPLICABLE
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        if ($("#Regular").is(":checked")) {
+            //$(".rgl").show();
+            $(".lcl").hide();
+        } else {
+            //$(".rgl").hide();
+            $(".lcl").show();
+        }
+    });
+    function filterPolicy() {
+        var isLocal = false;
+        if ($("#Regular").is(":checked")) {
+            isLocal = false;
+        } else {
+            isLocal = true;
+        }
+        var SKUId = $('#SKUId').val() || 0;
+        var LocId = $('#LocId').val() || 0;
+        var Duration = $('#Duration').val() || 0;
+
+        return {
+            LocId: LocId,
+            SKUId: SKUId,
+            IsLocal : isLocal,
+            Duration: Duration
+        }
+    }
+    function locChange() {
+        //$('#SKUId').data('kendoMultiColumnComboBox').dataSource.read();
+        $('#PolicyId').data('kendoDropDownList').dataSource.read();
+    }
+    function PolicyDataBound() {
+        $('#PolicyId').data('kendoDropDownList').select(0);
+        PolicyChange();
+    }
+    function loadPolicy() {
+        $('#PolicyId').data('kendoDropDownList').dataSource.read();
+    }
+    function instdChange() {
+        var Duration = $('#Duration').val();
+        var InstPrice = $('#dInstPrice').val();
+        //var inst = InstPrice / Duration;
+        //$('#dAdvance').data("kendoNumericTextBox").min(inst);
+        //$('#dAdvance').data("kendoNumericTextBox").value(inst);
+        var adv = $('#dAdvance').data("kendoNumericTextBox").value();
+        var inst = (InstPrice - adv) / (Duration - 1);
+        if (adv < inst) {
+            inst = InstPrice / Duration;
+            $('#dAdvance').data("kendoNumericTextBox").value(inst);
+        }
+        $('#dMonthlyInstallment').data("kendoNumericTextBox").value(inst);
+    }
+
+    function SKUChange() {
+        $('#PolicyId').data('kendoDropDownList').dataSource.read();
+    }
+    function PolicyChange() {
+        var LocId = $('#LocId').val() || 0;
+        var SKUId = $('#SKUId').val() || 0;
+        var policy = $('#PolicyId').val();
+        var isLocal = false;
+        if ($("#Regular").is(":checked")) {
+            isLocal = false;
+        } else {
+            isLocal = true;
+        }
+        if (SKUId > 0 && LocId > 0 && policy > 0) {
+            var modelData = $('#SKUId').data('kendoMultiColumnComboBox').dataItem();
+            $('#Company').val(modelData.Company);
+            $('#Product').val(modelData.Product);
+            var skuId = $('#SKUId').val();
+            //var dur = $('#Duration').val();
+            var adv = $('#dAdvance').val() || 0;
+            var pprice = $('#PPrice').val() || 0;
+            $.ajax({
+                url: "/Sale/InstPriceBySKUAuto",
+                type: 'POST',
+                async: false,
+                data: JSON.stringify({ "LocId": LocId, "SKUId": skuId, "Advance": adv, "PPrice": pprice, "IsLocal": isLocal, "PolicyId": policy }),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    if (data != null) {
+                        if (data.Msg != "") {
+                            kendo.alert(data.Msg);
+                        }
+                            $('#dAdvance').data("kendoNumericTextBox").value(data.Advance);
+                            $('#dMonthlyInstallment').data("kendoNumericTextBox").value(data.Inst);
+                        $("#dInstPrice").data("kendoNumericTextBox").value(data.InstPrice);
+                        //$('#Duration').data("kendoNumericTextBox").value(data.Duration);
+                        //$("#dInstPrice").data("kendoNumericTextBox").min(data.InstPrice);
+                    }
+                }
+            });
+        }
+    }
+    function filterSKU() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+    function advdChange() {
+        var skuId = $('#SKUId').val() || 0;
+        //var dur = $('#Duration').val();
+        var adv = $('#dAdvance').val() || 0;
+        var pprice = $('#PPrice').val() || 0;
+        var isLocal = false;
+        if ($("#Regular").is(":checked")) {
+            isLocal = false;
+        } else {
+            isLocal = true;
+        }
+        var policy = $('#PolicyId').val();
+        var LocId = $('#LocId').val() || 0;
+        $.ajax({
+            url: "/Sale/InstPriceBySKUAuto",
+            type: 'POST',
+            async: false,
+            data: JSON.stringify({ "LocId": LocId, "SKUId": skuId, "Advance": adv, "PPrice": pprice, "IsLocal": isLocal, "PolicyId": policy }),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                if (data != null) {
+                    $('#dAdvance').data("kendoNumericTextBox").value(data.Advance);
+                    $('#dMonthlyInstallment').data("kendoNumericTextBox").value(data.Inst);
+                    $("#dInstPrice").data("kendoNumericTextBox").value(data.InstPrice);
+                    //$('#Duration').data("kendoNumericTextBox").value(data.Duration);
+                }
+            }
+        });
+    }
+    //function pPriceChange() {
+    //    var pprice = $('#PPrice').val() || 0;
+    //    var LocId = $('#LocId').val() || 0;
+    //    var policy = $('#PolicyId').val();
+    //    $.ajax({
+    //        url: "/Sale/InstPriceBySKUAuto",
+    //        type: 'POST',
+    //        async: false,
+    //        data: JSON.stringify({ "LocId": LocId, "SKUId": 0, "Advance": 0, "PPrice": pprice, "IsLocal": true, "PolicyId": policy }),
+    //        contentType: 'application/json; charset=utf-8',
+    //        success: function (data) {
+    //            if (data != null) {
+    //                $('#dAdvance').data("kendoNumericTextBox").value(data.Advance);
+    //                $('#dMonthlyInstallment').data("kendoNumericTextBox").value(data.Inst);
+    //                $("#dInstPrice").data("kendoNumericTextBox").value(data.InstPrice);
+    //                //$('#Duration').data("kendoNumericTextBox").value(data.Duration);
+    //            }
+    //        }
+    //    });
+    //}
+
+    $("input[name='planType']").click(function () {
+        if ($("#Regular").is(":checked")) {
+            //$(".rgl").show();
+            $(".lcl").hide();
+        } else {
+            //$(".rgl").hide();
+            $(".lcl").show();
+        }
+        PolicyChange();
+    });
+</script>

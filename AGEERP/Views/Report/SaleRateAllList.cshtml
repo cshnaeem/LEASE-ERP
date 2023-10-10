@@ -1,0 +1,102 @@
+﻿
+@{
+    ViewBag.Title = "SaleRateAllList";
+}
+@using (Html.BeginForm("SaleRateAllList", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+
+            <div class="card-header">
+                <h3 class="card-title">Sale Rate List</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Report</a></li>
+                        <li class="breadcrumb-item active">SaleRateList</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Date")
+                    @(Html.Kendo()
+                    .DatePicker()
+                    .Name("Dt")
+                    .Value(DateTime.Now.Date)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                </div>
+                <div class="col-md-3 col-xs-12">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("ComId")
+                .OptionLabel("All")
+                .DataValueField("ComId")
+                .DataTextField("ComName")
+                .Filter(FilterType.Contains)
+                .Events(e => e.Change("loadModel"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CompanyList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                </div>
+                <div class="col-md-3 col-xs-4">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("ProductId")
+                .OptionLabel("All")
+                .DataValueField("ProductId")
+                .DataTextField("Name")
+                .Filter(FilterType.Contains)
+                .Events(e => e.Change("loadModel"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("ProductList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                </div>
+                <div class="col-md-3 col-xs-4">
+                    @Html.Label("Model")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("ModelId")
+                .OptionLabel("All")
+                .DataValueField("ModelId")
+                .DataTextField("Model")
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("ModelByComProList", "Setup").Data("filterModel"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                </div>
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    function filterModel() {
+        return {
+            ComId: $('#ComId').val() || 0,
+            ProductId: $('#ProductId').val() || 0
+        }
+    }
+    function loadModel() {
+        $('#ModelId').data('kendoDropDownList').dataSource.read();
+    }
+</script>

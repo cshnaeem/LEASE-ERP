@@ -1,0 +1,247 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Pending Invoices";
+}
+<style>
+    .modal {
+        position: fixed;
+        right: 0;
+        left: 0;
+        display: none;
+        overflow-y: auto;
+        width: 78%;
+        max-height: 80%;
+        margin: auto;
+        padding: 0;
+        border-radius: 2px;
+        background-color: #fafafa;
+        will-change: top, opacity;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Pending Invoices</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Sale</a></li>
+                    <li class="breadcrumb-item active">Pending Invoices</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        <div class="row">
+            <div class="col-md-3">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+
+            <div class="col-md-3">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                        .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    //.SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                    <i class="fas fa-print"></i>&nbsp; Show
+                </button>
+                <button class="k-button margin-10" onclick="SaveDoc()">Resend Invoices</button>
+            </div>
+        </div>
+        <div class="row">
+            @(Html.Kendo()
+            .Grid<CashSaleVM>()
+            .Name("gridPendingInvoices")
+            .Columns(columns =>
+            {
+                columns.Select();
+                columns.Template(t => { }).Title("#").ClientTemplate(
+                      "#= renderNumber(data) #"
+                 ).Width(100);
+                columns.Bound(c => c.USIN);
+                columns.Bound(c => c.DateTime).Format("{0:d}");
+                columns.Bound(c => c.Type);
+                //columns.Bound(c => c.BillNo);
+
+                columns.Bound(c => c.FBR);
+                columns.Bound(c => c.Customer);
+                columns.Bound(c => c.Mobile);
+                columns.Bound(c => c.IsReturn);
+                columns.Bound(c => c.CNIC);
+                columns.Bound(c => c.Amount);
+                columns.Command(c => c.Edit());
+                //columns.Command(c => { c.Custom("Resend").Click("ResendInvoice"); }).Width(100);
+            })
+            .Sortable()
+            //.Pageable()
+            .Scrollable()
+            .ToolBar(t => { t.Search(); })
+            .Editable(e => e.Mode(GridEditMode.InLine))
+            .Search(s => { s.Field(a => a.Customer);s.Field(a => a.Mobile);s.Field(a => a.CNIC); s.Field(a => a.USIN); s.Field(a => a.BillNo); s.Field(a => a.FBR); })
+            .AutoBind(false)
+            .Navigatable()
+            .HtmlAttributes(new { style = "height:300px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .ServerOperation(false)
+            //.PageSize(100)
+            .Model(model =>
+            {
+                model.Id(m => m.TransId);
+                model.Field(m => m.TransId).Editable(false);
+                model.Field(m => m.BillNo).Editable(false);
+                model.Field(m => m.USIN).Editable(false);
+                model.Field(m => m.FBR);
+                model.Field(m => m.Customer).Editable(false);
+                model.Field(m => m.Mobile).Editable(false);
+                model.Field(m => m.CNIC).Editable(false);
+                model.Field(m => m.Amount).Editable(false);
+                model.Field(m => m.DateTime).Editable(false);
+                model.Field(m => m.Type).Editable(false);
+                model.Field(m => m.IsReturn).Editable(false);
+            })
+            .Read(read => read.Action("PendingInvoices_Read", "Sale").Data("FormatData"))
+            .Create(read => read.Action("PendingInvoices_Create", "Sale"))
+            .Update(read => read.Action("PendingInvoices_Update", "Sale"))
+            ))
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        //$('#m_18000000').addClass('active');
+        //$('#d_18000000').css("display", "block");
+        //$('#m_18060000').addClass('active');
+        //$('#a_18060000').addClass('active');
+        resizeGrid();
+
+    });
+    function SaveDoc() {
+        var TransLst = $('#gridPendingInvoices').data('kendoGrid').selectedKeyNames();
+        var dat = { "TransLst": TransLst };
+        if (TransLst.length > 0) {
+            if (confirm("Are you want to Resend Invoices")) {
+                kendo.ui.progress($('.card'), true);
+                $.ajax({
+                    url: '/Sale/PendingInvoicesPosting',
+                    type: 'POST',
+                    data: JSON.stringify(dat),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        kendo.ui.progress($('.card'), false);
+                        if (data == true) {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Success");
+                            dia.content("Save Successfully");
+                            dia.open();
+                            loadGrid();
+                        }
+                        else {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Not Save Successfully");
+                            dia.open();
+                        }
+                    },
+                    error: function () {
+                        kendo.ui.progress($('.card'), false);
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content("Not Save Successfully");
+                        dia.open();
+                    }
+                });
+            }
+        }
+        else {
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Validation");
+            dia.content("Please select Invoices");
+            dia.open();
+        }
+    }
+    var gridElement = $("#gridPendingInvoices");
+    var rowNumber = 0;
+    function ResendInvoice(e) {
+        e.preventDefault();
+        if (confirm("Are you want to Resend Invoice")) {
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            alert(dataItem.TransId);
+        }
+        //if (dataItem.Type == "Cash") {
+        //    $("#rpt").val("CashSaleTax");
+        //}
+        //else {
+        //    $("#rpt").val("InstSaleTax");
+        //}
+        //$("#TransId").val(dataItem.TransId);
+        //$("#rptForm").submit();
+
+    }
+
+    function renderNumber(data) {
+        return ++rowNumber;
+    }
+
+    function loadGrid() {
+        rowNumber = 0;
+        $("#gridPendingInvoices").data("kendoGrid").dataSource.read();
+    }
+    function FormatData() {
+        return {
+            FromDate: $('#FromDate').val(),
+            ToDate: $('#ToDate').val(),
+            LocId: $('#LocId').val() || 0
+        }
+    }
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridPendingInvoices").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+    //function DeleteDetail(e) {
+    //    e.preventDefault();
+    //    var grid = this;
+    //    var row = $(e.currentTarget).closest("tr");
+    //    var data = this.dataItem(row);
+    //    data.dirty = true;
+    //    grid.dataSource.remove(data);
+    //    grid.dataSource.sync();
+    //}
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+
+</script>
+

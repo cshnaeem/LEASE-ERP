@@ -1,0 +1,162 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Sales Target Incentive";
+}
+
+<div class="col s12 m12 l12">
+    <div class="card card card-default scrollspy">
+        <div class="card-content">
+            <h4 class="card-title">Sales Target Incentive Calculator</h4>
+            <div class="col s12">   
+                <div class="row">
+                    <div class="col-md-3">
+                        @Html.Label("Performance Type")
+                        @(Html.Kendo()
+                        .DropDownList()
+                        .Name("PerformanceTypeId")
+                        //.Placeholder("Select PerformanceType ...")
+                        .SelectedIndex(0)
+                        .OptionLabel("Please Select ...")
+                        .DataValueField("PerformanceTypeId")
+                        .DataTextField("PerformanceType")
+                        .Filter(FilterType.Contains)
+                        .Events(e => e.Change("changeMonth"))
+                        //.Suggest(true)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("GetPerformanceTypeList", "Target"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-4">
+                        @Html.Label("Month")
+                        @(Html.Kendo().DatePicker()
+                        .Name("Month")
+                        .Value(DateTime.Now.Date)
+                        .Start(CalendarView.Year)
+                        .Depth(CalendarView.Year)
+                        .Format("MMMM yyyy")
+                        .Events(e => e.Change("changeMonth"))
+                        .HtmlAttributes(new { @style = "width:100%" }))
+                    </div>
+                    <div class="col s12">
+                        @Html.Label("Sales Target")
+                        @(Html.Kendo()
+                        .Grid<IncentiveVM>()
+                        .Name("gridIncentive")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.EmpName);
+                            columns.Bound(c => c.DesgName);
+                            columns.Bound(c => c.CNIC);
+                            columns.Bound(c => c.AchQty);
+                            columns.Bound(c => c.AchValue);
+                            columns.Bound(c => c.IncentivePercent);
+                            columns.Bound(c => c.IncentiveValue);
+                            columns.Bound(c => c.Remarks);
+                        })
+                        //.Pageable()
+                        .Sortable()
+                        .Scrollable()
+                        .AutoBind(false)
+                        .Navigatable()
+                        .ToolBar(t => t.Save())
+                        .Editable(e => e.Mode(GridEditMode.InCell))
+                        .HtmlAttributes(new { style = "height:300px;" })
+                        //.Events(e => e.DataBound("ApplyPolicy"))
+                        .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Batch(true)
+                        .Events(e => e.Error("error_handler"))
+                        .Model(model =>
+                        {
+                            model.Id(m => m.RowId);
+                            model.Field(m => m.EmpName).Editable(false);
+                            model.Field(m => m.DesgName).Editable(false);
+                            model.Field(m => m.CNIC).Editable(false);
+                            model.Field(m => m.AchQty).Editable(false);
+                            model.Field(m => m.AchValue).Editable(false);
+                            model.Field(m => m.IncentivePercent).Editable(false);
+                            model.Field(m => m.IncentiveValue);
+                            model.Field(m => m.Remarks);
+                        })
+                        .Read(read => read.Action("Incentive_Read", "Target").Data("filterIncentive"))
+                        .Create(create => create.Action("Incentive_Create", "Target"))
+                        .Update(update => update.Action("Incentive_Update", "Target"))
+                        ))
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_18000000').addClass('active');
+        //$('#d_18000000').css("display", "block");
+        //$('#m_18070000').addClass('active');
+        //$('#d_18070000').css("display", "block");
+        //$('#m_18070500').addClass('active');
+        //$('#a_18070500').addClass('active');
+
+        changeMonth();
+    });
+    var gridElement = $("#gridIncentive");
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridIncentive").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    function filterIncentive() {
+        return {
+            month: $('#Month').data('kendoDatePicker').value(),
+            PTypeID: $('#PerformanceTypeId').data('kendoDropDownList').value()
+        }
+    }
+    function changeMonth() {
+        $('#gridIncentive').data('kendoGrid').dataSource.read();
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message.indexOf("Saved") > -1) {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Success");
+                dia.content(message);
+                dia.open();
+                changeMonth()();
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+</script>

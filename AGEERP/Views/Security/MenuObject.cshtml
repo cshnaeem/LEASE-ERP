@@ -1,0 +1,95 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "MenuObject";
+}
+<div class="col s12 m12 l12">
+    <div class="card card card-default scrollspy">
+        <div class="card-content">
+            <h4 class="card-title">MenuObject</h4>
+            @(Html.Kendo()
+                  .Grid<MenuObjectVM>()
+                  .Name("gridMenuObject")
+                  .Columns(columns =>
+                  {
+                      columns.Bound(c => c.ObjectId);
+                      columns.Bound(c => c.ObjectName);
+                      columns.Bound(c => c.ObjectAction);
+
+                      columns.ForeignKey(c => c.MenuId, (System.Collections.IEnumerable)ViewData["MenuListVD"], "MenuId", "ObjectName").Title("Menu");
+                      //columns.Bound(c => c.MenuId);
+                      columns.Command(c => { c.Edit(); c.Destroy(); }).Width(250);
+                  })
+                  .Pageable()
+                  .Sortable()
+                  .Scrollable()
+                        .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+                                @*.ToolBar(toolBar =>
+                                    {
+                                        toolBar.Template(@<text> <div class="col-sm-2">@item.CreateButton() </div>  <div class="col-sm-4 col-sm-push-7"><span>Search</span> &nbsp;&nbsp; <input class='k-textbox' value="Search..." onfocus="if (this.value==='Search...') this.value='';" onblur="this.value = this.value===''?'Search...':this.value;" id='searchbox' /></div></text>);
+                                    })*@
+    .ToolBar(t => t.Create())
+    .Editable(e => e.Mode(GridEditMode.InLine))
+    .HtmlAttributes(new { style = "height:400px;" })
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(20)
+        .Events(e => e.Error("error_handler"))
+        .Model(MenuObject =>
+        {
+            MenuObject.Id(m => m.ObjectId);
+        })
+        .Read(read => read.Action("MenuObject_Read", "Security"))
+        .Create(create => create.Action("MenuObject_Create", "Security"))
+        .Update(update => update.Action("MenuObject_Update", "Security"))
+        .Destroy(update => update.Action("MenuObject_Destroy", "Security"))
+    ))
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script MenuObject="text/javascript">
+        var gridElement = $("#gridMenuObject");
+        $(document).ready(function () {
+            resizeGrid();
+            //$('#m_10000000').addClass('active');
+            //$('#d_10000000').css("display", "block");
+            //$('#m_10010000').addClass('active');
+            //$('#d_10010000').css("display", "block");
+            //$('#m_10010400').addClass('active');
+            //$('#a_10010400').addClass('active');
+        })
+
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridMenuObject").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    </script>
+}

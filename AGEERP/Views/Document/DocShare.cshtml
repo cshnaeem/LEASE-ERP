@@ -1,0 +1,234 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Document Sharing";
+}
+<style>
+    .k-upload-files {
+        height: 70px !important;
+    }
+
+    .k-primary {
+        background-color: #dc3545 !important;
+    }
+
+    button[type=reset] {
+        background-color: #bfc6d0 !important;
+    }
+</style>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Document Sharing</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Document Sharing</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12 ihead">
+            <div class="row">
+                <div class="col-md-3 col-sm-3" style="margin-top:6px;">
+                    @Html.Label("City")
+                    @(Html.Kendo().MultiSelect()
+                .Name("CityId")
+                .Placeholder("Select City ...")
+                .DataValueField("CityId")
+                .DataTextField("City")
+                .Events(e => e.Change("loadGrid"))
+                .ValuePrimitive(true)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("CityList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @class = "browser-default" })
+                )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Title")
+                    @(Html.Kendo().TextBox().Name("DocTitle")
+                    .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Description")
+                    @(Html.Kendo().TextBox().Name("Description")
+                    .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Documents")
+                    @(Html.Kendo().Upload()
+                    .Name("files")
+                    .Multiple(true)
+                    .Async(a => a
+                        .Save("UploadDocBulk", "Document", new { refobjid = 13 })
+                        .Remove("DocumentRemove", "Document")
+                        .SaveField("files")
+                        .AutoUpload(false)
+                        //.Concurrent(true)
+                        .Batch(true)
+                    ).Events(e => e
+                    .Success("onDocUp")
+                    .Remove("onUploadRemove")
+                    //.Remove("OnRemove")
+                    )
+                    )
+                </div>
+                <input type="hidden" name="UploadedFiles" id="UploadedFiles" />
+            </div>
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-xs-12">
+                    @(Html.Kendo()
+                    .Grid<LocationVM>()
+                    .Name("gridLocations")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(m => m.CityName).Width(150).Filterable(false);
+                        columns.Bound(m => m.LocName).Title("Location").Width(200).Filterable(f => f.Multi(true).Search(true).CheckAll(true));
+                    })
+                    //.Pageable()
+                    .Sortable()
+                    .Scrollable(s => s.Enabled(true))
+                    .AutoBind(true)
+                    .Filterable()
+                    .Navigatable()
+                    .ToolBar(t => t.Save())
+                     .Events(e => { e.DataBound("setDirty"); })
+                    .Editable(e => e.Mode(GridEditMode.InCell))
+                    .HtmlAttributes(new { style = "height:500px;" })
+                    //.Events(e => e.SaveChanges("onSaveChanges"))
+                    //.BindTo((List<PreOrderMobileVM>)ViewBag.lst)
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    //.PageSize(20)
+                    .Events(e => e.Error("error_handler"))
+                    .Batch(true)
+                    //.ServerOperation(false)
+                    .Model(model =>
+                    {
+                        model.Id(m => m.LocId);
+                        model.Field(m => m.CityName).Editable(false);
+                        model.Field(m => m.CityId).Editable(false);
+                        model.Field(m => m.LocName).Editable(false);
+                        model.Field(m => m.LocId).Editable(false);
+
+                    })
+                    .Read(read => read.Action("AllLocationNDCityList", "Setup").Data("filterGrid"))
+                    .Create(create => create.Action("DocShare_Create", "Document").Data("GetDocumentDetail"))
+                     .Update(create => create.Action("DocShare_Create", "Document").Data("GetDocumentDetail"))
+                    ))
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        //$('#m_19000000').addClass('active');
+        //$('#d_19000000').css("display", "block");
+        //$('#m_19050000').addClass('active');
+        //$('#a_19050000').addClass('active');
+    });
+    function loadGrid() {
+        $('#gridLocations').data('kendoGrid').dataSource.read();
+    }
+    function filterGrid() {
+        return {
+            City: $('#CityId').val()
+        }
+    }
+    var flarr = [];
+    function onDocUp(e) {
+        for (var i = 0; i < e.response.length; i++) {
+            e.files[i].id = e.response[i];
+            //console.log(e);
+        }
+    }
+    function setDirty(e) {
+        var rows = e.sender.tbody.children();
+        for (var j = 0; j < rows.length; j++) {
+            var row = $(rows[j]);
+            var dataItem = e.sender.dataItem(row);
+            dataItem.dirty = true;
+        }
+    }
+    function onUploadRemove(e) {
+        var files = e.files;
+        var docid = 0;
+        for (i = 0; i < files.length; i++) {
+            docid = files[i].id;
+        }
+
+        return {
+            DocId: docid
+        }
+    }
+    function GetDocumentDetail() {
+        var upload = $("#files").data("kendoUpload");
+        var dataSource = $("#gridLocations").data("kendoGrid").dataSource;
+        var filters = dataSource.filter();
+        var allData = dataSource.data();
+        var query = new kendo.data.Query(allData);
+        var proData = query.filter(filters).data;
+
+        var _docTitle = $('#DocTitle').val();
+        var DocDescription = $('#Description').val();
+        var _ItemList = [];
+        var files = upload.getFiles();
+        var fl = [];
+        for (var i = 0; i < files.length; i++) {
+            fl.push(files[i].id);
+        }
+        $('#UploadedFiles').val(fl);
+        var files = $('#UploadedFiles').val();
+        for (var i = 0; i < proData.length; i++) {
+           // docid = proData[i].DocId;
+            var _Item = {
+                LocId: proData[i].LocId
+            }
+            _ItemList.push(_Item)
+        }
+        debugger;
+        return {
+            DocTitle: _docTitle,
+            Description: DocDescription,
+            DocShareDet: _ItemList,
+            UploadedFiles: files
+        }
+    }
+
+    function error_handler(e) {
+         debugger;
+        if (e.errors) {
+            var message = "Msg:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            debugger;
+            if (message == "true") {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Msg");
+                dia.content(message);
+                dia.open();
+                window.location.reload();
+            }
+            else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Msg");
+                dia.content(message);
+                dia.open();
+                window.location.reload();
+
+            }
+
+        }
+    }
+
+</script>

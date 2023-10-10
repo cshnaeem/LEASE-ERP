@@ -1,0 +1,1194 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Processing";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Lease Processing</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Lease</a></li>
+                    <li class="breadcrumb-item active">Lease Processing</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="frmM">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    //.Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("locChange"))
+                    //.Suggest(true)
+                    //.Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                    @Html.ValidationMessage("LocId")
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("ProcessDate")
+                    @Html.Kendo().DatePicker().Name("ProcessDate").Value(ViewBag.WorkingDate).Enable(false).HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("ProcessAt")
+                    @(Html.Kendo().DropDownList()
+                    .Name("ProcessAt")
+                    .SelectedIndex(0)
+                    .BindTo(new List<SelectListItem>() {
+                        new SelectListItem() {
+                    Text = "Outdoor",
+                    Value = "Outdoor"
+                    },
+                    new SelectListItem() {
+                    Text = "Indoor",
+                    Value = "Indoor"
+                    }
+                    
+                    }).HtmlAttributes(new { @style = "width:100%", @required = "true", @readonly = true }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("NIC")
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("NIC")
+                    .Mask("00000-0000000-0")
+                    .Events(e => e.Change("NICChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @class = "nocopy" })
+                    )
+                    @Html.ValidationMessage("NIC")
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Customer Name")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("CustName")
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("S/O")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("FName")
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Mobile1")
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("Mobile1")
+                    .Mask("0000-0000000")
+                    .Events(e => e.Change("Mobile1Change"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @class = "nocopy" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Mobile2")
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("Mobile2")
+                    .Mask("0000-0000000")
+                    .Events(e => e.Change("Mobile2Change"))
+                    .HtmlAttributes(new { @style = "width:100%", @class = "nocopy" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Marketing")
+                    @Html.Hidden("MktOfficerId")
+                    <span id="MktOfficerName" style="color:red;"></span>
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("MktOfficerNIC")
+                    .Mask("00000-0000000-0")
+                    .Events(e => e.Change("MktOfficerNICChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true",@class = "nocopy" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Inquiry Officer")
+                    <span id="InqOfficerName" style="color:red;"></span>
+                    @Html.Hidden("InqOfficerId")
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("InqOfficerNIC")
+                    .Mask("00000-0000000-0")
+                    .Events(e => e.Change("InqOfficerNICChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @class = "nocopy" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Manager")
+                    @Html.Hidden("ManagerId")
+                    <span id="ManagerName" style="color:red;"></span>
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("ManagerNIC")
+                    .Mask("00000-0000000-0")
+                    .Events(e => e.Change("ManagerNICChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @class = "nocopy" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Second Manager")
+                    @Html.Hidden("SManagerId")
+                    <span id="SManagerName" style="color:red;"></span>
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("SManagerNIC")
+                    .Mask("00000-0000000-0")
+                    .Events(e => e.Change("SManagerNICChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @class = "nocopy" }))
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("RM")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("RM")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("SRM")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("SRM")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("CRC")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("CRC")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("BDM")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("BDM")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-12 col-sm-12">
+                    @Html.Label("Remarks")
+                    @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%", @maxlength = "200" })
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Category")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CategoryId")
+                    .SelectedIndex(0)
+                    .DataValueField("CategoryId")
+                    .DataTextField("Category")
+                    .Events(e => e.Change("changeCategory"))
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CategoryList", "Sale"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @readonly = true })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Duration")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("Duration")
+                    .Format("###")
+                    .Events(e => e.Change("durChange"))
+                    .Min(2)
+                    .Value(12)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Fee Received")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("ReceiveFee")
+                    .Format("##,###")
+                    .Value(0)
+                    .Min(0)
+                    .Max(9999999999)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("EffectiveDate")
+                    @Html.Kendo().DatePicker().Name("EffectedDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @readonly = true, @required = "true" })
+                </div>
+
+
+            </div>
+        </div>
+            <hr />
+        <div id="frmD">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("SKU")
+                    @(Html.Kendo().MultiColumnComboBox()
+                    .Name("SKUId")
+                    .AutoBind(false)
+                    .Placeholder("Select SKU...")
+                    .DataTextField("SKUName")
+                    .DataValueField("SKUId")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("SKUName").Width("350px");
+                        columns.Add().Field("Company").Width("200px");
+                        columns.Add().Field("Product").Width("200px");
+                    })
+                    .Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "SKUName", "Company", "Product" })
+                    .IgnoreCase(true)
+                    .Events(e => e.Change("SKUChange"))
+                    .DataSource(dataSource =>
+                    {
+                    dataSource.Read(read => read.Action("SKUByLocList", "Setup").Data("filterSKU"));
+                    })
+                    //.CascadeFrom("LocId")
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                    @Html.ValidationMessage("SKUId")
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("Company")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("Product")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Plan")
+                    @(Html.Kendo().MultiColumnComboBox()
+                    .Name("Plan")
+                    .AutoBind(false)
+                    .Placeholder("Select Plan...")
+                    .DataTextField("PlanName")
+                    .DataValueField("RowId")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("Advance").Width("200px");
+                        columns.Add().Field("Inst").Width("200px");
+                        columns.Add().Field("Duration").Width("200px");
+                        columns.Add().Field("InstPrice").Width("200px");
+                        columns.Add().Field("Status").Width("200px").Title("Type");
+                    })
+
+                    .Events(e => e.Change("planChange").DataBound("planChange"))
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("InstPriceBySerial", "Sale").Data("filterDuration"));
+                    })
+                    //.CascadeFrom("Duration")
+
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                    @Html.ValidationMessage("Plan")
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Installment Price")
+                    @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("dInstPrice")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Spinners(false)
+                        .Events(e => e.Change("instdChange"))
+                        //.Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = false })
+                        )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Actual Advance")
+                    @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("dAdvance")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Spinners(false)
+                        //.Enable(false)
+                        .Events(e => e.Change("advdChange"))
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = false })
+                        )
+                </div>
+
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("MonthlyInstallment")
+                    @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("dMonthlyInstallment")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Spinners(false)
+                        //.Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="addItem()">
+                        <i class="fas fa-plus"></i>&nbsp; Add
+                    </button>
+                </div>
+            </div>
+        </div>
+        <hr/>
+            <div class="row">
+                <div class="col-md-9 col-sm-12">
+                    @Html.Label("Sale")
+                    @(Html.Kendo()
+                    .Grid<LseDetailVM>()
+                    .Name("gridLseDetail")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.DtlId).Hidden();
+                        columns.Bound(c => c.ItemId).Hidden();
+                        columns.Bound(c => c.SKUId).Hidden();
+                        columns.Bound(c => c.SKUName);
+                        columns.Bound(c => c.InstPrice);
+                        columns.Command(c => c.Destroy());
+                    })
+
+                    //.Sortable()
+                    .Scrollable()
+                    .AutoBind(false)
+
+
+                    .Navigatable()
+                    .ToolBar(t => { t.Save(); })
+                    .Editable(e => e.Mode(GridEditMode.InCell).CreateAt(GridInsertRowPosition.Bottom))
+                    .HtmlAttributes(new { style = "height:300px;font-size:12px;" })
+                    .Events(e => e.DataBound("gridDataBound").SaveChanges("onSaveChanges"))
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Batch(true)
+                    .Events(e => e.Error("error_handler"))
+                    .Model(model =>
+                    {
+                        model.Id(m => m.DtlId);
+                        model.Field(m => m.InstPrice).Editable(false);
+                        model.Field(m => m.SKUId).Editable(false);
+                        model.Field(m => m.SKUName).Editable(false);
+                        model.Field(m => m.dAdvance).Editable(false);
+                        model.Field(m => m.dInst).Editable(false);
+                        model.Field(m => m.InstPlanId).Editable(false);
+                        model.Field(m => m.PlanType).Editable(false);
+                    })
+                    .Read(read => read.Action("Sale_Read", "Sale"))
+                    .Create(read => read.Action("Processing_Create", "Sale").Data("MasterData"))
+                    .Update(read => read.Action("Sale_Read", "Sale"))
+                    ))
+                </div>
+                <div class="col-md-3" style="bottom:20px;right:0px;">
+                    <br />
+                    <br />
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("Installment Price")
+                        @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("InstPrice")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        //.Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("Actual Advance")
+                        @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("Advance")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        //.Enable(false)
+                        .Events(e => e.Change("advChange"))
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("MonthlyInstallment")
+                        @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("MonthlyInstallment")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        //.Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+
+
+                </div>
+            </div>
+            
+    </div>
+</div>
+
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<script>
+    var validatorM = $("#frmM").kendoValidator().data("kendoValidator");
+    var validatorD = $("#frmD").kendoValidator().data("kendoValidator");
+    $(document).ready(function () {
+        //$('#m_14000000').addClass('active');
+        //$('#d_14000000').css("display", "block");
+        //$('#m_14030000').addClass('active');
+        //$('#d_14030000').css("display", "block");
+        //$('#m_14030100').addClass('active');
+        //$('#a_14030100').addClass('active');
+    });
+    
+    function MasterData() {
+        var data = {
+            LocId: $('#LocId').val(),
+            CategoryId: $('#CategoryId').val(),
+            ProcessDate: $('#ProcessDate').val(),
+            ProcessFee: $('#ProcessFee').val(),
+            CustName: $('#CustName').val(),
+            FName: $('#FName').val(),
+            Mobile1: $('#Mobile1').val(),
+            Mobile2: $('#Mobile2').val(),
+            NIC: $('#NIC').val(),
+            InstPrice: $('#InstPrice').val(),
+            Advance: $('#Advance').val(),
+            MonthlyInst: $('#MonthlyInstallment').val(),
+            Duration: $('#Duration').val(),
+            ProcessAt: $('#ProcessAt').val(),
+            MktOfficerId: $('#MktOfficerId').val(),
+            InqOfficerId: $('#InqOfficerId').val(),
+            ManagerId: $('#ManagerId').val(),
+            SManagerId: $('#SManagerId').val(),
+            EffectiveDate: $('#EffectiveDate').val(),
+            Remarks: $('#Remarks').val()
+        }
+        return data;
+    }
+    function ClearAll() {
+        $('#CategoryId').val(1);
+        $('#ProcessFee').val(0);
+        $('#CustName').val("");
+        $('#FName').val("");
+        $('#Mobile1').val("");
+        $('#Mobile2').val("");
+        $('#NIC').val("");
+        //$('#InstPrice').val(0);
+        $('#InstPrice').data('kendoNumericTextBox').value("");
+        $('#Advance').data('kendoNumericTextBox').value("");
+        $('#MonthlyInstallment').data('kendoNumericTextBox').value("");
+        //$('#Advance').val(0);
+        //$('#MonthlyInst').val(0);
+        $('#Duration').val(12);
+        $('#ProcessAt').val("Indoor");
+        $('#MktOfficerId').val("");
+        $('#InqOfficerId').val("");
+        $('#Company').val("");
+        $('#Product').val("");
+        $("#gridLseDetail").data("kendoGrid").dataSource.data([]);
+        $('#Plan').data('kendoMultiColumnComboBox').value("");
+        $('#MktOfficerId').val("");
+        $('#InqOfficerId').val("");
+        $('#ManagerId').val("");
+        $('#SManagerId').val("");
+        $('#Remarks').val("");
+    }
+    function NICChange(e) {
+        var NIC = $('#NIC').val();
+        if (NIC.length == 15) {
+            kendo.ui.progress($('.card'), true);
+            $.getJSON("/Sale/CheckBlock", { str: NIC })
+                .done(function (data) {
+                    kendo.ui.progress($('.card'), false);
+                    if (data != "OK") {
+                        kendo.alert(data);
+                        $('#NIC').val("");
+                    }
+                    else {
+                        kendo.ui.progress($('.card'), true);
+                        $.getJSON("/Sale/ProceesingByNIC", { NIC: NIC })
+                            .done(function (data) {
+                                kendo.ui.progress($('.card'), false);
+                                if (data != null) {
+                                    if (data.Status === 'P') {
+                                        kendo.alert('Customer already processed');
+                                    }
+                                    $('#CustName').val(data.CustName);
+                                    $('#FName').val(data.FName);
+                                    $('#Mobile1').val(data.Mobile1);
+                                    $('#Mobile2').val(data.Mobile2);
+                                    $('#Mobile1').data('kendoMaskedTextBox').trigger("change");
+                                    $('#Mobile2').data('kendoMaskedTextBox').trigger("change");
+                                }
+                                else {
+                                    kendo.alert('Customer does not exist');
+                                }
+                            })
+                            .fail(function (jqxhr, textStatus, error) {
+                                kendo.ui.progress($('.card'), false);
+                                kendo.alert('Customer does not exist');
+                            });
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    kendo.ui.progress($('.card'), false);
+                    kendo.alert('Error');
+                    this.value("");
+                });
+        }
+    }
+
+    var modelData = [];
+    function filterSKU() {
+        return {
+            LocId: $('#LocId').val()
+            //filterModel: $("#SKUId").data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+    function changeCategory() {
+        $('#gridLseDetail').data('kendoGrid').dataSource.data([]);
+    }
+    function SKUChange() {
+        var LocId = $('#LocId').val() || 0;
+        var SKUId = $('#SKUId').val() || 0;
+
+        if (SKUId > 0 && LocId > 0) {
+            var modelData = $('#SKUId').data('kendoMultiColumnComboBox').dataItem();
+            $('#Company').val(modelData.Company);
+            $('#Product').val(modelData.Product);
+            //if (SKUId > 0) {
+            //    $(".ImgDiv").show();
+            //    $("#SkuImg").attr("src", "../../Content/SKUImg/" + SKUId + ".jpg");
+            //}
+            //else {
+            //    $(".ImgDiv").hide();
+            //}
+        }
+        else {
+            $('#Company').val("");
+            $('#Product').val("");
+        }
+        $('#Plan').data('kendoMultiColumnComboBox').value(null);
+        $('#Plan').data('kendoMultiColumnComboBox').dataSource.read();
+    }
+    //var instData = null;
+    function ModelChange() {
+        var LocId = $('#LocId').val() || 0;
+        var ModelId = $('#ModelId').val() || 0;
+        if (ModelId > 0 && LocId > 0) {
+            var modelData = $('#ModelId').data('kendoMultiColumnComboBox').dataItem();
+            $('#Company').val(modelData.Company);
+            $('#Product').val(modelData.Product);
+
+            //$.getJSON("/Sale/InstPriceByModel", { ModelId: ModelId,LocId:LocId })
+            // .done(function (data) {
+            // if (data != null) {
+            // instData = data;
+            // var inst = data.InstPrice / 12;
+            // $('#Advance').data("kendoNumericTextBox").value(inst);
+            // $('#MonthlyInstallment').data("kendoNumericTextBox").value(inst);
+            // $('#Duration').data("kendoNumericTextBox").value(12);
+            // $("#Duration").data("kendoNumericTextBox").max(data.MaxDuration);
+            // $("#ProcessFee").data("kendoNumericTextBox").value(data.ProcessFee);
+            // $("#Advance").data("kendoNumericTextBox").max(data.InstPrice);
+            // SetInstPrice();
+            // }
+            // })
+            // .fail(function (jqxhr, textStatus, error) {
+            // alert('Price does not exist');
+            // instData = null;
+            // $('#Advance').data("kendoNumericTextBox").value(0);
+            // $('#MonthlyInstallment').data("kendoNumericTextBox").value(0);
+            // $('#Duration').data("kendoNumericTextBox").value(0);
+            // $("#Duration").data("kendoNumericTextBox").max(12);
+            // });
+        }
+    }
+    function planChange() {
+        var instData = $('#Plan').data('kendoMultiColumnComboBox').dataItem();
+        if (instData != null) {
+            //console.log('a');
+            $('#dAdvance').data("kendoNumericTextBox").value(instData.Advance);
+            $('#dMonthlyInstallment').data("kendoNumericTextBox").value(instData.Inst);
+            $("#dInstPrice").data("kendoNumericTextBox").value(instData.InstPrice);
+
+            //$('#dAdvance').prop("readonly", true);
+            //$('#dMonthlyInstallment').prop("readonly", true);
+            //$('#dInstPrice').prop("readonly", true);
+        }
+        //else {
+        //    console.log('b');
+        //    $('#dAdvance').prop("readonly", false);
+        //    //$('#dMonthlyInstallment').prop("readonly", false);
+        //    $('#dInstPrice').prop("readonly", false);
+        //}
+    }
+    function durChange() {
+        //var instData =
+        $('#Plan').data('kendoMultiColumnComboBox').dataSource.read();
+        $('#gridLseDetail').data('kendoGrid').dataSource.data([]);
+
+        $('#dAdvance').data("kendoNumericTextBox").value(0);
+        $('#dMonthlyInstallment').data("kendoNumericTextBox").value(0);
+        $("#dInstPrice").data("kendoNumericTextBox").value(0);
+
+        //$('#Advance').data("kendoNumericTextBox").value(instData.Advance);
+        //$('#MonthlyInstallment').data("kendoNumericTextBox").value(instData.Inst);
+        ////$("#ProcessFee").data("kendoNumericTextBox").value(instData.ProcessFee);
+        //$("#Advance").data("kendoNumericTextBox").min(instData.Advance);
+        //$("#InstPrice").data("kendoNumericTextBox").value(instData.InstPrice);
+    }
+    function addItem(e) {
+        if (!validatorD.validate()) {
+            e.preventDefault();
+            return;
+        }
+        var instData = $('#Plan').data('kendoMultiColumnComboBox').dataItem();
+        var modelData = $('#SKUId').data('kendoMultiColumnComboBox').dataItem();
+        var instPrice = $("#dInstPrice").data("kendoNumericTextBox").value() || 0;
+        if (instData == null && instPrice == 0) {
+            kendo.alert("Please Enter Installment Price");
+            e.preventDefault();
+            return;
+        }
+
+        //var dat = {
+        //    InstPrice: $("#dInstPrice").data("kendoNumericTextBox").value(),
+        //    SKUName: modelData.SKUName,
+        //    SKUId: modelData.SKUId,
+        //    dAdvance: $("#dAdvance").data("kendoNumericTextBox").value(),
+        //    dInst: $("#dMonthlyInstallment").data("kendoNumericTextBox").value(),
+        //    InstPlanId: 0,
+        //    PlanType:"M"
+        //};
+        //if (instData != null) {
+           var dat = {
+                InstPrice: instData.InstPrice,
+                SKUName: modelData.SKUName,
+                SKUId: modelData.SKUId,
+                dAdvance: instData.Advance,
+                dInst: instData.Inst,
+                InstPlanId: instData.RowId,
+                PlanType: instData.PlanType
+            };
+        //}
+        
+        var catId = $('#CategoryId').val();
+        var data = $('#gridLseDetail').data('kendoGrid').dataSource.data();
+        var oldSkuId = 0;
+        if (data.length > 0) {
+            oldSkuId = data[0].SKUId;
+        }
+        if (dat.SKUId > 0) {
+            if (data.length <= 2) {
+                $.ajax({
+                    url: "/Sale/CheckLseCategory",
+                    type: 'POST',
+                    async: false,
+                    data: JSON.stringify({ "ItemId": oldSkuId, "NewItemId": dat.SKUId, "CatId": catId }),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        if (data != null) {
+                            if (data == "OK") {
+                                $('#gridLseDetail').data('kendoGrid').dataSource.add(dat);
+                                $('#SKUId').data('kendoMultiColumnComboBox').value("");
+                                $('#Plan').data('kendoMultiColumnComboBox').value("");
+                                $('#dAdvance').data("kendoNumericTextBox").value(0);
+                                $('#dMonthlyInstallment').data("kendoNumericTextBox").value(0);
+                                $("#dInstPrice").data("kendoNumericTextBox").value(0);
+                            }
+                            else {
+                                kendo.alert(data);
+                                e.preventDefault();
+                                return;
+                            }
+                        }
+                    }
+                });
+            }
+            else {
+                kendo.alert("You cannot add multiple items in this Category");
+                e.preventDefault();
+                return;
+            }
+        }
+        else {
+            kendo.alert("You cannot add multiple items in this Category");
+            e.preventDefault();
+            return;
+        }
+        //}
+        //else if (data.length > 1 && catId != 4) {
+        //    kendo.alert("You cannot add multiple items in this Category");
+        //    e.preventDefault();
+        //    return;
+        //}
+        //else {
+        //    $('#gridLseDetail').data('kendoGrid').dataSource.add(dat);
+        //    $('#SKUId').data('kendoMultiColumnComboBox').value("");
+        //    $('#Plan').data('kendoMultiColumnComboBox').value("");
+        //}
+
+        
+    }
+
+    function advChange() {
+        //alert('akaaaaaaaaaaaaaaaa');
+        //var instData = $('#Plan').data('kendoMultiColumnComboBox').dataItem();
+        //if (instData != null) {
+        //debugger;
+        var InstPrice = $('#InstPrice').val();
+        var adv = $('#Advance').val();
+        var Duration = $('#Duration').val();
+            var inst = (InstPrice - adv) / (Duration - 1);
+            $('#MonthlyInstallment').data("kendoNumericTextBox").value(inst);
+
+
+            //var dur = $('#Duration').data("kendoMultiColumnComboBox").value();
+            //var totInst = (instData.InstPrice - ((12 - dur) * instData.PerMonth))
+            //var minAdv = totInst / dur;
+            //console.log(minAdv);
+            //if (adv < minAdv) {
+            // $('#Advance').data("kendoNumericTextBox").value(minAdv);
+            // adv = minAdv;
+            //}
+            //var Inst = (totInst - adv) / (dur - 1);
+            //$('#MonthlyInstallment').data("kendoNumericTextBox").value(Inst); 
+            //SetInstPrice();
+        //}
+    }
+    function advdChange() {
+        var InstPrice = $('#dInstPrice').val();
+        var adv = $('#dAdvance').val();
+        var Duration = $('#Duration').val();
+        var inst = (InstPrice - adv) / (Duration - 1);
+        $('#dMonthlyInstallment').data("kendoNumericTextBox").value(inst);
+    }
+    function instdChange() {
+        var Duration = $('#Duration').val();
+        var InstPrice = $('#dInstPrice').val();
+        var inst = InstPrice / Duration;
+        $('#dAdvance').data("kendoNumericTextBox").min(inst);
+        $('#dAdvance').data("kendoNumericTextBox").value(inst);
+        //var adv = $('#dAdvance').data("kendoNumericTextBox").value();
+        //var inst = (InstPrice - adv) / (Duration - 1);
+        $('#dMonthlyInstallment').data("kendoNumericTextBox").value(inst);
+    }
+
+
+
+
+    //function SetInstPrice() {
+    // var Inst = $('#Advance').data("kendoNumericTextBox").value() +
+    // ($('#MonthlyInstallment').data("kendoNumericTextBox").value() *
+    // ($('#Duration').data("kendoMultiColumnComboBox").value() - 1));
+    // $('#InstPrice').data("kendoNumericTextBox").value(Inst);
+    //}
+    function filterDuration() {
+        return {
+            LocId: $('#LocId').val(),
+            SKUId: $('#SKUId').val(),
+            Duration: $('#Duration').val(),
+            ItemId: 0
+        }
+    }
+    function filterInspector() {
+        return {
+            LocId: $('#LocId').val(),
+            RoleId: 1
+        }
+    }
+    function filterInqOfficer() {
+        return {
+            LocId: $('#LocId').val(),
+            RoleId: 2
+        }
+    }
+    function filterManager() {
+        return {
+            LocId: $('#LocId').val(),
+            RoleId: 4
+        }
+    }
+    function locChange() {
+        var LocId = $('#LocId').val();
+        //$('#MktOfficerId').data('kendoMultiColumnComboBox').dataSource.read();
+        //$('#InqOfficerId').data('kendoMultiColumnComboBox').dataSource.read();
+        //$('#ManagerId').data('kendoMultiColumnComboBox').dataSource.read();
+        //$('#SManagerId').data('kendoMultiColumnComboBox').dataSource.read();
+        $('#SKUId').data('kendoMultiColumnComboBox').dataSource.read();
+        $.getJSON("/Sale/GetLocManagers", { LocId: LocId })
+            .done(function (data) {
+                if (data != null) {
+                    $('#RM').val(data.RM);
+                    $('#SRM').val(data.SRM);
+                    $('#CRC').val(data.CRC);
+                    $('#BDM').val(data.BDM);
+                }
+            });
+    }
+    //function OnSave(result) {
+    //    kendo.ui.progress($('.card'), false);
+    //    var dia = $("#msgBox").data("kendoDialog");
+    //    if (result.AccNo > 0) {
+    //        myconfirm("Save Successfully", "Do you want to print?").then(function () {
+    //            $("#rpt").val("Processing");
+    //            $("#TransId").val(result.AccNo);
+    //            $("#rptForm").submit();
+    //        });
+    //    }
+    //    else {
+    //        dia.title("Error");
+    //        dia.content("Not Save Successfully");
+    //        dia.open();
+    //    }
+    //}
+
+
+    //BUG COMMENTED DATE 6th JUNE //
+    //function IsValid() {
+        //var dia = $("#msgBox").data("kendoDialog");
+        //dia.title("Validation");
+        //var data = MasterData();
+        //if (data.ManagerId != data.SManagerId) {
+        //    return true;
+        //} else {
+        //    dia.content("Manager and SecondManager should not be same");
+        //}
+        //dia.open();
+        //return false;
+    //}
+    function onSaveChanges(e) {
+        if (!validatorM.validate()) {
+                e.preventDefault();
+                return;
+        }
+        //if (!IsValid()) {
+        //    e.preventDefault();
+        //    return;
+        //}
+
+        //$.ajax({
+        //    url: "/Sale/CheckPairingForProcessing",
+        //    type: 'POST',
+        //    async: false,
+        //    data: JSON.stringify({ "mod": itm }),
+        //    contentType: 'application/json; charset=utf-8',
+        //    success: function (data) {
+        //        if (data != null) {
+        //            if (data == "OK") {
+        //            }
+        //            else {
+        //                alert(data);
+        //                e.preventDefault();
+        //                return;
+        //            }
+        //        }
+        //    }
+        //});
+        kendo.ui.progress($('.card'), true);
+    }
+    //function SaveDoc() {
+    //    if (IsValid() == true) {
+    //        myconfirm("Confirmation", "Are you sure that you want to proceed?").then(function () {
+    //            kendo.ui.progress($('.card'), true);
+    //            $('#frm').submit();
+    //        });
+    //    }
+    //    else {
+    //        return false;
+    //    }
+    //}
+    function gridDataBound() {
+        var tot = 0;
+        var adv = 0;
+        var inst = 0;
+        var dur = $('#Duration').data("kendoNumericTextBox").value();
+        var data = $('#gridLseDetail').data('kendoGrid').dataSource.data();
+        for (var i = 0; i < data.length; i++) {
+            tot += data[i].InstPrice;
+            adv += data[i].dAdvance;
+            inst += data[i].dInst;
+        }
+
+        $('#Advance').data("kendoNumericTextBox").value(adv);
+        $('#MonthlyInstallment').data("kendoNumericTextBox").value(inst);
+        $("#InstPrice").data("kendoNumericTextBox").value(tot);
+    }
+    function MktOfficerNICChange() {
+        var str = $('#MktOfficerNIC').val();
+        var cnic = str.replace(/_|-/g, "");
+        if (cnic.length < 13) {
+            kendo.alert('Please enter the Marketing Officer CNIC');
+            $('#MktOfficerId').val("");
+            $('#MktOfficerName').text("");
+            $('#MktOfficerNIC').val("");
+            return false;
+        }
+        kendo.ui.progress($('.card'), true);
+        $.getJSON("/Sale/EmpByCNICRoleLoc", { LocId: $('#LocId').val(), RoleId: 1, CNIC: str })
+            .done(function (data) {
+                kendo.ui.progress($('.card'), false);
+                if (data != "No Data Found") {
+                    $('#MktOfficerId').val(data.EmpId);
+                    $('#MktOfficerName').text(data.EmpName);
+
+                }
+                else {
+                    kendo.alert('No Data Found');
+                    $('#MktOfficerId').val("");
+                    $('#MktOfficerName').text("");
+                    $('#MktOfficerNIC').val("");
+                }
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                kendo.ui.progress($('.card'), false);
+                kendo.alert('Error');
+                $('#MktOfficerId').val("");
+                $('#MktOfficerName').text("");
+                $('#MktOfficerNIC').val("");
+            });
+    }
+    function InqOfficerNICChange() {
+        var str = $('#InqOfficerNIC').val();
+        var cnic = str.replace(/_|-/g, "");
+        if (cnic.length < 13) {
+            kendo.alert('Please enter the Inquiry Officer CNIC');
+            $('#InqOfficerId').val("");
+            $('#InqOfficerName').text("");
+            $('#InqOfficerNIC').val("");
+            return false;
+        }
+        kendo.ui.progress($('.card'), true);
+        $.getJSON("/Sale/EmpByCNICRoleLoc", { LocId: $('#LocId').val(), RoleId: 2, CNIC: str })
+            .done(function (data) {
+                kendo.ui.progress($('.card'), false);
+                console.log(data);
+                if (data != "No Data Found") {
+                    //debugger;
+                    $('#InqOfficerId').val(data.EmpId);
+                    $('#InqOfficerName').text(data.EmpName);
+                }
+                else {
+                    kendo.alert('No Data Found');
+                    $('#InqOfficerId').val("");
+                    $('#InqOfficerName').text("");
+                    $('#InqOfficerNIC').val("");
+                }
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                kendo.ui.progress($('.card'), false);
+                kendo.alert('Error');
+                $('#InqOfficerId').val("");
+                $('#InqOfficerName').text("");
+                $('#InqOfficerNIC').val("");
+            });
+    }
+    function ManagerNICChange() {
+        var str = $('#ManagerNIC').val();
+        var cnic = str.replace(/_|-/g, "");
+        if (cnic.length < 13) {
+            kendo.alert('Please enter the Manager CNIC');
+            $('#ManagerId').val("");
+            $('#ManagerName').text("");
+            $('#ManagerNIC').val("");
+            return false;
+        }
+        kendo.ui.progress($('.card'), true);
+        $.getJSON("/Sale/EmpByCNICRoleLoc", { LocId: $('#LocId').val(), RoleId: 4, CNIC: str })
+            .done(function (data) {
+                kendo.ui.progress($('.card'), false);
+                if (data != "No Data Found") {
+                    $('#ManagerId').val(data.EmpId);
+                    $('#ManagerName').text(data.EmpName);
+                }
+                else {
+                    kendo.alert('No Data Found');
+                    $('#ManagerId').val("");
+                    $('#ManagerName').text("");
+                    $('#ManagerNIC').val("");
+                }
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                kendo.ui.progress($('.card'), false);
+                kendo.alert('Error');
+                $('#ManagerId').val("");
+                $('#ManagerName').text("");
+                $('#ManagerNIC').val("");
+            });
+    }
+    function SManagerNICChange() {
+        var str = $('#SManagerNIC').val();
+        var cnic = str.replace(/_|-/g, "");
+        if (cnic.length < 13) {
+            kendo.alert('Please enter the Second Manager CNIC');
+            $('#SManagerId').val("");
+            $('#SManagerName').text("");
+            $('#SManagerNIC').val("");
+            return false;
+        }
+        kendo.ui.progress($('.card'), true);
+        $.getJSON("/Sale/EmpByCNICRoleLoc", { LocId: $('#LocId').val(), RoleId: 4, CNIC: str })
+            .done(function (data) {
+                kendo.ui.progress($('.card'), false);
+                if (data != "No Data Found") {
+                    $('#SManagerId').val(data.EmpId);
+                    $('#SManagerName').text(data.EmpName);
+                }
+                else {
+                    kendo.alert('No Data Found');
+                    $('#SManagerId').val("");
+                    $('#SManagerName').text("");
+                    $('#SManagerNIC').val("");
+                }
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                kendo.ui.progress($('.card'), false);
+                kendo.alert('Error');
+                $('#SManagerId').val("");
+                $('#SManagerName').text("");
+                $('#SManagerNIC').val("");
+            });
+    }
+    function Mobile1Change(e) {
+        var str = $('#Mobile1').val();
+        console.log(str);
+        if (str.length == 12) {
+            kendo.ui.progress($('.card'), true);
+            $.getJSON("/Sale/CheckBlock", { str: str })
+                .done(function (data) {
+                    kendo.ui.progress($('.card'), false);
+                    if (data != "OK") {
+                        kendo.alert(data);
+                        $('#Mobile1').val("");
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    kendo.ui.progress($('.card'), false);
+                    kendo.alert('Error');
+                    $('#Mobile1').val("");
+                });
+        }
+    }
+    function Mobile2Change(e) {
+        var str = $('#Mobile2').val();
+        console.log(str);
+        if (str.length == 12) {
+            kendo.ui.progress($('.card'), true);
+            $.getJSON("/Sale/CheckBlock", { str: str })
+                .done(function (data) {
+                    kendo.ui.progress($('.card'), false);
+                    if (data != "OK") {
+                        kendo.alert(data);
+                        $('#Mobile2').val("");
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    kendo.ui.progress($('.card'), false);
+                    kendo.alert('Error');
+                    $('#Mobile2').val("");
+                });
+        }
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            kendo.ui.progress($('.card'), false);
+            if (message > 0) {
+                
+                $.confirm({
+                    title: 'Saved Successfully!',
+                    content: 'Do you want to print?',
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-check',
+                    buttons: {
+                        Print: function () {
+                            $("#rpt").val("Processing");
+                            $("#TransId").val(message);
+                            $("#rptForm").submit();
+                        },
+                        Cancel: function () {
+                        }
+                    }
+                });
+                //var dia = $("#msgBox").data("kendoDialog");
+                //dia.title("Success");
+                //dia.content(message);
+                //dia.open();
+                ClearAll();
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+</script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>

@@ -1,0 +1,109 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Item";
+}
+<div class="card">
+    <div class="content-header">
+
+        <div class="card-header">
+            <h3 class="card-title">Item</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Procurement">Procurement</a></li>
+                    <li class="breadcrumb-item active">Item</li>
+                </ol>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xs-12">
+
+            @(Html.Kendo()
+             .Grid<ItemVM>()
+             .Name("gridItem")
+             .Columns(columns =>
+             {
+                 columns.Bound(c => c.ItemId).Hidden();
+                 columns.Bound(c => c.ItemCode).Title("ItemCode").Width(100);
+                 columns.Bound(c => c.Item).Title("Item").Width(100);
+                 columns.ForeignKey(p => p.ItemBrandId, (System.Collections.IEnumerable)ViewData["BrandVD"], "ItemBrandId", "ItemBrand").Title("ItemBrand").Width(100);
+                 columns.ForeignKey(p => p.ItemProductId, (System.Collections.IEnumerable)ViewData["ProductVD"], "ItemProductId", "ItemProduct").Title("ItemProduct").Width(100);
+                 columns.ForeignKey(p => p.UOMId, (System.Collections.IEnumerable)ViewData["UOMVD"], "UOMId", "UOM").Title("UOM").Width(100);
+                 columns.Bound(c => c.Spec).Width(100);
+                 columns.Command(c => { c.Edit(); c.Destroy(); }).Width(150);
+             })
+             .Pageable()
+             .Sortable()
+             .Scrollable()
+             .Search(s => { s.Field(a => a.Item); })
+             .AutoBind(false)
+             .ToolBar(t => { t.Create();t.Search(); })
+             .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_Item"))
+             .HtmlAttributes(new { style = "height:100%;" })
+             .DataSource(dataSource => dataSource
+             .Ajax()
+             .PageSize(20)
+             .Events(e => e.Error("error_handler"))
+             .Model(model =>
+             {
+                 model.Id(m => m.ItemId);
+             })
+             .Read(read => read.Action("Item_Read", "Procurement"))
+             .Create(create => create.Action("Item_Create", "Procurement"))
+             .Update(update => update.Action("Item_Update", "Procurement"))
+             .Destroy(update => update.Action("Item_Destroy", "Procurement"))
+             ))
+        </div>
+    </div>
+</div>
+    @section scripts
+{
+        <script type="text/javascript">
+            var gridElement = $("#gridItem");
+            $(document).ready(function () {
+                resizeGrid();
+                LoadGrid();
+            });
+
+            function LoadGrid() {
+                $('#gridItem').data('kendoGrid').dataSource.read();
+            }
+
+
+            function resizeGrid() {
+                var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+                if (height < 200) {
+                    height = 200;
+                }
+                else if (height > 910) {
+                    height = 910;
+                }
+                $("#gridItem").css("height", height);
+                gridElement.data("kendoGrid").resize();
+            }
+
+            $(window).resize(function () {
+                resizeGrid();
+            });
+            function error_handler(e) {
+                if (e.errors) {
+                    var message = "Errors:\n";
+                    $.each(e.errors, function (key, value) {
+                        if ('errors' in value) {
+                            $.each(value.errors, function () {
+                                message += this + "\n";
+                            });
+                        }
+                    });
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Error");
+                    dia.content(message);
+                    dia.open();
+                }
+            }
+
+        </script>
+
+    }
+

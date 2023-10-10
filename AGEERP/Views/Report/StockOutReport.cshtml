@@ -1,0 +1,111 @@
+﻿
+@{
+    ViewBag.Title = "Stock Out Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .margin-15{
+        margin-top:15px;
+    }
+</style>
+@using (Html.BeginForm("StockOutReport", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Stock Out Report</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                        <li class="breadcrumb-item active">Stock Out Report</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="row">
+                <div class="col-md-4">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-4">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-4">
+                    @Html.Label("City")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CityId")
+                    .OptionLabel("All")
+                    .DataValueField("CityId")
+                    .DataTextField("City")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CityList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .CascadeFrom("CityId")
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationByCityList", "Setup").Data("filterCity"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+
+                </div>
+                <div class="col-md-4">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("ProductId")
+                .OptionLabel("All")
+                .DataValueField("ProductId")
+                .DataTextField("Name")
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("ProductList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                </div>
+           
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-15" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+<script>
+    function filterCity() {
+        return {
+            CityId: $('#CityId').val() || 0
+        }
+    }
+</script>

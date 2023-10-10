@@ -1,0 +1,68 @@
+﻿@using AGEERP.Models
+@model PRVM
+@{
+    ViewBag.Title = "";
+    Layout = null;
+
+}
+
+<div class="modal-header">
+    <h4 class="modal-title">Purchase Requisition</h4>
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+</div>
+@*<h4 class="card-title">Employee Fine Detail</h4>*@
+
+
+
+
+<div class="modal-body">
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        <form role="form">
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    <div class="form-group">
+                        @Html.Label("PR #")
+                        <input class="col-form-label" value="@Model.PrNo" disabled>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <div class="form-group">
+                        @Html.Label("Location")
+                        <input class="col-form-label" value="@Model.location" disabled>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <div class="form-group">
+                        @Html.Label("Date")
+                        <input class="col-form-label" value="@Model.PRDate.ToShortDateString()" disabled>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    @{
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td>SKU</td>
+                    <td>Qty</td>
+                    <td>Remarks</td>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var item in Model.PRDetail)
+                    {
+                        <tr>
+                            <td>@item.SKU</td>
+                            <td>@item.Qty</td>
+                            <td>@item.Remarks</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    }
+</div>
+

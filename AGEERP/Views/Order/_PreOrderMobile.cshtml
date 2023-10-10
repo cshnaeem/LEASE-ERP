@@ -1,0 +1,234 @@
+﻿@using AGEERP.Models
+@model List<ModelVM>
+
+    <div class="col-12">
+        @Html.Label("Order Plan")
+        @(Html.Kendo()
+    .Grid<PreOrderMobileVM>()
+    .Name("gridOrderPlanDetail")
+    .Columns(columns =>
+    {
+        columns.Bound(m => m.City).Width(150).Filterable(f => f.Multi(true)).Locked(true);
+        columns.Bound(m => m.LocId).Width(50).Filterable(false);
+        columns.Bound(m => m.LocName).Title("Location").Width(100).Filterable(f => f.Multi(true)).Locked(true);
+        //columns.Bound(m => m.Branches).Width(100);
+        columns.Group(g => g.Title(Model.Count >= 1 ? Model[0].Model : "").Hidden(Model.Count < 1).
+    Columns(col =>
+    {
+        col.Bound(m => m.Pending1).Title("PE").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+        col.Bound(m => m.Sale1).Title("SA").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+        col.Bound(m => m.Stock1).Title("ST").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+        col.Bound(m => m.Order1).Title("OR").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+    }));
+        columns.Group(g => g.Title(Model.Count >= 2 ? Model[1].Model : "").Hidden(Model.Count < 2).
+         Columns(col =>
+         {
+             col.Bound(m => m.Pending2).Title("PE").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Sale2).Title("SA").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Stock2).Title("ST").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Order2).Title("OR").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+         }));
+        columns.Group(g => g.Title(Model.Count >= 3 ? Model[2].Model : "").Hidden(Model.Count < 3).
+         Columns(col =>
+         {
+             col.Bound(m => m.Pending3).Title("PE").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Sale3).Title("SA").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Stock3).Title("ST").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Order3).Title("OR").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+         }));
+        columns.Group(g => g.Title(Model.Count >= 4 ? Model[3].Model : "").Hidden(Model.Count < 4).
+         Columns(col =>
+         {
+             col.Bound(m => m.Pending4).Title("PE").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Sale4).Title("SA").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Stock4).Title("ST").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Order4).Title("OR").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+         }));
+
+        columns.Group(g => g.Title(Model.Count >= 5 ? Model[4].Model : "").Hidden(Model.Count < 5).
+         Columns(col =>
+         {
+             col.Bound(m => m.Pending5).Title("PE").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Sale5).Title("SA").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Stock5).Title("ST").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Order5).Title("OR").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+         }));
+        columns.Group(g => g.Title(Model.Count >= 6 ? Model[5].Model : "").Hidden(Model.Count < 6).
+         Columns(col =>
+         {
+             col.Bound(m => m.Pending6).Title("PE").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Sale6).Title("SA").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Stock6).Title("ST").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Order6).Title("OR").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+         }));
+        columns.Group(g => g.Title(Model.Count >= 7 ? Model[6].Model : "").Hidden(Model.Count < 7).
+         Columns(col =>
+         {
+             col.Bound(m => m.Pending7).Title("PE").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Sale7).Title("SA").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Stock7).Title("ST").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Order7).Title("OR").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+         }));
+        columns.Group(g => g.Title(Model.Count >= 8 ? Model[7].Model : "").Hidden(Model.Count < 8).
+         Columns(col =>
+         {
+             col.Bound(m => m.Pending8).Title("PE").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Sale8).Title("SA").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Stock8).Title("ST").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Order8).Title("OR").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+         }));
+        columns.Group(g => g.Title(Model.Count >= 9 ? Model[8].Model : "").Hidden(Model.Count < 9).
+         Columns(col =>
+         {
+             col.Bound(m => m.Pending9).Title("PE").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Sale9).Title("SA").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Stock9).Title("ST").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Order9).Title("OR").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+         }));
+        columns.Group(g => g.Title(Model.Count >= 10 ? Model[9].Model : "").Hidden(Model.Count < 10).
+         Columns(col =>
+         {
+             col.Bound(m => m.Pending10).Title("PE").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Sale10).Title("SA").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Stock10).Title("ST").Width(70).Filterable(false).ClientFooterTemplate("#=sum#");
+             col.Bound(m => m.Order10).Title("OR").Width(70).Filterable(false).ClientFooterTemplate("Total: #=sum#");
+         }
+         ));
+
+
+        //columns.Group(g => g.Title("2").
+        // Columns(col =>
+        // {
+        //     col.Bound(m => m.Pending2).Title("PE");
+        //     col.Bound(m => m.Sale2).Title("SA");
+        //     col.Bound(m => m.Stock2).Title("ST");
+        //     col.Bound(m => m.Order2).Title("OR");
+        // }));
+        //columns.LoadSettings(Model);
+        //columns.Command(c => { c.Destroy(); }).Width(100);
+    })
+    //.Pageable()
+    .Scrollable(s => s.Enabled(true))
+    .AutoBind(true)
+    .Filterable()
+    .Navigatable()
+    .ToolBar(t => { t.Save(); t.Excel(); })
+    .Editable(e => e.Mode(GridEditMode.InCell))
+    .HtmlAttributes(new { style = "height:500px;" })
+    .Events(e => e.SaveChanges("onSaveChanges"))
+    //.BindTo((List<PreOrderMobileVM>)ViewBag.lst)
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    //.PageSize(20)
+    .Batch(true)
+    .Events(e => e.Error("error_handler").Change("refreshGrid"))
+    .ServerOperation(false)
+    .Aggregates(aggregates =>
+        {
+            aggregates.Add(p => p.Order1).Sum();
+            aggregates.Add(p => p.Order10).Sum();
+            aggregates.Add(p => p.Order2).Sum();
+            aggregates.Add(p => p.Order3).Sum();
+            aggregates.Add(p => p.Order4).Sum();
+            aggregates.Add(p => p.Order5).Sum();
+            aggregates.Add(p => p.Order6).Sum();
+            aggregates.Add(p => p.Order7).Sum();
+            aggregates.Add(p => p.Order8).Sum();
+            aggregates.Add(p => p.Order9).Sum();
+            aggregates.Add(p => p.Pending1).Sum();
+            aggregates.Add(p => p.Pending10).Sum();
+            aggregates.Add(p => p.Pending2).Sum();
+            aggregates.Add(p => p.Pending3).Sum();
+            aggregates.Add(p => p.Pending4).Sum();
+            aggregates.Add(p => p.Pending5).Sum();
+            aggregates.Add(p => p.Pending6).Sum();
+            aggregates.Add(p => p.Pending7).Sum();
+            aggregates.Add(p => p.Pending8).Sum();
+            aggregates.Add(p => p.Pending9).Sum();
+            aggregates.Add(p => p.Sale1).Sum();
+            aggregates.Add(p => p.Sale10).Sum();
+            aggregates.Add(p => p.Sale2).Sum();
+            aggregates.Add(p => p.Sale3).Sum();
+            aggregates.Add(p => p.Sale4).Sum();
+            aggregates.Add(p => p.Sale5).Sum();
+            aggregates.Add(p => p.Sale6).Sum();
+            aggregates.Add(p => p.Sale7).Sum();
+            aggregates.Add(p => p.Sale8).Sum();
+            aggregates.Add(p => p.Sale9).Sum();
+
+            aggregates.Add(p => p.Stock1).Sum();
+            aggregates.Add(p => p.Stock10).Sum();
+            aggregates.Add(p => p.Stock2).Sum();
+            aggregates.Add(p => p.Stock3).Sum();
+            aggregates.Add(p => p.Stock4).Sum();
+            aggregates.Add(p => p.Stock5).Sum();
+            aggregates.Add(p => p.Stock6).Sum();
+            aggregates.Add(p => p.Stock7).Sum();
+            aggregates.Add(p => p.Stock8).Sum();
+            aggregates.Add(p => p.Stock9).Sum();
+        })
+    .Model(model =>
+    {
+        model.Id(m => m.RowId);
+        model.Field(m => m.City).Editable(false);
+        model.Field(m => m.LocName).Editable(false);
+        model.Field(m => m.Branches).Editable(false);
+        model.Field(m => m.Pending1).Editable(false);
+        model.Field(m => m.Pending2).Editable(false);
+        model.Field(m => m.Pending3).Editable(false);
+        model.Field(m => m.Pending4).Editable(false);
+        model.Field(m => m.Pending5).Editable(false);
+        model.Field(m => m.Pending6).Editable(false);
+        model.Field(m => m.Pending7).Editable(false);
+        model.Field(m => m.Pending8).Editable(false);
+        model.Field(m => m.Pending9).Editable(false);
+        model.Field(m => m.Pending10).Editable(false);
+
+        model.Field(m => m.Sale1).Editable(false);
+        model.Field(m => m.Sale2).Editable(false);
+        model.Field(m => m.Sale3).Editable(false);
+        model.Field(m => m.Sale4).Editable(false);
+        model.Field(m => m.Sale5).Editable(false);
+        model.Field(m => m.Sale6).Editable(false);
+        model.Field(m => m.Sale7).Editable(false);
+        model.Field(m => m.Sale8).Editable(false);
+        model.Field(m => m.Sale9).Editable(false);
+        model.Field(m => m.Sale10).Editable(false);
+
+        model.Field(m => m.Stock1).Editable(false);
+        model.Field(m => m.Stock2).Editable(false);
+        model.Field(m => m.Stock3).Editable(false);
+        model.Field(m => m.Stock4).Editable(false);
+        model.Field(m => m.Stock5).Editable(false);
+        model.Field(m => m.Stock6).Editable(false);
+        model.Field(m => m.Stock7).Editable(false);
+        model.Field(m => m.Stock8).Editable(false);
+        model.Field(m => m.Stock9).Editable(false);
+        model.Field(m => m.Stock10).Editable(false);
+    })
+    .Read(read => read.Action("PreOrderMobile_Read", "Order").Data("ModelData"))
+    .Create(create => create.Action("PreOrderMobile_Create", "Order").Data("MasterOrderPlan"))
+    .Update(update => update.Action("PreOrderMobile_Update", "Order").Data("MasterOrderPlan"))
+    ))
+    </div>
+<script>
+    $(document).ready(function () {
+        resizeGrid();
+    });
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 280;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridOrderPlanDetail").css("height", height);
+            $("#gridOrderPlanDetail").data("kendoGrid").resize();
+    }
+
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+</script>

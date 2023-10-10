@@ -1,0 +1,30 @@
+﻿@model AGEERP.Models.DocShareVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.DocId)
+
+    <div class="row">
+        <div class="col-md-3 col-sm-6">
+            @Html.Label("Receiving Salesman 1")
+            @(Html.Kendo().TextBoxFor(x => x.ReceivedBy1).HtmlAttributes(new { @style = "width:100%",@required = true }))
+        </div>
+        <div class="col-md-3 col-sm-6">
+            @Html.Label("Receiving Salesman 2")
+            @(Html.Kendo().TextBoxFor(x => x.ReceivedBy2).HtmlAttributes(new { @style = "width:100%", @required = true }))
+        </div>
+        <div class="col-md-3 col-sm-6">
+            @Html.Label("Receiving Branch Manager")
+            @(Html.Kendo().TextBoxFor(x => x.ReceivedBy3).HtmlAttributes(new { @style = "width:100%", @required = true }))
+        </div>
+    </div>
+}

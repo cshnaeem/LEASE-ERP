@@ -1,0 +1,227 @@
+﻿
+@{
+    ViewBag.Title = "Enroll Face";
+}
+
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Enroll Face</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a @*href="/Home/Index"*@>Attendance</a></li>
+                        <li class="breadcrumb-item active">Enroll Face</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    @(Html.Kendo().MultiColumnComboBox()
+                    .Name("EmpId")
+                    .Placeholder("Search Employee")
+                    .DataValueField("EmpId")
+                    .DataTextField("EmpName")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("EmpId").Width("100px");
+                        columns.Add().Field("EmpName").Width("200px");
+                        columns.Add().Field("DeptName").Width("200px");
+                        columns.Add().Field("DesgName").Width("200px");
+
+                    })
+                    .AutoBind(false)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "EmpName", "DeptName", "EmpId", "DesgName" })
+                    .Events(e => e.Change("EmpChange"))
+                    .MinLength(3)
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("EmpList", "Employee").Data("filterEmp")).ServerFiltering(true);
+                    })
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <br/>
+                    <div class="row">
+                        <div class="col-6">
+                            <span><b>EmployeeId:</b></span>
+                        </div>
+                        <div class="col-6">
+                            <span id="EmployeeId"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <span><b> Employee Name: </b></span>
+                        </div>
+                        <div class="col-6">
+                            <span id="EmployeeName"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <span><b>CNIC:</b></span>
+                        </div>
+                        <div class="col-6">
+                            <span id="CNIC"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <span><b>Department:</b></span>
+                        </div>
+                        <div class="col-6">
+                            <span id="Department"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <span><b>Designation:</b></span>
+                        </div>
+                        <div class="col-6">
+                            <span id="Designation"></span>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-3">
+                        <div id="my_camera"></div>
+
+                        <!-- First, include the Webcam.js JavaScript Library -->
+                        <script type="text/javascript" src="~/Scripts/webcam.min.js"></script>
+
+                        <!-- Configure a few settings and attach camera -->
+                        <script language="JavaScript">
+                            Webcam.set({
+                                width: 200,
+                                height: 200,
+                                image_format: 'jpeg',
+                                jpeg_quality: 90
+                            });
+                            Webcam.attach('#my_camera');</script>
+                        <button class="k-button k-primary" type="button" style="text-align:center;width:200px;" onclick="take_snapshot()">
+                            <i class="fa fa-camera fa-align-center"></i>
+                        </button>
+                    </div>
+                    <div class="col-sm-12 col-md-3">
+                        <br />
+                        <img id="imgPic" onerror="this.src ='../../app-assets/images/avatar/user.png'" class="img-responsive" height="200" width="200" src="~/app-assets/images/avatar/user.png" />
+                    </div>
+
+                </div>
+            @*<div class="row">
+               <div class="col-sm-12 col-md-12">
+                     <div class="display-flex media">
+                        <div class="media-body" style="margin:10px;">
+                            <span style="font-size: 20px;"><b>EmployeeId:</b></span>
+                            <span class="users-view-id" style="font-size: 20px;" id="EmployeeId"></span>
+                            <br />
+                            <span style="font-size: 20px;"><b> Employee Name: </b></span>
+                            <span class="users-view-id" style="font-size: 20px;" id="EmployeeName"></span>
+                            <br />
+                            <span style="font-size: 20px;"><b>CNIC:</b></span>
+                            <span class="users-view-id" style="font-size: 20px;" id="CNIC"></span>
+                            <br />
+                            <span style="font-size: 20px;"><b>Department:</b></span>
+                            <span class="users-view-id" style="font-size: 20px;" id="Department"></span>
+                            <br />
+                            <span style="font-size: 20px;"><b>Designation:</b></span>
+                            <span class="users-view-id" style="font-size: 20px;" id="Designation"></span>
+                        </div>
+
+                        <div class="media-body" style="margin:10px;">
+                            <div id="my_camera"></div>
+                            <script type="text/javascript" src="~/Scripts/webcam.min.js"></script>
+                            <script language="JavaScript">
+                                Webcam.set({
+                                    width: 200,
+                                    height: 200,
+                                    image_format: 'jpeg',
+                                    jpeg_quality: 90
+                                });
+                                Webcam.attach('#my_camera');</script>
+                            <button class="k-button k-primary" type="button" style="text-align:center;width:200px;" onclick="take_snapshot()">
+                                <i class="material-icons center">photo_camera</i>
+                            </button>
+                        </div>
+                        <div class="media-body" style="margin:10px;">
+                            <img id="imgPic" onerror="this.src ='../../app-assets/images/avatar/user.png'" class="img-responsive" height="200" width="200" src="~/app-assets/images/avatar/user.png" />
+                        </div>
+
+                    </div>
+                </div>
+            </div>*@
+        </div>
+    </div>
+        <script>
+            $(document).ready(function () {
+                //$('#m_20000000').addClass('active');
+                //$('#d_20000000').css("display", "block");
+                //$('#m_20400000').addClass('active');
+                //$('#a_20400000').addClass('active');
+            });
+            $(document).on('keypress', function (e) {
+                if (e.which == 13) {
+                    take_snapshot();
+                }
+            });
+            function filterDept() {
+                return {
+                    HDeptId: $('#HDeptId').val() || 0
+                }
+            }
+            function filterEmp() {
+                return {
+                    //DeptId: $('#DeptId').val(),
+                    str: $('#EmpId').data("kendoMultiColumnComboBox").input.val() || ""
+                }
+            }
+            function EmpChange() {
+                var dat = $('#EmpId').data('kendoMultiColumnComboBox').dataItem();
+                console.log(dat.EmpName);
+                $('#EmployeeId').text(dat.EmpId);
+                $('#EmployeeName').text(dat.EmpName);
+                $('#CNIC').text(dat.CNIC);
+                $('#Department').text(dat.DeptName);
+                $('#Designation').text(dat.DesgName);
+                var img = document.getElementById('imgPic');
+                img.src = "../../Content/EmpImg/" + dat.EmpId + ".jpg";
+            }
+            var IsLoading = false;
+            function take_snapshot() {
+                Webcam.snap(function (data_uri) {
+                    var img = document.getElementById('imgPic');
+                    img.src = data_uri;
+                    var EmpId = $('#EmpId').data('kendoMultiColumnComboBox').value();
+                    IsLoading = true;
+                    kendo.ui.progress($('.card'), true);
+                    $.ajax({
+                        url: "/Attendance/EnrollFace",
+                        type: "POST",
+                        data: JSON.stringify({ str: img.src, EmpId: EmpId }),
+                        processData: false,
+                        contentType: 'application/json',
+                        success: function (result) {
+                            kendo.ui.progress($('.card'), false);
+                            IsLoading = false;
+                            var dia = $("#msgBox").data("kendoDialog");
+                            if (result == "Enroll Successfully") {
+                                dia.title("Success");
+                                dia.content("Save Successfully");
+                            }
+                            else {
+                                dia.title("Error");
+                                dia.content(result);
+                            }
+                            dia.open();
+                        }
+                    });
+                });
+            }
+        </script>

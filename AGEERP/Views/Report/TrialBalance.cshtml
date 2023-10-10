@@ -1,0 +1,254 @@
+﻿
+@{
+    ViewBag.Title = "Trial Balance";
+}
+@using (Html.BeginForm("TrialBalance", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Trial Balance</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Report</a></li>
+                    <li class="breadcrumb-item active">Trial Balance</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Fiscal Year")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("YrCode")
+                .SelectedIndex(0)
+                .DataValueField("YrCode")
+                .DataTextField("YrName")
+                //.Suggest(true)
+                //.Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("FinancialYearList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                        )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-6">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-6">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-6">
+                @Html.Label("Profit Center")
+                @(Html.Kendo()
+                        .DropDownList()
+                        .Name("PCCode")
+                        .OptionLabel("NA")
+                        .SelectedIndex(0)
+                        .DataValueField("PCCode")
+                        .DataTextField("PCDesc")
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                        ds.Read(read => read.Action("ProfitCentersList", "Account"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-6">
+                <br />
+                @Html.Kendo().RadioButton().Name("rpt").Label("Complete").Value("C").Checked(true)
+                @Html.Kendo().RadioButton().Name("rpt").Label("Level Wise").Value("L")
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-6 LL">
+                @Html.Label("Account Class")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("COA1")
+                .Placeholder("Select COA ...")
+                //.SelectedIndex(0)
+                //.OptionLabel("All ...")
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("100px");
+                    columns.Add().Field("Name").Width("300px");
+                })
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                .Events(e => e.Change("loadCOA2"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("COAList", "Account").Data("filterCOA1"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-6 LL">
+                @Html.Label("Account Group")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("COA2")
+                .Placeholder("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("100px");
+                    columns.Add().Field("Name").Width("300px");
+                })
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                .Events(e => e.Change("loadCOA3"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("COAList", "Account").Data("filterCOA2"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-6 LL">
+                @Html.Label("Account Control")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("COA3")
+                .Placeholder("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("100px");
+                    columns.Add().Field("Name").Width("300px");
+                })
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                .Events(e => e.Change("loadCOA4"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("COAList", "Account").Data("filterCOA3"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-6 LL">
+                @Html.Label("Accounts")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("COA4")
+                .Placeholder("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("200px");
+                    columns.Add().Field("Name").Width("300px");
+                })
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("COAList", "Account").Data("filterCOA4"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+
+        </div>
+        <div class="row CC">
+            <div class="col-md-3 col-sm-6">
+                @*<br />*@
+                @Html.Kendo().RadioButton().Name("NonZero").Label("With Zero").Value(false).Checked(true)
+                @Html.Kendo().RadioButton().Name("NonZero").Label("Without Zero").Value(true)
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <br />
+                @Html.Kendo().RadioButton().Name("Lvl").Label("Level 1").Value(1)
+                @Html.Kendo().RadioButton().Name("Lvl").Label("Level 2").Value(2)
+                @Html.Kendo().RadioButton().Name("Lvl").Label("Level 3").Value(3)
+                @Html.Kendo().RadioButton().Name("Lvl").Label("Level 4").Value(4).Checked(true)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-9">
+            </div>
+            <div class="col-3">
+                <br />
+                <button class="k-button k-primary" type="submit">
+                    <i class="fas fa-print"></i>&nbsp; Print
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+    }
+    <script>
+        $(document).ready(function () {
+            $(".CC").css("display", "block");
+            $(".LL").css("display", "none");
+            $('input[type=radio][name=rpt]').change(function () {
+                if (this.value == "C") {
+                    $(".CC").css("display", "block");
+                    $(".LL").css("display", "none");
+                }
+                else if (this.value == "A") {
+                    $(".CC").css("display", "block");
+                    $(".LL").css("display", "none");
+                }
+                else {
+                    $(".CC").css("display", "none");
+                    $(".LL").css("display", "block");
+                }
+            });
+        });
+        function loadCOA2() {
+            $('#COA2').data('kendoMultiColumnComboBox').dataSource.read();
+        }
+        function loadCOA3() {
+            $('#COA3').data('kendoMultiColumnComboBox').dataSource.read();
+        }
+        function loadCOA4() {
+            $('#COA4').data('kendoMultiColumnComboBox').dataSource.read();
+        }
+
+        function filterCOA1() {
+            return {
+                ParentId: 0,
+                Level: 1
+            }
+        }
+        function filterCOA2() {
+            return {
+                ParentId: $('#COA1').val() || 0,
+                Level: 2
+            }
+        }
+        function filterCOA3() {
+            return {
+                ParentId: $('#COA2').val() || 0,
+                Level: 3
+            }
+        }
+        function filterCOA4() {
+            return {
+                ParentId: $('#COA3').val() || 0,
+                Level: 4
+            }
+        }
+    </script>

@@ -1,0 +1,239 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Stock Receive";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Inter Branch Stock Transfer IN</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Stock Receive</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                                                     .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Suggest(true)
+                    .Events(e => e.Change("changeLocation"))
+                                                     .DataSource(ds =>
+                                                     {
+                                                         ds.Read(read => read.Action("LocationList", "Setup"));
+                                                     })
+                                                     .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("IssueNo")
+                    @(Html.Kendo()
+                     .MultiColumnComboBox()
+                     .Name("IssueNo")
+                     .Placeholder("Select IssueNo ...")
+                     .DataValueField("TransId")
+                    .DataTextField("TransId")
+                     .Columns(columns =>
+                     {
+                         columns.Add().Field("TransId").Title("Issue No").Width("100px");
+                         columns.Add().Field("LocCode").Title("Location").Width("150px");
+
+                     })
+                    .FilterFields(new string[] { "LocCode", "TransId" })
+                    .Filter(FilterType.Contains)
+                    .Suggest(true)
+                     //.CascadeFrom("LocId")
+                     .Events(e => e.Change("GetIssueDetail"))
+                     .DataSource(ds =>
+                     {
+                         ds.Read(read => read.Action("IssueNoForReceive", "Stock").Data("filterLocation"));
+                     })
+                     .HtmlAttributes(new { @style = "width:100%;" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    @Html.Label("Stock Receive")
+                    @(Html.Kendo()
+               .Grid<IssueDetailVM>()
+               .Name("gridStockReceiveDetail")
+               .Columns(columns =>
+               {
+                   columns.Bound(c => c.RowId).Hidden();
+                   columns.Bound(c => c.TransId).Hidden();
+                   columns.Bound(c => c.SKU);
+                   columns.Bound(c => c.Product);
+                   columns.Bound(c => c.Company);
+                   columns.Bound(c => c.SrNo);
+                   columns.Select().Title("Received");
+                   //columns.ForeignKey(p => p.Status, (System.Collections.IEnumerable)ViewData["StatusVD"], "Value", "Text").Title("Status").Width(200);
+                   //columns.Bound(c => c.IsReceived).ClientTemplate("#= IsReceived ? 'Receive' :'' #").Title("Receive");
+               })
+               //.Pageable()
+               .Sortable()
+               .Scrollable()
+               .AutoBind(false)
+               //.Selectable()
+               //.Navigatable()
+               .ToolBar(t => t.Save())
+               .Editable(e => e.Mode(GridEditMode.InCell))
+                 .HtmlAttributes(new { style = "height:300px;" })
+                 .Events(e => e.SaveChanges("OnGridChange"))
+                 //.PersistSelection()
+                 .DataSource(dataSource => dataSource
+     .Ajax()
+     .Batch(true)
+     .Events(e => e.Error("error_handler")/*.Change("OnGridChange")*/)
+     .Model(model =>
+     {
+         model.Id(m => m.RowId);
+         model.Field(m => m.TransId).Editable(false);
+         model.Field(m => m.SKU).Editable(false);
+         model.Field(m => m.Product).Editable(false);
+         model.Field(m => m.Company).Editable(false);
+         model.Field(m => m.SrNo).Editable(false);
+         model.Field(m => m.Status);
+     })
+     .Read(read => read.Action("StockReceive_Read", "Stock").Data("filterStockReceive"))
+     .Create(read => read.Action("StockReceive_Create", "Stock"))
+     .Update(read => read.Action("StockReceive_Update", "Stock"))
+ ))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<script>
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_16000000').addClass('active');
+        //$('#d_16000000').css("display", "block");
+        //$('#m_16020000').addClass('active');
+        //$('#a_16020000').addClass('active');
+    });
+    var gridElement = $("#gridStockReceiveDetail");
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridStockReceiveDetail").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+
+    function OnGridChange(e) {
+        var rows = e.sender.select();
+        var grid = $("#gridStockReceiveDetail").data("kendoGrid");
+
+        rows.each(function (e) {
+            var dataItem = grid.dataItem(this);
+            dataItem.Status = "R"
+        });
+
+
+
+    }
+    function changeLocation() {
+        $('#IssueNo').data('kendoMultiColumnComboBox').dataSource.read();
+    }
+    function filterStockReceive() {
+        return {
+            IssueNo: $('#IssueNo').data('kendoMultiColumnComboBox').value(),
+            LocId: $('#LocId').val()
+        }
+    }
+    function filterLocation() {
+        //$("#gridStockReceiveDetail").data("kendoGrid").dataSource.data([]);
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+    function GetIssueDetail() {
+        var IssueNo = $('#IssueNo').data('kendoMultiColumnComboBox').value();
+        if (IssueNo > 0) {
+            $("#gridStockReceiveDetail").data("kendoGrid").dataSource.read();
+        }
+        else {
+            $("#gridStockReceiveDetail").data("kendoGrid").dataSource.data([]);
+        }
+    }
+    //function OnSrNoChange(e) {
+    //    if (e.action === "itemchange" && e.field === "IsReceived") {
+    //        var grid = $("#gridStockReceiveDetail").data("kendoGrid");
+    //        var curCell = $("#gridStockReceiveDetail").find(".k-edit-cell");
+    //        var cellToEdit = curCell.parent().next().find('td:eq(7)');
+    //        grid.editCell(cellToEdit);
+    //    }
+    //}
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message > 0) {
+                $.confirm({
+                    title: 'Saved Successfully!',
+                    content: 'Do you want to print?',
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-check',
+                    buttons: {
+                        Print: function () {
+                            $("#rpt").val("StockIssue");
+                            $("#TransId").val(message);
+                            $("#rptForm").submit();
+                        },
+                        Cancel: function () {
+                        }
+                    }
+                });
+                $("#gridStockReceiveDetail").data("kendoGrid").dataSource.data([]);
+                changeLocation();
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+</script>

@@ -1,0 +1,523 @@
+﻿
+@using AGEERP.Models
+@{
+    ViewBag.Title = "Tickets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Tickets</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">Tickets</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row ">
+
+            <div class="col-3">
+                @Html.Label("City")
+                @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CityId")
+                    .OptionLabel("All")
+                    .DataValueField("CityId")
+                    .DataTextField("City")
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("loadLocation"))
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CityList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+
+            <div class="col-md-3">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    //.SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationByCityList", "Setup").Data("filterLocation"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            <div class="col-3">
+                @Html.Label("Category")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("CCategoryId")
+                .OptionLabel("All Category ...")
+                //.SelectedIndex(0)
+                .DataValueField("CategoryId")
+                .DataTextField("Category")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CrmCategoryMapppedList", "CRM"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;", @required = true })
+                )
+            </div>
+
+
+ 
+
+            <div class="col-md-3" style="margin-top:6px;">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-12">
+                @(Html.Kendo()
+            .Grid<Crm_TicketVM>()
+            .Name("gridTickets")
+            .Columns(columns =>
+            {
+                columns.Command(c => { c.Edit(); c.Custom("Doc").Click("ViewDoc"); c.Custom("Response").Click("showDetails"); /*c.Custom("Hold").Click("HoldTicket").Visible("IsOpen"); c.Custom("Open").Click("OpenTicket").Visible("IsHold");*/ }).Width(130);
+                columns.Bound(c => c.WorkingDate).Width(100).Title("Date").Format("{0: dd/MM/yyyy}").Filterable(f => f.Multi(true).Search(true));
+                columns.Bound(c => c.City).Width(100).Filterable(f => f.Multi(true).Search(true));
+                columns.Bound(c => c.LocCode).Width(100).Filterable(f => f.Multi(true).Search(true));
+                columns.Bound(c => c.TicketId).Width(90).Title("Ticket No").Filterable(f => f.Multi(true).Search(true));
+                columns.ForeignKey(p => p.CategoryId, (System.Collections.IEnumerable)ViewData["CategoryVD"], "CategoryId", "Category").Width(150).Filterable(f => f.Multi(true).Search(true)).Title("Category");
+                columns.Bound(c => c.Complain).Width(150).Filterable(f => f.Multi(true).Search(true));
+                columns.Bound(c => c.Response).Width(150).Filterable(f => f.Multi(true).Search(true));
+                columns.ForeignKey(p => p.Priority, (System.Collections.IEnumerable)ViewData["PriorityVD"], "Value", "Text").Width(100).Filterable(f => f.Multi(true).Search(true));
+                columns.ForeignKey(p => p.Status, (System.Collections.IEnumerable)ViewData["StatusVD"], "Value", "Text").Width(100).Filterable(f => f.Multi(true).Search(true));
+                
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .Filterable()
+            .AutoBind(false)
+            .Editable(e => e.Mode(GridEditMode.InLine))
+            .Navigatable()
+            .ToolBar(t => t.Search())
+            .Search(s => { s.Field(a => a.TicketId); s.Field(a => a.Category); s.Field(a => a.LocCode); })
+            .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(50)
+               .Model(model =>
+               {
+                   model.Id(m => m.TicketId);
+                   model.Field(m => m.WorkingDate).Editable(false);
+                   model.Field(m => m.City).Editable(false);
+                   model.Field(m => m.LocCode).Editable(false);
+                   model.Field(m => m.TicketId).Editable(false);
+
+                   model.Field(m => m.CategoryId);
+                   model.Field(m => m.Complain).Editable(false);
+                   model.Field(m => m.Response).Editable(false);
+
+                   model.Field(m => m.Priority);
+                   model.Field(m => m.Status);
+               })
+            .Read(read => read.Action("Ticket_Read", "CRM").Data("filterTicketsSearch"))
+            .Create(create => create.Action("Ticket_Update", "CRM"))
+            .Update(update => update.Action("Ticket_Update", "CRM"))
+            ))
+            </div>
+            </div>
+        </div>
+</div>
+
+<div class="modal" id="ticketmodal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div id="TicketSch">
+                <!--<div class="row">
+                    <div class="col-lg-12 col-md-12 col-xs-12">-->
+                        @*@Html.Hidden("usr", (string)ViewBag.usr)*@
+                        <!--@(Html.Kendo().Chat()
+                        .Name("chat")
+                        .User(user => user
+                            .Name(User.Identity.Name)
+                        .IconUrl("../../Content/EmpImg/"+(User.Identity.Name)+".jpg")
+                        )
+                        .Toolbar(toolbar =>
+                        {
+                            toolbar.Toggleable(true);
+
+                            toolbar.Buttons(buttons =>
+                            {
+                                buttons.Add().Name("sendimage").IconClass("k-icon k-i-image");
+                            });
+                        })
+                        .Events(events => events
+                        //.TypingStart("onTypingStart")
+                        //.Post("onPost")
+                        //.ToolClick("onToolClick")
+                        .SendMessage("AddResponse")
+
+                        )
+                    )
+                        @(Html.Kendo().Upload()
+                        .Name("files")
+                        .Async(a => a
+                            .Save("CustomDropZone_Save", "Setup")
+                            .Remove("CustomDropZone_Remove", "Upload")
+                            .AutoUpload(true)
+                        )
+                        //.Events(e => e.Success("onSuccess"))
+                        .ShowFileList(false)
+                        .DropZone("#chat")
+                        .Validation(validation =>
+                        {
+                            validation.AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif",".pdf" });
+                            validation.MinFileSize(500);
+                            validation.MaxFileSize(5000000);
+                        })
+                    )
+                    </div>
+                </div>-->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalWindow">
+    <h4 id="diaMsg">Do you want to close this Ticket?</h4>
+    <button id="yes" class="k-button">Yes</button>
+    <button id="no" class="k-button">No</button>
+</div>
+<div hidden="hidden">@Html.Partial("~/Views/Document/_Doc.cshtml")</div>
+@section scripts
+{
+<script>
+    var wnd;
+    $(document).ready(function () {
+        //window.chat = $('#chat').getKendoChat();
+
+        //var IMAGE_CARD_TEMPLATE = kendo.template(
+        //    '<div class="k-card k-card-type-rich">' +
+        //    '<div class="k-card-body quoteCard">' +
+        //    '<a href="#:image#" target="_blank" a>' +
+        //    '<img class="image-attachment" style="max-height:200px;max-width:300px;" src="#: image #" />' +
+        //    '</a>' +
+        //    '</div>' +
+        //    '</div>'
+        //);
+
+        //kendo.chat.registerTemplate("image_card", IMAGE_CARD_TEMPLATE);
+
+        //var FILE_CARD_TEMPLATE = kendo.template(
+        //    '<div class="k-card k-card-type-rich">' +
+        //    '<div class="k-card-body quoteCard">' +
+        //    '<a href="#:image#" target="_blank" a>' +
+        //    'PDF Document' +
+        //    //'<img class="image-attachment" style="max-height:200px;max-width:300px;" src="#: image #" />' +
+        //    '</a>' +
+        //    '</div>' +
+        //    '</div>'
+        //);
+
+        //kendo.chat.registerTemplate("file_card", FILE_CARD_TEMPLATE);
+
+        
+
+        //$("#files").data("kendoUpload").wrapper.hide();
+        // resizeGrid();
+        //$('#m_19000000').addClass('active');
+        //$('#d_19000000').css("display", "block");
+        //$('#m_19040000').addClass('active');
+        //$('#a_19040000').addClass('active');
+        wnd = $("#modalWindow").kendoWindow({
+            title: "Confirmation",
+            modal: true,
+            visible: false,
+            resizable: false,
+            width: 400
+        }).data("kendoWindow");
+
+        $("#gridTickets").data("kendoGrid").dataSource.read();
+    });
+    function filterTicketsSearch() {
+
+        var dat = {
+            CityId: $('#CityId').val() || 0,
+            LocId: $('#LocId').val() || 0,
+            CategoryId: $('#CCategoryId').val() || 0,
+        }
+        console.log(dat);
+        return dat;
+    }
+
+    function loadGrid() {
+        $("#gridTickets").data("kendoGrid").dataSource.read();
+    }
+
+   function filterLocation() {
+        return {
+            CityId: $('#CityId').val() || 0
+        }
+    }
+    function loadLocation() {
+        $("#LocId").data("kendoMultiColumnComboBox").dataSource.read();
+    }
+
+    @*var TicketId = 0;
+    var cusr = @(User.Identity.Name);*@
+    function showDetails(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+        if (dataItem.TicketId != null) {
+            $('#TicketSch').load('/CRM/_TicketResponse?TicketId=' + dataItem.TicketId);
+            $('#ticketmodal').modal('show');
+
+        }
+        else {
+            $('#TicketSch').load('/CRM/_TicketResponse?TicketId=' + dataItem.TicketId );
+            $('#ticketmodal').modal('show');
+        }
+    }
+
+    //function HoldTicket(e) {
+    //    e.preventDefault();
+    //    var row = $(e.currentTarget).closest("tr");
+    //    var dataItem = this.dataItem(row);
+    //    $('#diaMsg').text("Do you want to Hold this Ticket?");
+    //    wnd.center().open();
+    //    $("#yes").click(function () {
+    //        $.ajax({
+    //            type: "POST",
+    //            url: "/CRM/HoldTicket?TicketId=" + dataItem.TicketId,
+    //            success: function (msg) {
+    //                $("#gridTickets").data("kendoGrid").dataSource.read();
+    //                wnd.close();
+    //            }
+    //        });
+    //    });
+    //    $("#no").click(function () {
+    //        wnd.close();
+    //    });
+    //}
+
+    //function OpenTicket(e) {
+    //    e.preventDefault();
+    //    var row = $(e.currentTarget).closest("tr");
+    //    var dataItem = this.dataItem(row);
+    //    $('#diaMsg').text("Do you want to Open this Ticket?");
+    //    wnd.center().open();
+    //    $("#yes").click(function () {
+    //        $.ajax({
+    //            type: "POST",
+    //            url: "/CRM/OpenTicket?TicketId=" + dataItem.TicketId,
+    //            success: function (msg) {
+    //                $("#gridTickets").data("kendoGrid").dataSource.read();
+    //                wnd.close();
+    //            }
+    //        });
+    //    });
+    //    $("#no").click(function () {
+    //        wnd.close();
+    //    });
+    //}
+
+
+    function ViewDoc(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#DocId").val(dataItem.TicketId);
+        $("#RefObjId").val(17);
+        $("#frmDoc").submit();
+    }
+
+    function IsHold(e) {
+        return (e.Status == "Hold")
+    }
+
+    function IsOpen(e) {
+        return (e.Status == "Open")
+    }
+@*    function CloseTicket(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        $.ajax({
+            type: "POST",
+            url: "/CRM/CloseTicket?TicketId=" + dataItem.TicketId,
+            success: function (msg) {
+
+                $.confirm({
+                    title: 'Ticket Close successfully!!',
+                    content: "",
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-close',
+                    buttons: {
+                        Ok: function () {
+                            $("#gridTickets").data("kendoGrid").dataSource.read();
+                        }
+                    }
+                });
+
+
+            }
+        });
+    }*@
+    //function AddResponse(e) {
+    //    console.log(e);
+    //    //var TicketId = $('#TicketId').val() || 0;
+    //    //var Response = $('#Response').val() || "";
+
+    //    //if (Response != "") {
+    //    //    $.getJSON("/CRM/AddResponse", { TicketId: TicketId, Response: Response })
+    //    //        .done(function (data) {
+    //    //            if (data == "Success") {
+    //    //                $("#ticketmodal").modal("hide");
+    //    //            } else {
+    //    //                kendo.alert(data);
+    //    //            }
+    //    //        })
+    //    //        .fail(function (jqxhr, textStatus, error) {
+    //    //            kendo.alert(error);
+    //    //        });
+    //    //}
+    //}
+    //function getresp() {
+    //    if (TicketId > 0) {
+    //        console.log("sta");
+            
+
+            
+
+
+    //        chat = $("#chat").data("kendoChat");
+    //        console.log(chat);
+    //        $("#TicketsList").empty();
+    //        //var TicketId = $('#TicketId').val() || 0;
+
+    //        $.getJSON("/CRM/GetResponseList", { TicketId: TicketId })
+    //            .done(function (result) {
+    //                for (var i = 0; i < result.length; i++) {
+    //                    //if (result[i].IsSeen == false) {
+    //                        var message = {
+    //                            type: "text",
+    //                            text: result[i].Response,
+    //                            timestamp: result[i].TransDate
+    //                        };
+    //                        if (cusr == result[i].UserId) {
+    //                            var sender = chat.getUser();
+    //                            chat.renderMessage(message, sender);
+    //                        }
+    //                        else {
+    //                            var sender = {
+    //                                id: result[i].UserId,
+    //                                name: result[i].UserId,
+    //                                iconUrl: "../../Content/EmpImg/" + result[i].UserId + ".jpg"
+    //                            };
+    //                            chat.renderMessage(message, sender);
+    //                        }
+    //                    //}
+    //                    //else {
+    //                    //    if (cusr == result[i].UserId) {
+    //                    //        var sender = chat.getUser();
+    //                    //        if (result[i].Response.indexOf("pdf") >= 0) {
+    //                    //            var message = {
+    //                    //                type: "file_card",
+    //                    //                image: result[i].Response,
+    //                    //                timestamp: result[i].TransDate
+    //                    //            };
+    //                    //            chat.renderMessage(message, sender);
+    //                    //        }
+    //                    //        else {
+    //                    //            var message = {
+    //                    //                type: "image_card",
+    //                    //                image: result[i].Response,
+    //                    //                timestamp: result[i].TransDate
+    //                    //            };
+    //                    //            chat.renderMessage(message, sender);
+    //                    //        }
+
+
+    //                    //        //chat.renderAttachments({
+    //                    //        //    attachments: [{
+    //                    //        //        contentType: "image_card",
+    //                    //        //        content: {
+    //                    //        //            image: result[i].Response
+    //                    //        //        }
+    //                    //        //    }],
+    //                    //        //    attachmentLayout: "list"
+    //                    //        //}, sender);
+
+    //                    //    }
+    //                    //    else {
+    //                    //        var sender = {
+    //                    //            id: result[i].UserId,
+    //                    //            name: result[i].UserId,
+    //                    //            iconUrl: "../../Content/EmpImg/" + result[i].UserId + ".jpg"
+    //                    //        };
+    //                    //        if (result[i].Response.indexOf("pdf") >= 0) {
+    //                    //            var message = {
+    //                    //                type: "file_card",
+    //                    //                image: result[i].Response,
+    //                    //                timestamp: result[i].TransDate
+    //                    //            };
+    //                    //            chat.renderMessage(message, sender);
+    //                    //        }
+    //                    //        else {
+    //                    //            var message = {
+    //                    //                type: "image_card",
+    //                    //                image: result[i].Response,
+    //                    //                timestamp: result[i].TransDate
+    //                    //            };
+    //                    //            chat.renderMessage(message, sender);
+    //                    //        }
+
+    //                    //        //chat.renderAttachments({
+    //                    //        //    attachments: [{
+    //                    //        //        contentType: "image_card",
+    //                    //        //        content: {
+    //                    //        //            image: result[i].Response
+    //                    //        //        }
+    //                    //        //    }],
+    //                    //        //    attachmentLayout: "list"
+    //                    //        //}, sender);
+    //                    //    }
+    //                    //}
+    //                }
+    //            });
+    //    }
+    //}
+</script>
+    }
+
+
+

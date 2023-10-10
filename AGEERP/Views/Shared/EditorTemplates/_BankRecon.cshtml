@@ -1,0 +1,30 @@
+﻿
+@model long
+@(Html.Kendo()
+                    .DropDownListFor(m => m)
+                    .Name("VrDtlId")
+                    .OptionLabel("Select COA ...")
+                    //.SelectedIndex(0)
+                    .DataValueField("Value")
+                    .DataTextField("Text")
+                    .Events(e => e.Open("loadVcr"))
+                    //.Columns(columns =>
+                    //    {
+                    //        columns.Add().Field("Id").Width("200px");
+                    //        columns.Add().Field("Dr").Width("200px");
+                    //        columns.Add().Field("Cr").Width("200px");
+                    //    })
+                    //.Suggest(true)
+                    .Filter(FilterType.Contains)
+                    //.FilterFields(new string[] { "Code", "Name" })
+                    //.MinLength(3)
+                    //.Events(e => e.Change("loadGrid"))
+                    .AutoBind(true)
+                    //.BindTo((System.Collections.IEnumerable)ViewData["COA"])
+                    //.DataSource(ds =>
+                    //{
+                    // ds.Read(read => read.Action("Code4List", "Account"));
+                    // //.ServerFiltering(true);
+                    // })
+                    .HtmlAttributes(new { @style = "width:100%" })
+)

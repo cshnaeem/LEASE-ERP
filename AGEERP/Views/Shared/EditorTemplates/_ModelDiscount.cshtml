@@ -1,0 +1,59 @@
+﻿@model AGEERP.Models.ModelDiscountVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.PolicyId)
+
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("MinSlabQty")
+            @(Html.Kendo().NumericTextBoxFor(x => x.MinSlabQty).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("MaxSlabQty")
+            @(Html.Kendo().NumericTextBoxFor(x => x.MaxSlabQty).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("IncentiveAmt")
+            @(Html.Kendo().NumericTextBoxFor(x => x.IncentiveAmt).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("ExtraQtyRate")
+            @(Html.Kendo().NumericTextBoxFor(x => x.ExtraQtyRate).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("StartDate")
+            @(Html.Kendo().DatePickerFor(x => x.StartDate).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("EndDate")
+            @(Html.Kendo().DatePickerFor(x => x.EndDate).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+        <div class="row">
+            <div class="col m8 s6">
+                @Html.Label("Model")
+                @(Html.Kendo().MultiSelectFor(x => x.ModelLst)
+                                       .Placeholder("Select Model ...")
+                                       .DataValueField("ModelId")
+                                       .DataTextField("Model")
+                                       .ValuePrimitive(true)
+                                       .DataSource(ds =>
+                                       {
+                                           ds.Read(read => read.Action("ModelByComProList", "Setup").Data("filterModel"));
+                                       })
+                                       .HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+        </div>
+        }

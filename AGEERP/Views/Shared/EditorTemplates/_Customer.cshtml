@@ -1,0 +1,78 @@
+﻿@model AGEERP.Models.CustomerDetailVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.CustId)
+
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("Customer Name")
+        @(Html.Kendo().TextBoxFor(x => x.CustName).HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("MobilePh")
+        @(Html.Kendo().MaskedTextBoxFor(x => x.Mobile).Mask("0000-0000000").HtmlAttributes(new { @style = "width:100%", @maxlength = "15",@required = true }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Email")
+        @(Html.Kendo().TextBoxFor(x => x.Email).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("CNIC")
+        @(Html.Kendo().MaskedTextBoxFor(x => x.CNIC).Mask("00000-0000000-0").HtmlAttributes(new { @style = "width:100%", @maxlength = "15", @required = true }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("NTN")
+        @(Html.Kendo().TextBoxFor(x => x.NTN).HtmlAttributes(new { @style = "width:100%", @maxlength = "10" }))
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("Address")
+        @(Html.Kendo().TextBoxFor(x => x.Address).HtmlAttributes(new { @style = "width:100%", @maxlength = "200" }))
+    </div>
+    <div class="col m8 s6">
+        @Html.Label("Remarks")
+        @(Html.Kendo().TextBoxFor(x => x.Remarks).HtmlAttributes(new { @style = "width:100%", @maxlength = "200" }))
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("GLCode")
+        @(Html.Kendo().TextBoxFor(x => x.GLCode).Format("###").HtmlAttributes(new { @style = "width:100%", @maxlength = "15" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("ChequeNo")
+        @(Html.Kendo().TextBoxFor(x => x.ChequeNo).HtmlAttributes(new { @style = "width:100%", @maxlength = "15" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("DaysLimit")
+        @(Html.Kendo().NumericTextBoxFor(x => x.DaysLimit).Format("###").Min(0).HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+</div>
+<div class="row">
+        <div class="col-md-4">
+            @Html.Label("BankName")
+            @(Html.Kendo().TextBoxFor(x => x.BankName).HtmlAttributes(new { @style = "width:100%", @maxlength = "100" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("AccountTitle")
+            @(Html.Kendo().TextBoxFor(x => x.AccountTitle).HtmlAttributes(new { @style = "width:100%", @maxlength = "100" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("BussinessRelation")
+            @(Html.Kendo().TextBoxFor(x => x.BusinessRelation).HtmlAttributes(new { @style = "width:100%", @maxlength = "100" }))
+        </div>
+</div>
+}

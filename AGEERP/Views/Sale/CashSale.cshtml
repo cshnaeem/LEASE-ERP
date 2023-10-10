@@ -1,0 +1,1427 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Sale";
+}
+<div class="card ihead">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Cash Sale </h3>@*&nbsp;&nbsp;&nbsp;<span style="color:red">Road Price and United Bike Cash Sale Temporarily Blocked by Management</span>*@
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Sale</a></li>
+                    <li class="breadcrumb-item active">Cash Sale</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body"> 
+        @*<div class="col-sm-12 ihead">*@
+        <div id="frmM">
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    //.Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.DataBound("loadOrder").Change("loadOrder"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                </div>
+                @*<div class="col-md-3 col-sm-3">
+                    @Html.Label("InvoiceNo")
+                    @Html.Kendo().TextBox().Name("InvoiceNo").HtmlAttributes(new { @style = "width:100%" })
+                    </div>*@
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("InvoiceDate")
+                    @Html.Kendo().DatePicker().Name("InvoiceDate").Value(ViewBag.WorkingDate).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("PaymentMode")
+                    @(Html.Kendo().DropDownList()
+                    .Name("PaymentModeId")
+                    .SelectedIndex(0)
+                    .DataValueField("PaymentModeId")
+                    .DataTextField("PaymentMode")
+                    .Events(e => e.Change("SelPayment"))
+                    .IgnoreCase(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("PaymentModeList", "Sale"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = true }))
+                </div>
+                <div class="col-md-3 col-sm-3 BankDiv" style="display:none;">
+                    @Html.Label("Bank")
+                    @(Html.Kendo().DropDownList()
+                                        .Name("PaymentAccId")
+                                        //.OptionLabel("Select Bank....")
+                                        .DataValueField("BankId")
+                                        .DataTextField("BankName")
+                                        .SelectedIndex(0)
+                                        //.ValuePrimitive(true)
+                                        .DataSource(ds =>
+                                        {
+                                            ds.Read(read => read.Action("GetMapBankByLocation", "Cash").Data("filterSalesman"));
+                                        })
+                                        .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Salesman")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("Salesman")
+                    .OptionLabel("Select Salesman ...")
+                    //.SelectedIndex(0)
+                    .DataValueField("EmpId")
+                    .DataTextField("EmpName")
+                    ///.Suggest(true)
+                    .IgnoreCase(true)
+                    .Filter(FilterType.Contains)
+                    //.SyncValueAndText(true)
+                    //.HighlightFirst(true)
+
+                    //.CascadeFrom("LocId")
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("GetSalesmanList", "Sale").Data("filterSalesman"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Order")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("OrderId")
+                    .Placeholder("Select Order ...")
+                    .DataValueField("TransId")
+                    .DataTextField("BillNo")
+                    //.SelectedIndex(0)
+                    //.AutoBind(false)
+                    .Events(e => e.Change("orderChange"))
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("BillNo").Width("200px");
+                        columns.Add().Field("CustName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "BillNo", "CustName" })
+                    .Filter(FilterType.Contains)
+                    //.CascadeFrom("LocId")
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("SaleOrderList", "Sale").Data("OrderData"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3 OrdRtnDiv" style="visibility:hidden;">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="returnOrder()">
+                        <i class="fas fa-circle-notch"></i>&nbsp; Return Order Advance
+                    </button>
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Cart Items")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("CartItemId")
+                    .Placeholder("Select Item ...")
+                    .DataValueField("ItemId")
+                    .DataTextField("SerialNo")
+                    //.SelectedIndex(0)
+                    //.AutoBind(false)
+                    //.Events(e => e.Change("orderChange"))
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("SerialNo").Width("200px");
+                        columns.Add().Field("SKU").Width("200px");
+                        columns.Add().Field("MRP").Title("Rate").Width("100px");
+                    })
+                    .FilterFields(new string[] { "SerialNo", "SKU", "MRP" })
+                    .Filter(FilterType.Contains)
+                    //.CascadeFrom("LocId")
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("GetSaleCart", "Sale").Data("OrderData"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3 cartDiv">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="addFromCart()">
+                        <i class="fas fa-cart-arrow-down"></i>&nbsp; Add From Cart
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                @*<div class="col-md-6">
+            @Html.Label("Customer")
+            @(Html.Kendo()
+            .ComboBox()
+            .Name("CustId")
+            .Placeholder("Select Customer ...")
+            //.SelectedIndex(0)
+            .DataValueField("CustId")
+            .DataTextField("CustName")
+            .IgnoreCase(true)
+            .Filter(FilterType.Contains)
+            .Suggest(true)
+            .DataSource(ds =>
+            {
+            ds.Read(read => read.Action("CustomerList", "Sale"));
+            })
+            .HtmlAttributes(new { @style = "width:100%" })
+            )
+        </div>*@
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Customer CellNo")
+                    @Html.Kendo().MaskedTextBox().Name("CustCellNo").Mask("0000-0000000").Events(e => e.Change("mobileNoChange")).HtmlAttributes(new { @style = "width:100%", @required = true })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Customer Name")
+                    @Html.Kendo().TextBox().Name("CustName").HtmlAttributes(new { @style = "width:100%", @required = true, @maxlength = "50" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Customer Type")
+                    @(Html.Kendo().DropDownList().Name("CustType")
+        .DataValueField("Value")
+        .DataTextField("Text")
+        .SelectedIndex(0)
+        .BindTo(new List<SelectListItem>
+                       {
+                           new SelectListItem { Text = "Individual",Value = "I"} ,
+                           new SelectListItem { Text = "Company",Value = "C"}
+                       }).Events(e => e.Change("changeCustType")).HtmlAttributes(new { @style = "width:100%",@required = true }))
+                </div>
+                <div class="col-md-3 col-sm-3" id="nic">
+                    @Html.Label("Customer CNIC")
+                    @Html.Kendo().MaskedTextBox().Name("CustCNIC").Mask("00000-0000000-0").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3" id="ntn" style="display:none;">
+                    @Html.Label("Customer NTN")
+                    @Html.Kendo().MaskedTextBox().Name("CustNTN").Mask("0000000-0").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Due Date")
+                    @Html.Kendo().DatePicker().Name("DueDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = true })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Address")
+                    @Html.Kendo().TextBox().Name("Address").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Remarks")
+                    @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Documents")
+                    @(Html.Kendo().Upload()
+                  .Name("files")
+                  .Multiple(true)
+                  .Async(a => a
+                      .Save("UploadDocBulk", "Document", new { refobjid = 10 })
+                      .Remove("DocumentRemove", "Document")
+                      .SaveField("files")
+                      .AutoUpload(false)
+                      .Concurrent(true)
+                      .Batch(true)
+                  ).Events(e => e
+                  .Success("onDocUp")
+                  .Remove("onUploadRemove")
+                  //.Remove("OnRemove")
+                  )
+                    )
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card" id="mycard">
+    <div class="card-body  collapse BankDiv">
+        <h4 >Customer Bank Details</h4>
+        <div class="row">
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-4 col-sm-4">
+                        @Html.Label("Bank Account Holder")
+                        @(Html.Kendo().DropDownList().Name("AccountHolder")
+        .DataValueField("Value")
+        .DataTextField("Text")
+        .SelectedIndex(0)
+        .BindTo(new List<SelectListItem>
+                           {
+                               new SelectListItem { Text = "Self",Value = "Self"} ,
+                               new SelectListItem { Text = "Relative",Value = "Relative"}
+                           }).HtmlAttributes(new { @style = "width:100%" }))
+                    </div>
+                    <div class="col-md-4 col-sm-4">
+                        @Html.Label("Customer Bank Account No")
+                        @Html.Kendo().TextBox().Name("CustomerAccountNo").HtmlAttributes(new { @style = "width:100%", @maxlength = "50" })
+                    </div>
+                    <div class="col-md-4 col-sm-4">
+                        @Html.Label("Bank Account Title")
+                        @Html.Kendo().TextBox().Name("AccountTitle").HtmlAttributes(new { @style = "width:100%", @maxlength = "50" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-sm-4">
+                        @Html.Label("Customer Bank Name")
+                        @Html.Kendo().TextBox().Name("CustomerBankName").HtmlAttributes(new { @style = "width:100%", @maxlength = "50" })
+                    </div>
+                    <div class="col-md-4 col-sm-4">
+                        @Html.Label("Customer Email")
+                        @Html.Kendo().TextBox().Name("Email").HtmlAttributes(new { @style = "width:100%", @maxlength = "50" })
+                    </div>
+                    <div class="col-md-4 col-sm-4">
+                        @Html.Label("Bank Transaction Id")
+                        @Html.Kendo().TextBox().Name("BankTransId").HtmlAttributes(new { @style = "width:100%", @maxlength = "50" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 PicDiv">
+                        @*<img id="CustImg" class="responsive-img" style="max-height:200px;" />*@
+                        <button class="k-button k-primary" type="button" style="text-align:center;width:200px;" onclick="Retake()">
+                            <i class="fa fa-camera center"></i> &nbsp; Retake
+                        </button>
+                    </div>
+
+                    <input name="uri" id="uri" type="hidden" />
+
+                    <div class="col-md-12 col-sm-12" id="prevdiv" style="display:none">
+                        <p id="previmg"></p>
+                        <button class="k-button k-primary" type="button" style="text-align:center;width:200px;" onclick="Retake()">
+                            <i class="fa fa-camera center"></i> &nbsp; Retake
+                        </button>
+                    </div>
+                    <div class="col-md-12 col-sm-12" id="snapshotdiv" style="display:none">
+                        <div id="my_camera"></div>
+
+
+                        <!-- First, include the Webcam.js JavaScript Library -->
+                        <!-- A button for taking snaps -->
+                        @*<form>*@
+                        <button class="k-button k-primary" type="button" style="text-align:center;width:200px;" onclick="take_snapshot()">
+                            <i class="fa fa-camera center"></i>&nbsp; Capture
+                        </button>
+                        @*<input type=button value="Take Snapshot" onClick="take_snapshot()">*@
+                        @*</form>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        @*</div>*@
+    </div>
+</div>
+    <div class="card">
+        <div class="card-body">
+            <div id="frmD">
+                <div class="row ihead">
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Scan SerialNo")
+                        @(Html.Kendo()
+                    .TextBox()
+                    .Name("Serial")
+                    .HtmlAttributes(new { @style = "width:100%", @onchange = "changeSerial()" })
+                    )
+                    </div>
+                    <div id="OrderDiv" class="offset-3 col-md-6 col-sm-6">
+
+                    </div>
+                </div>
+                <div class="row ihead">
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("SKU")
+                        @(Html.Kendo().MultiColumnComboBox()
+                    .Name("SKUId")
+                    .AutoBind(false)
+                    .Placeholder("Select SKU...")
+                    .DataTextField("SKUName")
+                    .DataValueField("SKUId")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("SKUName").Width("300px");
+                        columns.Add().Field("Company").Width("200px");
+                        columns.Add().Field("Product").Width("200px");
+                    })
+                    .Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "SKUName", "Company", "Product" })
+                    //.MinLength(3)
+                    .Events(e => e.Change("SKUChange"))
+                    .DataSource(dataSource =>
+                    {
+                    dataSource.Read(read => read.Action("SKUByLocSearchList", "Setup").Data("filterSKU")).ServerFiltering(true);
+                    })
+                    .CascadeFrom("LocId")
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                        @Html.ValidationMessage("SKUId")
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Company")
+                        @(Html.Kendo()
+                    .TextBox()
+                    .Name("Company")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Product")
+                        @(Html.Kendo()
+                    .TextBox()
+                    .Name("Product")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("SerialNo")
+                        @(Html.Kendo().MultiColumnComboBox()
+                    .Name("ItemId")
+                    .AutoBind(false)
+                    .Placeholder("Select Serial...")
+                    .DataTextField("SerialNo")
+                    .DataValueField("ItemId")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("SerialNo").Width("200px");
+                        columns.Add().Field("Aging").Width("70px");
+                    })
+                    .Suggest(true)
+                    //.Filter(FilterType.StartsWith)
+                    .Events(e => e.Change("SrNoChange").DataBound("SrNoChange"))
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("ItemBySKULoc", "Sale").Data("filterItem"));
+                    })
+                    //.CascadeFrom("SKUId")
+                    //.IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                    </div>
+                </div>
+                <div class="row ihead">
+                    @*<div class="col-md-3 col-sm-3">
+                            @Html.Label("Quantity")
+                            @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("Qty")
+                            .Min(0)
+                            .Value(1)
+                            .Format("###")
+                            .HtmlAttributes(new { @style = "width:100%" })
+                            )
+                        </div>*@
+                    @*<div class="col-md-3 col-sm-3">
+                            @Html.Label("Sale Price")
+                            @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("AmountReceive")
+                            .Min(0)
+                            .Value(0)
+                            .Spinners(false)
+                            .Events(e => e.Change("amtRec"))
+                            .Format("###")
+                            .HtmlAttributes(new { @style = "width:100%", @required = true })
+                            )
+                        </div>*@
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Price")
+                        @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("SPrice")
+                    .Min(0)
+                    .Value(0)
+                    .Spinners(false)
+                    .Format("###")
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                    </div>
+                    <div class="col-md-3 col-sm-3" hidden="hidden">
+                        @Html.Label("Discount")
+                        @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("Discount")
+                    .Min(0)
+                    .Value(0)
+                    .Format("###")
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+                    </div>
+
+                    <div class="col-md-3 col-sm-3">
+                        <br />
+                        <button class="k-button margin-10" type="button" onclick="addToGrid()">
+                            <i class="fas fa-plus"></i>&nbsp; Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-10 col-sm-12">
+
+                    @(Html.Kendo()
+                .Grid<SaleDetailVM>()
+                .Name("gridSaleDetail")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.RowId).Hidden();
+                    columns.Bound(c => c.TransId).Hidden();
+                    columns.Bound(c => c.ItemId).Hidden();
+                    //columns.ForeignKey(c => c.SKUId, (System.Collections.IEnumerable)ViewData["ModelVD"], "SKUId", "Model").EditorTemplateName("_Model").Title("Model");
+                    columns.Bound(c => c.SKUId).Hidden();
+                    columns.Bound(c => c.SKUName).Width(200);
+                    //columns.Bound(c => c.Product);
+                    //columns.Bound(c => c.Company);
+                    columns.Bound(c => c.SrNo).Width(200);
+                    //columns.Bound(c => c.CSrNo).Width(200).Title("SrNo(Company)");
+                    //columns.Bound(c => c.Qty);
+                    columns.Bound(c => c.SPrice).Title("Price").Width(100);
+                    columns.Bound(c => c.Discount).Width(100);
+                    columns.Bound(c => c.TPrice).Title("Total").Width(100);
+                    columns.Command(c => c.Destroy()).Width(100);
+                })
+                //.Pageable()
+                //.Sortable()
+                .Scrollable()
+                .AutoBind(false)
+
+                //.Selectable()
+                .Navigatable()
+                .ToolBar(t => { t.Save(); })
+                .Editable(e => e.Mode(GridEditMode.InCell).CreateAt(GridInsertRowPosition.Bottom))
+                .HtmlAttributes(new { style = "height:300px;" })
+                .Events(e => e.DataBound("gridDataBound").SaveChanges("onSaveChanges"))
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                .Batch(true)
+                .Events(e => e/*.Change("OnSrNoChange")*/.Error("error_handler"))
+                .Model(model =>
+                {
+                    model.Id(m => m.RowId);
+                    model.Field(m => m.TransId).Editable(false);
+                    model.Field(m => m.ItemId).Editable(false);
+                    model.Field(m => m.SKUId).Editable(false);
+                    model.Field(m => m.Product).Editable(false);
+                    model.Field(m => m.Company).Editable(false);
+                    //model.Field(m => m.Specification).Editable(false);
+                    model.Field(m => m.PPrice).Editable(false);
+                    model.Field(m => m.SPrice).Editable(false);
+                    model.Field(m => m.TPrice).Editable(false);
+                    model.Field(m => m.SKUName).Editable(false);
+                    model.Field(m => m.Discount).Editable(false);
+                    //model.Field(m => m.Qty).Editable(false);
+                    model.Field(m => m.SrNo).Editable(false);
+                    model.Field(m => m.CSrNo).Editable(false);
+                    model.Field(m => m.TypeId).Editable(false);
+                    model.Field(m => m.Reason).Editable(false);
+                    model.Field(m => m.CareOf).Editable(false);
+                })
+                .Read(read => read.Action("Sale_Read", "Sale"))
+                .Create(read => read.Action("Sale_Create", "Sale").Data("MasterSale"))
+                .Update(read => read.Action("Sale_Read", "Sale"))
+                ))
+                </div>
+                <div class="col-md-2 shead" style="bottom:20px;right:0px;">
+                    <div class="col-md-12 col-sm-4 col-lg-4 ImgDiv">
+                        <img id="SkuImg" class="responsive-img" style="max-height:150px;" />
+                    </div>
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("Total")
+                        @Html.Kendo().NumericTextBox().Name("TotalAmount").Min(0).Value(0).Format("###").Spinners(false).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("Discount")
+                        @Html.Kendo().NumericTextBox().Name("DiscountAmount").Min(0).Value(0).Format("###").Spinners(false).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("Advance")
+                        @Html.Kendo().NumericTextBox().Name("Advance").Min(0).Value(0).Format("###").Spinners(false).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                    <div class="col-md-12 col-sm-4 CashDiv" style="display:none;">
+                        @Html.Label("Paid in Cash")
+                        @Html.Kendo().NumericTextBox().Name("CashAmount").Events(e => e.Change("chngAmt")).Min(0).Value(0).Format("###").Spinners(false).HtmlAttributes(new { @style = "width:100%" })
+                    </div>
+                    <div class="col-md-12 col-sm-4 CashDiv" style="display:none;">
+                        @Html.Label("Paid in Cash", new { @Id = "lblOtherAmount" })
+                        @Html.Kendo().NumericTextBox().Name("OtherAmount").Events(e => e.Change("chngAmt")).Min(0).Value(0).Format("###").Spinners(false).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("Net Total")
+                        @Html.Kendo().NumericTextBox().Name("NetAmount").Value(0).Format("###").Spinners(false).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Html.Partial("~/Views/Report/_Report.cshtml")
+    <div id="modalWindow">
+        <h5 id="reasonTitle">Please provide reason and C/O for price less than minimum sale price?</h5>
+        @Html.Label("Reason")
+        @(Html.Kendo()
+                    .TextBox()
+                    .Name("Reason")
+                    )
+        @Html.Label("C/O")
+        @(Html.Kendo()
+                    .TextBox()
+                    .Name("CareOf")
+                    )
+        <button id="yes" class="k-button">Add</button>
+        <button id="no" class="k-button">Cancel</button>
+    </div>
+    <script type="text/javascript" src="~/Scripts/webcam.min.js"></script>
+    <script>
+        Webcam.set({
+            width: 200,
+            height: 200,
+            image_format: 'jpeg',
+            jpeg_quality: 90
+        });
+        var wnd;
+        $(document).ready(function () {
+            resizeGrid();
+            wnd = $("#modalWindow").kendoWindow({
+                title: "Confirmation",
+                modal: true,
+                visible: false,
+                resizable: false,
+                width: 300
+            }).data("kendoWindow");
+            $("#yes").on('click', function () {
+                if ($('#Reason').val() == "") {
+                    kendo.alert("Please enter reason");
+                }
+                else if ($('#CareOf').val() == "") {
+                    kendo.alert("Please enter CareOf");
+                }
+                else {
+                    wnd.close();
+                    addToGri();
+                }
+            });
+            $("#no").on('click', function () {
+                wnd.close();
+            });
+            //$('#m_14000000').addClass('active');
+            //$('#d_14000000').css("display", "block");
+            //$('#m_14020000').addClass('active');
+            //$('#a_14020000').addClass('active');
+            //if (AccNo > 0) {
+            //$('#mycard').CardWidget('collapse');
+            
+            
+            //}
+            //else {
+            //    $(".ImgDiv").hide();
+            //}
+        });
+        var gridElement = $("#gridSaleDetail");
+        var validatorM = $("#frmM").kendoValidator().data("kendoValidator");
+        var validatorD = $("#frmD").kendoValidator().data("kendoValidator");
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - $('.ihead').innerHeight();
+            if (height < $('.shead').innerHeight()) {
+                height = $('.shead').innerHeight();
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridSaleDetail").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function SelPayment() {
+            var SelObj = $('#PaymentModeId').data('kendoDropDownList').dataItem();
+            if (SelObj.PaymentModeId != 1) {
+                $('#mycard').CardWidget('expand');
+                //$('.BankDiv').show();
+                $('#PaymentAccId').data('kendoDropDownList').dataSource.read();
+                $('.CashDiv').css('display', 'block');
+                $('#lblOtherAmount').text("Paid in " + SelObj.PaymentMode);
+                chngAmt();
+            }
+            else {
+                $('#mycard').CardWidget('collapse');
+                //$(".PicDiv").show();
+                $('.PicDiv').css('display', 'block');
+                $('#prevdiv').css('display', 'none');
+                $('#snapshotdiv').css('display', 'none');
+                //$('.BankDiv').hide();
+                $('.CashDiv').css('display', 'none');
+                chngAmt();
+            }
+        }
+        function loadOrder() {
+            $('#Salesman').data('kendoDropDownList').dataSource.read();
+            $('#OrderId').data('kendoMultiColumnComboBox').dataSource.read();
+            $('#CartItemId').data('kendoMultiColumnComboBox').dataSource.read();
+        }
+        function addFromCart() {
+            var ser = $('#CartItemId').data('kendoMultiColumnComboBox').dataItem();
+            //console.log(ser);
+            $('#Serial').val(ser.SerialNo);
+            $('#SPrice').data('kendoNumericTextBox').value(ser.MRP);
+            changeSerial();
+        }
+        function returnOrder() {
+            var ordId = $('#OrderId').data('kendoMultiColumnComboBox').dataItem();
+            var locId = $('#LocId').val();
+            if (ordId != null) {
+                if (confirm("Do you want return Order Advance?")) {
+                    $.ajax({
+                        url: "/Sale/SaleOrderReturn",
+                        type: 'POST',
+                        async: false,
+                        data: JSON.stringify({ "LocId": locId, "TransId": ordId.TransId }),
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            if (data != null) {
+                                kendo.alert("Sale Order Advance Returned Successfully");
+                                $('#OrderId').data('kendoMultiColumnComboBox').value("");
+                                $('#OrderId').data('kendoMultiColumnComboBox').dataSource.read();
+                            }
+                        }
+                    });
+                }
+            }
+        }
+        function orderChange() {
+            var ordId = $('#OrderId').data('kendoMultiColumnComboBox').dataItem();
+            if (ordId != null) {
+                $('#DueDate').val("");
+                $('#NetAmount').val("0");
+                $('#TotalAmount').val("0");
+                $('#Advance').val(ordId.Advance);
+                $('#DiscountAmount').val("0");
+                $('#DueDate').data('kendoDatePicker').value(ordId.DueDate);
+                $('#Remarks').val(ordId.Remarks);
+                $('#CustName').val(ordId.CustName);
+                $('#CustCellNo').val(ordId.CustCellNo);
+                $('#Address').val(ordId.Address);
+                $('#Salesman').val(ordId.Salesman);
+
+                $('#Advance').data('kendoNumericTextBox').value(ordId.Advance);
+                var locId = $('#LocId').val();
+                $('.OrdRtnDiv').css("visibility", "visible");
+                $('.OrdRtnDiv').show();
+                $('#OrderDiv').load('/Sale/_SaleOrder?LocId=' + locId + '&OrderId=' + ordId.TransId);
+            }
+            else {
+                $('.OrdRtnDiv').css("visibility", "hidden");
+                $('#OrderDiv').html('');
+                $('#Advance').data('kendoNumericTextBox').value(0);
+            }
+        }
+        function OrderData() {
+            return {
+                LocId: $('#LocId').val(),
+                OrderId: $('#OrderId').data('kendoMultiColumnComboBox').value() || 0
+            }
+        }
+        function filterSKU() {
+            return {
+                LocId: $('#LocId').val(),
+                filterModel: $("#SKUId").data("kendoMultiColumnComboBox").input.val() || ""
+            }
+        }
+        function filterSalesman() {
+            return {
+                LocId: $('#LocId').val(),
+                DesgId: 236
+            }
+        }
+        //function IsValid() {
+        //    var tot = $('#TotalAmount').data('kendoNumericTextBox').value() || 0;
+        //    var rec = $('#ReceiveAmount').data('kendoNumericTextBox').value() || 0;
+        //    if (tot < rec) {
+        //        alert('Receive Amount should be equal to or greater than Total Amount');
+        //        return false;
+        //    }
+        //    return true
+        //}
+
+        function CheckAmtForTx() {
+            var Amt = 0;
+            var cnic = $('#CustCNIC').data("kendoMaskedTextBox").value() || "";
+            var ntn = $('#CustNTN').data("kendoMaskedTextBox").value() || "";
+            var dat = $("#gridSaleDetail").data("kendoGrid").dataSource.data();
+            var itm = [];
+            for (var i = 0; i < dat.length; i++) {
+                Amt += parseFloat(dat[i].SPrice);
+            }
+            if (Amt >= 100000 || $('#PaymentModeId').val() == 2 || $('#PaymentModeId').val() == 4) {
+                var ntn = ntn.replace(/_|-/g, "");
+                if (ntn.length == 8) {
+                    return true;
+                }
+                var cnic = cnic.replace(/_|-/g, "");
+                if (cnic.length == 13) {
+                    return true;
+                }
+                kendo.alert('Please enter the Customer CNIC or NTN');
+                return false;
+            }
+            return true;
+        }
+
+        var Files = [];
+        function onDocUp(e) {
+            for (i = 0; i < e.response.length; i++) {
+                e.files[i].id = e.response[i];
+            }
+        }
+        function onUploadRemove(e) {
+            var files = e.files;
+            var docid = 0;
+            for (i = 0; i < files.length; i++) {
+                //replace the name with the id added to the object
+                docid = files[i].id;
+            }
+
+            return {
+                DocId: docid
+            }
+        }
+        function IsValid() {
+            //console.log($('#uri').val());
+            //console.log($('#CustImg').attr("src"));
+            var tot = $('#TotalAmount').data('kendoNumericTextBox').value() || 0;
+            var dis = $('#DiscountAmount').data('kendoNumericTextBox').value() || 0;
+            var adv = $('#Advance').data('kendoNumericTextBox').value() || 0;
+            if (tot - dis < adv) {
+                kendo.alert("Total Amount should be greater than Advance");
+                return false;
+            }
+            var amt = parseInt($('#OtherAmount').val());
+            if ($('#PaymentModeId').val() == 2 || $('#PaymentModeId').val() == 4) {
+                var upload = $("#files").data("kendoUpload"), files = upload.getFiles();
+                var fl = [];
+                for (var i = 0; i < files.length; i++) {
+                    fl.push(files[i].id);
+                }
+                if (fl.length == 0) {
+                    kendo.alert("Please attach CNIC Copy");
+                    return false;
+                }
+                if ($('#CustomerAccountNo').val().length < 3) {
+                    kendo.alert("Please Enter Customer Bank Account No");
+                    $('#CustomerAccountNo').focus();
+                    return false;
+                }
+                if ($('#AccountHolder').val() == null) {
+                    kendo.alert("Please select AccountHolder");
+                    $('#AccountHolder').focus();
+                    return false;
+                }
+                if ($('#Address').val().length < 3) {
+                    kendo.alert("Please Enter Customer Address");
+                    $('#Address').focus();
+                    return false;
+                }
+                if ($('#AccountTitle').val().length < 3) {
+                    kendo.alert("Please Enter AccountTitle");
+                    $('#AccountTitle').focus();
+                    return false;
+                }
+                if ($('#CustomerBankName').val().length < 3) {
+                    kendo.alert("Please Enter Customer Bank Name");
+                    $('#CustomerBankName').focus();
+                    return false;
+                }
+                if ($('#BankTransId').val().length < 3) {
+                    kendo.alert("Please Enter Bank Transaction Id");
+                    $('#BankTransId').focus();
+                    return false;
+                }
+                if ($('#uri').val() == "") {
+                    kendo.alert("Please take customer picture");
+                    return false;
+                }
+            }
+
+            
+            return true;
+        }
+
+        function onSaveChanges(e) {
+            var dat = $("#gridSaleDetail").data("kendoGrid").dataSource.data();
+            var itm = [];
+            for (var i = 0; i < dat.length; i++) {
+                if (dat[i].SKUId > 0) {
+                    itm.push(dat[i].ItemId);
+                }
+            }
+            if (CheckAmtForTx() == false) {
+                e.preventDefault();
+                return;
+            }
+            if (IsValid() == false) {
+                e.preventDefault();
+                return;
+            }
+
+            $.ajax({
+                url: "/Sale/CheckPairing",
+                type: 'POST',
+                async: false,
+                data: JSON.stringify({ "mod": itm }),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    if (data != null) {
+                        if (data == "OK") {
+                        }
+                        else {
+                            alert(data);
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                }
+            });
+            //$.ajax({
+            //    url: "/Sale/CheckBikeCashSale",
+            //    type: 'POST',
+            //    async: false,
+            //    data: JSON.stringify({ "mod": itm }),
+            //    contentType: 'application/json; charset=utf-8',
+            //    success: function (data) {
+            //        if (data != null) {
+            //            if (data == "OK") {
+            //            }
+            //            else {
+            //                alert(data);
+            //                e.preventDefault();
+            //                return;
+            //            }
+            //        }
+            //    }
+            //});
+            if (!validatorM.validate()) {
+                e.preventDefault();
+                return;
+            }
+            if (!confirm("Do you want to save?")) {
+                e.preventDefault();
+                return;
+            }
+        }
+        function changeCustType() {
+            var custType = $('#CustType').val();
+            if (custType == "I") {
+                $('#nic').show();
+                $('#ntn').hide();
+                $('#CustNTN').data('kendoMaskedTextBox').value("");
+            }
+            else {
+                $('#ntn').show();
+                $('#nic').hide();
+                $('#CustCNIC').data('kendoMaskedTextBox').value("");
+            }
+        }
+        function mobileNoChange() {
+            var mob = $('#CustCellNo').val();
+            console.log(mob);
+            //$.ajax({
+            //    url: "/Sale/GetOnlineCustomer",
+            //    type: 'GET',
+            //    //async: false,
+            //    data: JSON.stringify({ "MobileNo": mob }),
+            //    //contentType: 'application/json; charset=utf-8',
+            //    success: function (data) {
+            //        if (data != null) {
+            //            $('#CustName').val(data.CustName);
+            //            $('#CustCNIC').val(data.CustCNIC);
+            //            $('#CustNTN').val(data.CustNTN);
+            //        }
+            //    }
+            //});
+            $.getJSON("/Sale/GetOnlineCustomer", { MobileNo: mob })
+                .done(function (data) {
+                    if (data != null) {
+                        $('#CustName').val(data.CustName);
+                        $('#CustCNIC').data("kendoMaskedTextBox").value(data.CNIC);
+                        $('#CustNTN').data("kendoMaskedTextBox").value(data.NTN);
+                        $('#AccountTitle').val(data.AccountTitle);
+                        $('#CustomerBankName').val(data.BankName);
+                        $('#Email').val(data.Email);
+                        $('#AccountHolder').data('kendoDropDownList').value(data.CustomerAccountHolder || 'Self');
+                        $('#Address').val(data.Address);
+                        $('#CustomerAccountNo').val(data.ChequeNo);
+                        $('#CustType').data('kendoDropDownList').value(data.CustType || 'I');
+                        //$("#CustImg").attr("src", "../../Content/OnlineCustImg/" + data.AccNo + ".jpg");
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    $('#CustName').val("");
+                    $('#CustCNIC').val("");
+                    $('#CustNTN').val("");
+                    $('#AccountTitle').val("");
+                    $('#CustomerBankName').val("");
+                    $('#Email').val("");
+                    $('#AccountHolder').val("Self");
+                    $('#Address').val("");
+                    $('#CustomerAccountNo').val("");
+                    $('#CustType').val("I");
+                    //$("#CustImg").attr("src", "");
+                    //kendo.alert('Customer does not exist');
+                });
+        }
+        function MasterSale() {
+            //mod, LocId, 1, CustomerName, InvoiceDate, DueDate, ReceiveAmount, 0, Discount, CustCellNo, Remarks, PaymentModeId, Salesman
+
+            var upload = $("#files").data("kendoUpload"), files = upload.getFiles();
+            var fl = [];
+            for (var i = 0; i < files.length; i++) {
+                fl.push(files[i].id);
+            }
+            debugger;
+            var data = {
+                LocId: $('#LocId').val() || 0,
+                CustomerName: $('#CustName').val() || "",
+                CustCNIC: $('#CustCNIC').val() || "",
+                CustNTN: $('#CustNTN').val() || "",
+                Address: $('#Address').val() || "",
+                InvoiceDate: $('#InvoiceDate').val(),
+                DueDate: $('#DueDate').val(),
+                Remarks: $('#Remarks').val(),
+                ReceiveAmount: $('#NetAmount').val(),
+                CashAmount: $('#CashAmount').val(),
+                OrderAdvance: $('#Advance').val(),
+                OrderId: $('#OrderId').data('kendoMultiColumnComboBox').value() || 0,
+                Discount: 0,
+                CustCellNo: $('#CustCellNo').val() || "",
+                PaymentModeId: $('#PaymentModeId').val(),
+                PaymentAccId: $('#PaymentAccId').val() || 0,
+                CustomerAccountNo: $('#CustomerAccountNo').val(),
+                Salesman: $('#Salesman').val() || 0,
+                files: fl,
+                AccountTitle: $('#AccountTitle').val(),
+                BankName: $('#CustomerBankName').val(),
+                CustType: $('#CustType').val(),
+                Email: $('#Email').val(),
+                BankTransId: $('#BankTransId').val(),
+                CustomerAccountHolder: $('#AccountHolder').val(),
+                uri: $('#uri').val()
+            }
+            //console.log(data);
+            return data;
+        }
+        function ClearAll() {
+            //$('#CustId').val("");
+            $('#DueDate').val("");
+            $('#OrderId').data('kendoMultiColumnComboBox').value("")
+            $('#NetAmount').val("0");
+            $('#TotalAmount').val("0");
+            $('#Advance').val("0");
+            $('#DiscountAmount').val("0");
+            //$('#Adjustment').val("0");
+            $('#Remarks').val("");
+            $('#CustName').val("");
+            $('#CustCellNo').val("");
+            $('#Salesman').val("");
+            $('#PaymentModeId').val("1");
+            $('#OrderId').data('kendoMultiColumnComboBox').dataSource.read();
+            $("#gridSaleDetail").data("kendoGrid").dataSource.data([]);
+            $('#AccountTitle').val("");
+            $('#CustomerBankName').val("");
+            $('#CustType').val("I");
+            $('#Email').val("");
+            $('#BankTransId').val("");
+            $('#AccountHolder').val("Self");
+            $('#CustomerAccountNo').val("");
+            $('#uri').val("");
+            $('#prevdiv').css('display', 'block');
+            $('#snapshotdiv').css('display', 'none');
+            var upload = $("#files").data("kendoUpload");
+            upload.clearAllFiles();
+        }
+        var modelData = {
+            ItemId: 0,
+            SkuId: 0
+        }
+        function SKUChange() {
+            var LocId = $('#LocId').val() || 0;
+            var SKUId = $('#SKUId').val() || 0;
+            if (SKUId > 0 && LocId > 0) {
+                var data = $('#SKUId').data('kendoMultiColumnComboBox').dataItem();
+                $('#Company').val(data.Company);
+                $('#Product').val(data.Product);
+                $('#ItemId').data('kendoMultiColumnComboBox').dataSource.read();
+                if (SKUId > 0) {
+                    $(".ImgDiv").show();
+                    $("#SkuImg").attr("src", "../../Content/SKUImg/" + SKUId + ".jpg");
+                }
+                else {
+                    $(".ImgDiv").hide();
+                }
+            }
+        }
+        function filterItem() {
+            return {
+                LocId: $('#LocId').val(),
+                SKUId: $('#SKUId').val()
+            }
+        }
+
+        function SrNoChange() {
+            var data = $('#ItemId').data('kendoMultiColumnComboBox').dataItem();
+            if (data != null) {
+                modelData = data;
+                //$('#SPrice').data('kendoNumericTextBox').value(modelData.MRP);
+                //$('#Discount').data('kendoNumericTextBox').value(0);
+            }
+            $('#Serial').val("");
+        }
+        function addToGrid() {
+            var itm = $('#ItemId').data('kendoMultiColumnComboBox').dataItem();
+            if (itm.ProductId == 304) {
+                //if (itm.SM > $('#SPrice').val()) {
+                //    kendo.alert("Price should be greater than " + itm.SM);
+                //    return;
+                //}
+                //else {
+                    addToGri();
+                //}
+            }
+            else {
+                if (itm.PPrice > 0) {
+                    if (itm.PPrice > $('#SPrice').val()) {
+                        //$("#reasonTitle").text("Please provide reason and C/O for price " + (itm.PPrice - $('#SPrice').val()) + " less than minimum sale price?");
+                        wnd.center().open();
+                    }
+                    else {
+                        addToGri();
+                    }
+                }
+                else {
+                    if (itm.SM > $('#SPrice').val()) {
+                        //$("#reasonTitle").text("Please provide reason and C/O for price " + (itm.SM - $('#SPrice').val()) + " less than minimum sale price?");
+                        wnd.center().open();
+                    }
+                    else {
+                        addToGri();
+                    }
+                }
+            }
+        }
+        function addToGri() {
+            if (!validatorD.validate()) {
+                e.preventDefault();
+                return;
+            }
+
+            if ($('#Discount').val() > $('#SPrice').val()) {
+                kendo.alert('Discount should be greater than Price');
+                return;
+            }
+
+            var itm = $('#ItemId').data('kendoMultiColumnComboBox').dataItem();
+
+            var dataSource = $('#gridSaleDetail').data('kendoGrid').dataSource;
+            var dat = {
+                ItemId: itm.ItemId || 0,
+                SKUId: $('#SKUId').data('kendoMultiColumnComboBox').value(),
+                SKUName: $('#SKUId').data('kendoMultiColumnComboBox').text(),
+                Product: $('#Product').val(),
+                Company: $('#Company').val(),
+                //Specification: $('#Specification').val(),
+                PPrice: 0,
+                SPrice: $('#SPrice').val(),
+                Discount: $('#Discount').val(),
+                TPrice: $('#SPrice').val() - $('#Discount').val(),
+                //Qty: $('#Qty').val(),
+                SrNo: itm.SerialNo,
+                CSrNo: itm.CSerialNo,
+                TypeId: itm.Exempted == true ? 1 : 0,
+                Reason: $('#Reason').val() || "",
+                CareOf: $('#CareOf').val() || ""
+            };
+            if (dat.ItemId == 0) {
+                kendo.alert('Item Not Found');
+            }
+            else if (itm.IsPair == true && dat.SPrice > 0) {
+                kendo.alert('Paired Item should be zero');
+            }
+
+            //else if (modelData.SM == 0) {
+            //    kendo.alert('Price Not Found');
+            //    return;
+            //}
+            //else if ((dat.SPrice - dat.Discount) < modelData.SM) {
+            //    kendo.alert('Price should be greater than minimum price');
+            //    return;
+            //}
+            else {
+                var IsExist = false;
+                var data = dataSource.data();
+                var typ = 0;
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].SPrice > 0) {
+                        IsExist = true;
+                        typ = data[i].TypeId;
+                    }
+                    if (data[i].ItemId == dat.ItemId) {
+                        alert('Item already exist');
+                        return;
+                    }
+                }
+                //debugger;
+                if (IsExist == true) {
+                    if (dat.TypeId != typ && itm.MRP > 0) {
+                        alert('You cannot add this type of Item in this Invoice. Please add this item in seperate invoice.');
+                        return;
+                    }
+                }
+                dataSource.add(dat);
+                resetFields();
+            }
+
+            //else {
+            //    alert('Please Select SKU and SrNo');
+            //}
+        }
+        function amtRec() {
+            var ItemId = $('#ItemId').data('kendoMultiColumnComboBox').value() || 0;
+            var amtRece = $('#AmountReceive').val() || 0;
+            if (ItemId == 0) {
+                kendo.alert('Item Not Found');
+            }
+            //else if (modelData.SM == 0) {
+            //    kendo.alert('Salesman Price Not Found');
+            //    return;
+            //}
+            else if (amtRece < modelData.SM) {
+                kendo.alert('Price should be greater than minimum price');
+                return;
+            }
+            //else if (modelData.MRP == 0) {
+            //    $('#SPrice').data('kendoNumericTextBox').value(amtRece);
+            //        $('#Discount').data('kendoNumericTextBox').value(0);
+            //}
+            //else {
+            //    if (amtRece > modelData.MRP) {
+            //        $('#SPrice').data('kendoNumericTextBox').value(amtRece);
+            //    }
+            //    else if (modelData.MRP > amtRece) {
+            //        $('#SPrice').data('kendoNumericTextBox').value(modelData.MRP);
+            //        $('#Discount').data('kendoNumericTextBox').value(modelData.MRP - amtRece);
+            //    }
+            //    else {
+            //        $('#SPrice').data('kendoNumericTextBox').value(modelData.MRP);
+            //        $('#Discount').data('kendoNumericTextBox').value(0);
+            //    }
+            //}
+        }
+        function gridDataBound() {
+            var sPrice = 0;
+            var discount = 0;
+            var tot = 0;
+            var data = $('#gridSaleDetail').data('kendoGrid').dataSource.data();
+            for (var i = 0; i < data.length; i++) {
+                sPrice += parseFloat(data[i].SPrice);
+                discount += parseFloat(data[i].Discount);
+                //tot += parseFloat(data[i].TPrice);
+            }
+            $('#TotalAmount').data('kendoNumericTextBox').value(sPrice);
+            $('#DiscountAmount').data('kendoNumericTextBox').value(discount);
+            if ($('#PaymentModeId').val() == 1) {
+                $('#CashAmount').data('kendoNumericTextBox').value(0);
+            }
+            //$('#NetAmount').data('kendoNumericTextBox').value(tot);
+            chngAmt();
+        }
+        function chngAmt() {
+            var tot = $('#TotalAmount').data('kendoNumericTextBox').value() || 0;
+            var dis = $('#DiscountAmount').data('kendoNumericTextBox').value() || 0;
+            var adv = $('#Advance').data('kendoNumericTextBox').value() || 0;
+            if ($('#PaymentModeId').val() == 1) {
+                $('#CashAmount').data('kendoNumericTextBox').value(0);
+            }
+            var csh = $('#CashAmount').data('kendoNumericTextBox').value() || 0;
+            $('#CashAmount').data('kendoNumericTextBox').value(tot - dis - adv >= csh ? csh : tot - dis - adv);
+            csh = $('#CashAmount').data('kendoNumericTextBox').value() || 0;
+            $('#OtherAmount').data('kendoNumericTextBox').value(tot - dis - adv - csh) || 0;
+            $('#NetAmount').data('kendoNumericTextBox').value((tot - dis - adv));
+        }
+        function resetFields() {
+            //$('#Serial').val("");
+            $('#ItemId').data('kendoMultiColumnComboBox').select(-1)
+            $('#SKUId').data('kendoMultiColumnComboBox').value("");
+            $('#Product').val("");
+            $('#Company').val("");
+            //$('#Specification').val("");
+            $('#SPrice').data('kendoNumericTextBox').min(0);
+            $('#SPrice').data('kendoNumericTextBox').value("0");
+            $('#TPrice').val(0);
+            $('#Discount').data('kendoNumericTextBox').value("0");
+            //$('#Qty').val(0);
+            $('#SrNo').val("");
+            $('#Reason').val("");
+            $('#CareOf').val("");
+            $('#Serial').focus();
+            //$('#Serial').data('kendoMultiColumnComboBox').input.focus();
+        }
+        //function OnSrNoChange(e) {
+        // if (e.action === "itemchange") {
+        // if (e.field === "ModelId") {
+        // var model = e.items[0];
+        // for (var i = 0; i < modelData.length; i++) {
+        // if (model.ModelId === modelData[i].ModelId) {
+        // model.set("Product", modelData[i].Product);
+        // model.set("Company", modelData[i].Company);
+        // break;
+        // }
+        // }
+        // }
+        // else if (e.field === "SrNo") {
+        // var model = e.items[0];
+        // if (model.SrNo != "") {
+        // if (model.SrNo.length < 4) {
+        // alert('SrNo should be greater than 4 characters');
+        // model.set("SrNo", "");
+        // }
+        // else {
+        // var proData = $("#gridSaleDetail").data("kendoGrid").dataSource.data();
+        // for (var i = 0; i < proData.length; i++) {
+        // if (model.SrNo === proData[i].SrNo) {
+        // ///pending
+        // }
+        // }
+        // var loc = $('#LocId').val();
+        // $.getJSON("/Sale/ItemBySrNo", { SrNo: model.SrNo, ModelId: model.ModelId, LocId: loc })
+        // .done(function (data) {
+        // console.log('yes');
+        // if (data != null) {
+        // model.set("ItemId", data.ItemId);
+        // model.set("Specification", data.Specification);
+        // model.set("Qty", 1);
+        // }
+        // })
+        // .fail(function (jqxhr, textStatus, error) {
+        // alert('Serial No does not exist');
+        // model.set("SrNo", "");
+        // });
+        // }
+        // }
+        // }
+        // else if (e.field === "SPrice") {
+        // var grid = $("#gridPurchaseDetail").data("kendoGrid");
+        // var curCell = $("#gridPurchaseDetail").find(".k-edit-cell");
+        // if (curCell.closest('td').is(':last-child') && curCell.closest('tr').is(':last-child')) {
+        // grid.addRow();
+        // }
+        // }
+        // }
+        //}
+        function changeSerial() {
+            var loc = $('#LocId').val();
+            var ser = $('#Serial').val();
+            $.getJSON("/Sale/ItemBySerialNo", { SrNo: ser, LocId: loc })
+                .done(function (data) {
+                    //console.log('yes');
+                    if (data != null) {
+                        $('#SKUId').data('kendoMultiColumnComboBox').value(data.SkuId);
+                        SKUChange();
+                        //$('#SKUId').val(data.SkuId);
+                        //$('#ItemId').val(data.ItemId);
+                        $('#ItemId').data('kendoMultiColumnComboBox').value(data.ItemId);
+                        //SrNoChange();
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Serial No does not exist');
+                });
+        }
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "";
+                $.each(e.errors,
+                    function (key, value) {
+                        if ('Msg' == key) {
+                            $.each(value.errors,
+                                function () {
+                                    message += this;
+                                });
+                        } else {
+                            $.each(value.errors,
+                                function () {
+                                    message += this;
+                                });
+                        }
+                    });
+                if (message > 0) {
+                    $.confirm({
+                        title: 'Saved Successfully!',
+                        content: 'Do you want to print?',
+                        type: 'red',
+                        typeAnimated: true,
+                        icon: 'fas fa-check',
+                        buttons: {
+                            Print: function () {
+                                $("#rpt").val("CashSale");
+                                $("#TransId").val(message);
+                                $("#rptForm").submit();
+                            },
+                            Cancel: function () {
+                            }
+                        }
+                    });
+                    ClearAll();
+                } else {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Error");
+                    dia.content(message);
+                    dia.open();
+                }
+            }
+        }
+        function take_snapshot() {
+            Webcam.snap(function (data_uri) {
+                $('#uri').val(data_uri);
+                document.getElementById('previmg').innerHTML =
+                    '<img src="' + data_uri + '" width="200px" height="200px" />';
+                $('#prevdiv').css('display', 'block');
+                $('#snapshotdiv').css('display', 'none');
+                Webcam.reset();
+            });
+        }
+        function Retake() {
+            Webcam.attach('#my_camera');
+            $('#prevdiv').css('display', 'none');
+            $('#snapshotdiv').css('display', 'block');
+            $('.PicDiv').css('display', 'none');
+        }
+    </script>

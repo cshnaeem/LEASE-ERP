@@ -1,0 +1,161 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Performance Calc";
+}
+
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Proccess Proformance</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Payroll</a></li>
+                        <li class="breadcrumb-item active">Proccess Proformance</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Performance Type")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("PerformanceTypeId")
+                    .SelectedIndex(0)
+                    .DataValueField("PerformanceTypeId")
+                    .DataTextField("PerformanceType")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("GetPerformanceTypeList", "Target"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Month")
+                    @Html.Kendo().DatePicker().Name("ToDate").Start(CalendarView.Year).Depth(CalendarView.Year).Value(DateTime.Now.Date).Format("MMMM yyyy").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <br />
+                    <br />
+               
+                    <button class="k-button" type="button" onclick="loadGrid()">
+                        <i class="fas fa-left"></i>&nbsp; Process
+                    </button>
+                </div>
+            </div>
+
+            <div class="row" style="padding-top:20px">
+
+                @Html.Label("Proccess Performance")
+                @(Html.Kendo()
+                .Grid<ProcessPerformanceVM>()
+                .Name("gridPerformanceSearch")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.TransId).Title("TransId").Width(90);
+                    columns.Bound(c => c.EmpName).Title("Employee");
+                    columns.Bound(c => c.PerformanceMonth).Format("{0: dd/MM/yyyy}");
+                    columns.Bound(c => c.LocName).Title("LocName");
+                    columns.Bound(c => c.TargetValue);
+                    columns.Bound(c => c.TargetQty);
+                    columns.Bound(c => c.AchQty);
+                    columns.Bound(c => c.AchValue);
+                    columns.Bound(c => c.IncentivePercent);
+                    columns.Bound(c => c.IncentiveValue);
+                  
+                })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                .AutoBind(false)
+                .Navigatable()
+                .DataSource(dataSource => dataSource
+                .Ajax()
+
+                .Model(model =>
+                {
+                    model.Id(m => m.TransId);
+                    model.Field(m => m.EmpName).Editable(false);
+                    model.Field(m => m.PerformanceMonth).Editable(false);
+                    model.Field(m => m.LocName).Editable(false);
+                    model.Field(m => m.TargetValue).Editable(false);
+                    model.Field(m => m.TargetQty).Editable(false);
+                    model.Field(m => m.AchQty).Editable(false);
+                    model.Field(m => m.AchValue).Editable(false);
+                    model.Field(m => m.IncentivePercent).Editable(false);
+                    model.Field(m => m.IncentiveValue).Editable(false);
+
+                })
+                .Read(read => read.Action("ProcessPerformance_Read", "Target").Data("filterPerformanceSearch"))
+
+                ))
+          
+            </div>
+        </div>
+    </div>
+
+@*}*@
+<script>
+
+      $(document).ready(function () {
+        resizeGrid();
+   
+    });
+    
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 250;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridPerformanceSearch").css("height", height);
+        $("#gridPerformanceSearch").data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+
+    function filterType() {
+        return {
+            ComId: $('#ComId').val() || 0
+        }
+    }
+    function filterProduct() {
+        return {
+            TypeId: $('#TypeId').val() || 0
+        }
+    }
+    function filterCity() {
+        return {
+            CityId: $('#CityId').val() || 0
+        }
+    }
+    function filterModel() {
+        return {
+            TypeId: $('#TypeId').val() || 0
+        }
+    }
+
+       function filterPerformanceSearch() {
+        return {
+            PerformanceTypeId: $('#PerformanceTypeId').val(),
+            ToDate: $('#ToDate').val()
+        }
+    }
+
+
+
+        function loadGrid() {
+        $("#gridPerformanceSearch").data("kendoGrid").dataSource.read();
+            }
+
+
+
+</script>

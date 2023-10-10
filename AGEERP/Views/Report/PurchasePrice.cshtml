@@ -1,0 +1,117 @@
+﻿
+@{
+    ViewBag.Title = "Purchase Price";
+}
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Purchase Price</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                        <li class="breadcrumb-item active">Purchase Price</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @using (Html.BeginForm("PurchasePrice", "Report", FormMethod.Post, new { target = "_blank" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-3">
+                        @Html.Label("Date")
+                        @Html.Kendo().DatePicker().Name("Date").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                    </div>
+                    <div class="col-3">
+                        @Html.Label("Company")
+                        @(Html.Kendo()
+                        .DropDownList()
+                        .Name("ComId")
+                        .OptionLabel("All")
+                        .DataValueField("ComId")
+                        .DataTextField("ComName")
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("CompanyList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>                   
+                    <div class="col-3">
+                        @Html.Label("Supplier")
+                        @(Html.Kendo()
+                    .DropDownList()
+                    .Name("SuppId")
+                    .OptionLabel("All")
+                    .DataValueField("SuppId")
+                    .DataTextField("SuppName")
+                    .AutoBind(false)
+                    .CascadeFrom("ComId")
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("SupplierByComList", "Setup").Data("filterProduct"))
+                    .ServerFiltering(true);
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;" })
+                    )
+                    </div>
+                    <div class="col-3">
+                        @Html.Label("Product")
+                        @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ProductId")
+                    .OptionLabel("All")
+                    .DataValueField("ProductId")
+                    .DataTextField("Name")
+                    .CascadeFrom("ComId")
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("ProductByCompList", "Setup").Data("filterProduct"))
+                    .ServerFiltering(true);
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                    </div>
+                    <div class="col-3">
+                        @Html.Label("Model")
+                        @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ModelId")
+                    .OptionLabel("All")
+                    .DataValueField("ModelId")
+                    .DataTextField("Model")
+                    .CascadeFrom("ProductId")
+                    .AutoBind(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("ModelByComProList", "Setup").Data("filterModel"))
+                    .ServerFiltering(true);
+                    })
+                    .HtmlAttributes(new { @style = "width:100%"})
+                    )
+                    </div>
+                    <div class="col-3">
+                        <br />
+                        <button class="k-button k-primary" type="submit">
+                            <i class="fas fa-print"></i>&nbsp; Print
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script>
+        function filterProduct() {
+            return {
+                ComId: $('#ComId').val() || 0
+            }
+        }
+        function filterModel() {
+            return {
+                ComId: $('#ComId').val() || 0,
+                ProductId: $('#ProductId').val() || 0
+            }
+        }
+    </script>

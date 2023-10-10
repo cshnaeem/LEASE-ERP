@@ -1,0 +1,644 @@
+﻿
+@{
+    ViewBag.Title = "AttendanceFace";
+}
+
+@*<div class="row">
+    <div class="col s12 m12">
+        <div class="card row gradient-45deg-indigo-purple gradient-shadow white-text padding-1 mt-1">
+            <div class="col s12 m3">
+                <a href="#" class="avatar">
+                    <img id="img" src="../../../app-assets/images/avatar/user.png" alt="users view avatar" class="z-depth-4 circle" width="200" height="200">
+                </a>
+            </div>
+            <div class="col s12 m3 center-align">
+                <h3 class="mb-0 white-text" id="EmployeeId"></h3>
+                <h4 class="mb-0 white-text" id="EmployeeName"></h4>
+                <h5 class="mb-0 white-text" id="Designation"></h5>
+                <h5 class="mb-0 white-text" id="Department"></h5>
+            </div>
+            <div class="col s12 m3 center-align">
+                <h3 class="mb-0 white-text bold" id="status"></h3>
+                <div class="row">
+                    <div class="col-md-6 right-align">
+                        <h6 class="mb-0 white-text">InTime</h6>
+                    </div>
+                    <div class="col-md-6 left-align">
+                        <h6 class="mb-0 white-text" id="InTime"> </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 right-align">
+                        <h6 class="mb-0 white-text">OutTime</h6>
+                    </div>
+                    <div class="col-md-6 left-align">
+                        <h6 class="mb-0 white-text" id="OutTime"> </h6>
+                    </div>
+                </div>
+            </div>*@
+
+<script src="~/Scripts/randomColor.js"></script>
+<script src="~/Scripts/confettiKit.js"></script>
+
+<div class="card-panel material-shadow" id="attmain">
+    <div class="info-box bg-navy">
+        <div class="info-box-content">
+            <div class="row">
+                <div class="col-sm-12 col-md-3">
+                    <a href="#" class="avatar">
+                        <img id="img" src="../../../app-assets/images/avatar/user.png" alt="users view avatar" class="z-depth-4 circle" width="200" height="200">
+                    </a>
+                </div>
+                <div class="col-sm-12 col-md-3 center-align">
+                    <span id="EmployeeId" class="info-box-text"></span>
+                    <span id="EmployeeName" class="info-box-text"></span>
+                    <span id="Designation" class="info-box-text"></span>
+                    <span id="Department" class="info-box-text"></span>
+                </div>
+                <div class="col-sm-12 col-md-3 center-align">
+                    <h3 class="bold" id="status"></h3>
+                    <div class="row">
+                        <div class="col-6 right-align">
+                            <h6 class="mb-0 white-text">InTime</h6>
+                        </div>
+                        <div class="col-6 left-align">
+                            <h6 class="mb-0 white-text" id="InTime"> </h6>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 right-align">
+                            <h6 class="mb-0 white-text">OutTime</h6>
+                        </div>
+                        <div class="col-6 left-align">
+                            <h6 class="mb-0 white-text" id="OutTime"> </h6>
+                        </div>
+                    </div>
+                    @*<div class="row">
+                            <div class="col-6 right-align">
+                                <h6 class="mb-0 white-text">Device Status</h6>
+                            </div>
+                            <div class="col-6 left-align">
+                                <h6 class="mb-0 white-text" id="DeviceStatus"> </h6>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 right-align">
+                                <h6 class="mb-0 white-text">Message</h6>
+                            </div>
+                            <div class="col-6 left-align">
+                                <h6 class="mb-0 white-text" id="Message"> </h6>
+                            </div>
+                        </div>*@
+                </div>
+                <div class="col-sm-12 col-md-3">
+                    <div id="my_camera"></div>
+
+                    <!-- First, include the Webcam.js JavaScript Library -->
+                    <script type="text/javascript" src="~/Scripts/webcam.min.js"></script>
+
+                    <!-- Configure a few settings and attach camera -->
+                    <script language="JavaScript">
+                        Webcam.set({
+                            width: 200,
+                            height: 200,
+                            image_format: 'jpeg',
+                            jpeg_quality: 90
+                        });
+                        Webcam.attach('#my_camera');</script>
+
+                    <!-- A button for taking snaps -->
+                    @*<form>*@
+                    <button class="k-button k-primary" type="button" style="text-align:center;width:200px;" onclick="take_snapshot()">
+                        <i class="fa fa-camera center"></i>
+                    </button>
+                    @*<input type=button value="Take Snapshot" onClick="take_snapshot()">*@
+                    @*</form>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12 col-md-3">
+        <div class="card card-widget widget-user-2 material-shadow" id="card1">
+            <div class="widget-user-header bg-green ">
+                <div class="widget-user-image text-center">
+                    <img id="img1" class="img-circle material-shadow" src="../../../app-assets/images/avatar/user.png" alt="Age Employee">
+                </div>
+            </div>
+            <div class="card-footer p-0">
+                <ul class="nav flex-column">
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge  text-center" id="status1">--</span>
+                        </a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge bg-primary" id="EmployeeId1">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge bg-primary" id="EmployeeName1">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge bg-primary" id="Department1">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item text-center text-center">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge bg-primary" id="Designation1">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a href="#" class="nav-link ">
+                            <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME IN</b> <span class="float-right badge bg-primary" id="InTime1">00:00:00</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME OUT</b> <span class="float-right badge bg-primary" id="OutTime1">00:00:00</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-3">
+        <div class="card card-widget widget-user-2 material-shadow" id="card2">
+            <div class="widget-user-header bg-primary text-center">
+                <div class="widget-user-image">
+                    <img id="img2" class="img-circle material-shadow" src="../../../app-assets/images/avatar/user.png" alt="Age Employee">
+                </div>
+            </div>
+            <div class="card-footer p-0">
+                <ul class="nav flex-column">
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link text-center">
+                            <span class=" badge  text-center" id="status2">--</span>
+                        </a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link">
+                            <span class=" badge bg-green" id="EmployeeId2">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link">
+                            <span class=" badge bg-green" id="EmployeeName2">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link">
+                            <span class=" badge bg-green" id="Department2">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link">
+                            <span class=" badge bg-green" id="Designation2">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME IN</b> <span class="float-right badge bg-green" id="InTime2">00:00:00</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME OUT</b> <span class="float-right badge bg-green" id="OutTime2">00:00:00</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-3">
+        <div class="card card-widget widget-user-2 material-shadow" id="card3">
+            <div class="widget-user-header bg-secondary text-center">
+                <div class="widget-user-image">
+                    <img id="img3" class="img-circle material-shadow" src="../../../app-assets/images/avatar/user.png" alt="Age Employee">
+                </div>
+
+            </div>
+            <div class="card-footer p-0">
+                <ul class="nav flex-column">
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge text-center" id="status3">--</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge bg-green" id="EmployeeId3">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link text-center">
+                            <span class=" badge bg-green" id="EmployeeName3">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge bg-green" id="Department3">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge bg-green" id="Designation3">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME IN</b> <span class="float-right badge bg-info" id="InTime3">00:00:00</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME OUT</b> <span class="float-right badge bg-info" id="OutTime3">00:00:00</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-3">
+        <div class="card card-widget widget-user-2 material-shadow" id="card4">
+            <div class="widget-user-header bg-info text-center">
+                <div class="widget-user-image">
+                    <img id="img4" class="img-circle material-shadow" src="../../../app-assets/images/avatar/user.png" alt="Age Employee">
+                </div>
+            </div>
+            <div class="card-footer p-0">
+                <ul class="nav flex-column">
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link text-center">
+                            <span class=" badge  text-center" id="status4">--</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge bg-secondary" id="EmployeeId4">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link text-center">
+                            <span class=" badge bg-secondary" id="EmployeeName4">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link text-center">
+                            <span class="badge bg-secondary" id="Department4">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link text-center">
+                            <span class=" badge bg-secondary" id="Designation4">----</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME IN</b> <span class="float-right badge bg-secondary" id="InTime4">00:00:00</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME OUT</b> <span class="float-right badge bg-secondary" id="OutTime4">00:00:00</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+@*<div class="row">
+        <div class="col s12 m3">
+            <div class="card card-border center-align gradient-45deg-light-blue-cyan">
+                <div class="card-content center">
+                    <img id="img1" class="responsive-img circle z-depth-4" width="100" src="../../../app-assets/images/avatar/user.png" alt="">
+                    <h5 class="white-text" id="EmployeeId1"></h5>
+                    <h5 class="white-text" id="EmployeeName1"></h5>
+                    <p class="white-text lighten-4">
+                        <span id="Designation1"></span><br />
+                        <span id="Department1"></span><br />
+                        <div class="row">
+                            <div class="col-md-6 white-text right-align">
+                                <span>InTime</span>
+                            </div>
+                            <div class="col-md-6 white-text left-align">
+                                <span id="InTime1"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 white-text right-align">
+                                <span>OutTime</span>
+                            </div>
+                            <div class="col-md-6 white-text left-align">
+                                <span id="OutTime1"></span>
+                            </div>
+                        </div>
+                        <div id="status1" class="waves-effect waves-light btn gradient-45deg-deep-orange-orange border-round mt-7 z-depth-4">
+
+                        </div>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m3">
+            <div class="card card-border center-align gradient-45deg-light-blue-indigo">
+                <div class="card-content center">
+                    <img id="img2" class="responsive-img circle z-depth-4" width="100" src="../../../app-assets/images/avatar/user.png" alt="">
+                    <h5 class="white-text" id="EmployeeId2"></h5>
+                    <h5 class="white-text" id="EmployeeName2"></h5>
+                    <p class="white-text lighten-4">
+                        <span id="Designation2"></span><br />
+                        <span id="Department2"></span><br />
+                        <div class="row">
+                            <div class="col-md-6 white-text right-align">
+                                <span>InTime</span>
+                            </div>
+                            <div class="col-md-6 white-text left-align">
+                                <span id="InTime2"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 white-text right-align">
+                                <span>OutTime</span>
+                            </div>
+                            <div class="col-md-6 white-text left-align">
+                                <span id="OutTime2"></span>
+                            </div>
+                        </div>
+                        <div id="status2" class="waves-effect waves-light btn gradient-45deg-deep-orange-orange border-round mt-7 z-depth-4">
+
+                        </div>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m3">
+            <div class="card card-border center-align gradient-45deg-light-blue-cyan">
+                <div class="card-content center">
+                    <img id="img3" class="responsive-img circle z-depth-4" width="100" src="../../../app-assets/images/avatar/user.png" alt="">
+                    <h5 class="white-text" id="EmployeeId3"></h5>
+                    <h5 class="white-text" id="EmployeeName3"></h5>
+                    <p class="white-text lighten-4">
+                        <span id="Designation3"></span><br />
+                        <span id="Department3"></span><br />
+                        <div class="row">
+                            <div class="col-md-6 white-text right-align">
+                                <span>InTime</span>
+                            </div>
+                            <div class="col-md-6 white-text left-align">
+                                <span id="InTime3"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 white-text right-align">
+                                <span>OutTime</span>
+                            </div>
+                            <div class="col-md-6 white-text left-align">
+                                <span id="OutTime3"></span>
+                            </div>
+                        </div>
+                        <div id="status3" class="waves-effect waves-light btn gradient-45deg-deep-orange-orange border-round mt-7 z-depth-4">
+
+                        </div>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m3">
+            <div class="card card-border center-align gradient-45deg-light-blue-indigo">
+                <div class="card-content center">
+                    <img id="img4" class="responsive-img circle z-depth-4" width="100" src="../../../app-assets/images/avatar/user.png" alt="">
+                    <h5 class="white-text" id="EmployeeId4"></h5>
+                    <h5 class="white-text" id="EmployeeName4"></h5>
+                    <p class="white-text lighten-4">
+                        <span id="Designation4"></span><br />
+                        <span id="Department4"></span><br />
+                        <div class="row">
+                            <div class="col-md-6 white-text right-align">
+                                <span>InTime</span>
+                            </div>
+                            <div class="col-md-6 white-text left-align">
+                                <span id="InTime4"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 white-text right-align">
+                                <span>OutTime</span>
+                            </div>
+                            <div class="col-md-6 white-text left-align">
+                                <span id="OutTime4"></span>
+                            </div>
+                        </div>
+                        <div id="status4" class="waves-effect waves-light btn gradient-45deg-deep-orange-orange border-round mt-7 z-depth-4">
+
+                        </div>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+<script>
+    $(document).ready(function () {
+        //$('#m_20000000').addClass('active');
+        //$('#d_20000000').css("display", "block");
+        //$('#m_20500000').addClass('active');
+        //$('#a_20500000').addClass('active');
+    });
+    $(document).on('keypress', function (e) {
+        if (e.which == 13) {
+            take_snapshot();
+        }
+    });
+    $('body').addClass('sidebar-collapse');
+    var EmpList = [];
+    var CData = null;
+    function EmpChange(dat) {
+        $('#EmployeeId').text(dat.EmpId);
+        $('#EmployeeName').text(dat.EmpName);
+        $('#Department').text(dat.DeptName);
+        $('#Designation').text(dat.DesgName);
+
+        document.getElementById("img").src = "../../../Content/EmpImg/" + dat.EmpId + ".jpg";
+
+        if (dat.Status == "REPEAT") {
+            $('#InTime').text("");
+            $('#OutTime').text("");
+            $('#status').removeClass('white-text').addClass('red-text');
+            $('#status').text("PLEASE DO NOT MARK REPEATEDLY");
+        }
+        else if (dat.Status == "SHORT OUT") {
+            $('#InTime').text(dat.InTime);
+            $('#OutTime').text(dat.OutTime);
+            $('#status').removeClass('white-text').addClass('red-text');
+            $('#status').text(dat.Status);
+            if (dat.IsBirthday == true) {
+                var i = 0;
+                $('#status').text(dat.Status + " Happy Birthday");
+                var interv = setInterval(
+                    function () {
+                        if (i <= 10) {
+                            bottombtn();
+                            //topbtn();
+                            i++;
+                        }
+                        else {
+                            myStopFunction();
+                        }
+                    }, 500);
+                function myStopFunction() {
+                    clearInterval(interv);
+                }
+            }
+            else if (dat.IsWorkAnniversary == true) {
+                var i = 0;
+                $('#status').text(dat.Status + " Happy Work Anniversary");
+                var interv = setInterval(
+                    function () {
+                        if (i <= 10) {
+                            bottombtn();
+                            //topbtn();
+                            i++;
+                        }
+                        else {
+                            myStopFunction();
+                        }
+                    }, 500);
+                function myStopFunction() {
+                    clearInterval(interv);
+                }
+            }
+        }
+        else {
+            $('#InTime').text(dat.InTime);
+            $('#OutTime').text(dat.OutTime);
+            $('#status').text(dat.Status);
+            $('#status').removeClass('red-text').addClass('white-text');
+            if (dat.IsBirthday == true) {
+                var i = 0;
+                $('#status').text(dat.Status + " Happy Birthday");
+                var interv = setInterval(
+                    function () {
+                        if (i <= 10) {
+                            bottombtn();
+                            //topbtn();
+                            i++;
+                        }
+                        else {
+                            myStopFunction();
+                        }
+                    }, 500);
+                function myStopFunction() {
+                    clearInterval(interv);
+                }
+            }
+            else if (dat.IsWorkAnniversary == true) {
+                var i = 0;
+                $('#status').text(dat.Status + " Happy Work Anniversary");
+                var interv = setInterval(
+                    function () {
+                        if (i <= 10) {
+                            bottombtn();
+                            //topbtn();
+                            i++;
+                        }
+                        else {
+                            myStopFunction();
+                        }
+                    }, 500);
+                function myStopFunction() {
+                    clearInterval(interv);
+                }
+            }
+        }
+        if (CData != null) {
+            if (EmpList.length == 4) {
+                EmpList.splice(3, 1);
+            }
+            EmpList.splice(0, 0, CData);
+        }
+        if (dat.Status != "IN" && dat.Status != "OUT" && dat.Status != "SHORT OUT") {
+            CData = null;
+        }
+        else {
+            CData = dat;
+        }
+        setPrevData();
+    }
+    function setPrevData() {
+        for (var i = 0; i < (EmpList.length); i++) {
+            $('#EmployeeId' + (i + 1)).text(EmpList[i].EmpId);
+            $('#EmployeeName' + (i + 1)).text(EmpList[i].EmpName);
+            $('#Department' + (i + 1)).text(EmpList[i].DeptName);
+            $('#Designation' + (i + 1)).text(EmpList[i].DesgName);
+            $('#status' + (i + 1)).text(EmpList[i].Status);
+            if (EmpList[i].Status == 'SHORT OUT') {
+                $('#card' + (i + 1)).addClass('pulse card-attendance-animate');
+                $('#status' + (i + 1)).addClass('bg-orange');
+            }
+            else if (EmpList[i].Status == 'IN') {
+                $('#card' + (i + 1)).removeClass('card-attendance-animate');
+                $('#status' + (i + 1)).addClass('bg-green');
+            }
+            else if (EmpList[i].Status == 'OUT') {
+                $('#card' + (i + 1)).removeClass('card-attendance-animate');
+                $('#status' + (i + 1)).addClass('bg-red');
+            }
+            $('#InTime' + (i + 1)).text(EmpList[i].InTime);
+            $('#OutTime' + (i + 1)).text(EmpList[i].OutTime);
+            document.getElementById("img" + (i + 1)).src = "../../../Content/EmpImg/" + EmpList[i].EmpId + ".jpg";
+        }
+    }
+
+    function Reset() {
+        $('#EmployeeId').text("");
+        $('#EmployeeName').text("");
+        $('#Department').text("");
+        $('#Designation').text("");
+        $('#InTime').text("");
+        $('#OutTime').text("");
+        $('#status').removeClass('white-text').addClass('red-text');
+        document.getElementById("img").src = "../../../app-assets/images/avatar/user.png";
+        if (CData != null) {
+            if (EmpList.length == 4) {
+                EmpList.splice(3, 1);
+            }
+            EmpList.splice(0, 0, CData);
+        }
+        CData = null;
+        setPrevData();
+    }
+    var IsLoading = false;
+    function take_snapshot() {
+        if (IsLoading == false) {
+            Webcam.snap(function (data_uri) {
+                IsLoading = true;
+                kendo.ui.progress($("#attmain"), true);
+                $.ajax({
+                    url: "/Attendance/AttendanceFace",
+                    type: "POST",
+                    data: JSON.stringify({ str: data_uri }),
+                    processData: false,
+                    contentType: 'application/json',
+                    success: function (result) {
+                        kendo.ui.progress($("#attmain"), false);
+                        IsLoading = false;
+                        if (result.Status == "OK") {
+                            EmpChange(result.Data);
+                        }
+                        else {
+                            $('#status').text(result.Data.Status);
+                            Reset();
+                        }
+                    }
+                });
+            });
+        }
+    }
+</script>

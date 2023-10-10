@@ -1,0 +1,171 @@
+﻿@{
+    ViewBag.Title = "EmployeeHierarchy";
+}
+@using (Html.BeginForm("EmployeeHierarchy", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+
+            <div class="card-header">
+                <h3 class="card-title">Employee Hierarchy</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Report</a></li>
+                        <li class="breadcrumb-item active">Employee Hierarchy</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                @* <div class="col-md-3 col-sm-4">
+                    @Html.Label("Type")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("Type")
+                    //.OptionLabel("All Region ...")
+                    //.DataValueField("GeoId")
+                    //.DataTextField("GTitle")
+                    .BindTo(new List<SelectListItem>()
+                    {
+                        new SelectListItem{Text="Installment",Value="I"},
+                        new SelectListItem{Text="Cash",Value="C"},
+                        new SelectListItem{Text="CRC",Value="R"}
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+
+                <div class="col-md-3 col-sm-4">
+              @Html.Label("Region")
+              @(Html.Kendo()
+              .DropDownList()
+              .Name("Region")
+              .OptionLabel("All Region ...")
+              .DataValueField("GeoId")
+              .DataTextField("GTitle")
+              .Filter(FilterType.Contains)
+              .DataSource(ds =>
+              {
+                  ds.Read(read => read.Action("GeoLocationList", "Setup").Data("filterRegion"));
+              })
+              .HtmlAttributes(new { @style = "width:100%" })
+              )
+          </div>
+          <div class="col-md-3 col-xs-12">
+              @Html.Label("Zone")
+              @(Html.Kendo()
+          .DropDownList()
+          .Name("Zone")
+          .OptionLabel("All")
+          .DataValueField("GeoId")
+          .DataTextField("GTitle")
+          .Filter(FilterType.Contains)
+          .DataSource(source => {
+              source.Read(read =>
+              {
+                  read.Action("GeoLocationList", "Setup")
+                      .Data("filterZone");
+              })
+              .ServerFiltering(true);
+          })
+          //.DataSource(ds =>
+          //{
+          //    ds.Read(read => read.Action("GeoLocationList", "Setup").Data("filterZone")).ServerFiltering(true);
+          //})
+          .HtmlAttributes(new { @style = "width:100%" })
+          .CascadeFrom("Region")
+              )
+          </div>
+          <div class="col-md-3 col-xs-4">
+              @Html.Label("Area")
+              @(Html.Kendo()
+          .DropDownList()
+          .Name("Area")
+          .OptionLabel("All")
+          .DataValueField("GeoId")
+          .DataTextField("GTitle")
+          .Filter(FilterType.Contains)
+               .DataSource(source => {
+              source.Read(read =>
+              {
+                  read.Action("GeoLocationList", "Setup")
+                      .Data("filterArea");
+              })
+              .ServerFiltering(true);
+          })
+          //.DataSource(ds =>
+          //{
+          //    ds.Read(read => read.Action("GeoLocationList", "Setup").Data("filterArea")).ServerFiltering(true);
+          //})
+
+          .HtmlAttributes(new { @style = "width:100%" })
+             .Enable(false)
+        .AutoBind(false)
+          .CascadeFrom("Zone")
+              )
+          </div>
+          <div class="col-md-3 col-xs-4">
+              @Html.Label("Territory")
+              @(Html.Kendo()
+          .DropDownList()
+          .Name("Territory")
+          .OptionLabel("All")
+          .DataValueField("GeoId")
+          .DataTextField("GTitle")
+          .Filter(FilterType.Contains)
+                  .DataSource(source => {
+              source.Read(read =>
+              {
+                  read.Action("GeoLocationList", "Setup")
+                      .Data("filterTerritory");
+              })
+              .ServerFiltering(true);
+          })
+          //.DataSource(ds =>
+          //{
+          //    ds.Read(read => read.Action("GeoLocationList", "Setup").Data("filterTerritory")).ServerFiltering(true);
+          //})
+          .HtmlAttributes(new { @style = "width:100%" })
+          .Enable(false)
+        .AutoBind(false)
+          .CascadeFrom("Area")
+              )
+          </div>*@
+
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script>
+
+    function filterRegion() {
+        return {
+            parentId: 0
+        }
+    }
+    function filterZone() {
+        return {
+            parentId: $('#Region').val()
+        }
+    }
+    function filterArea() {
+        return {
+            parentId: $('#Zone').val()
+        }
+    }
+    function filterTerritory() {
+        return {
+            parentId: $('#Area').val()
+        }
+    }
+
+</script>
+

@@ -1,0 +1,66 @@
+﻿@model AGEERP.Models.GuarantorVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.GuarantorId)
+    @Html.HiddenFor(m => m.AccNo)
+
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Name")
+            @(Html.Kendo().TextBoxFor(x => x.Name).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("SO")
+            @(Html.Kendo().TextBoxFor(x => x.FName).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("NIC")
+            @(Html.Kendo().MaskedTextBoxFor(x => x.CNIC).Mask("00000-0000000-0")
+        .Events(e => e.Change("CNICChange"))
+        .HtmlAttributes(new { @style = "width:100%"}))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("TelOff")
+            @(Html.Kendo().MaskedTextBoxFor(x => x.TelOff).Mask("0000-0000000")
+        .Events(e => e.Change("TelOffChange")).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col m8 s6">
+            @Html.Label("OffAddress")
+            @(Html.Kendo().TextBoxFor(x => x.OffAddress).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("TelRes")
+            @(Html.Kendo().MaskedTextBoxFor(x => x.TelRes)
+        .Events(e => e.Change("TelResChange")).Mask("0000-0000000").HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col m8 s6">
+            @Html.Label("ResAddress")
+            @(Html.Kendo().TextBoxFor(x => x.ResAddress).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Occupation")
+            @(Html.Kendo().TextBoxFor(x => x.Occupation).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Relation")
+            @(Html.Kendo().TextBoxFor(x => x.GRelation).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+
+}

@@ -1,0 +1,174 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Order Plan Search";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Order Plan Search</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Order</a></li>
+                    <li class="breadcrumb-item active">Order Plan Search</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row ">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-3">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+        </div>
+
+        <div class="row">
+
+            @Html.Label("Orders")
+            @(Html.Kendo()
+            .Grid<OrderSearchVM>()
+            .Name("gridOrderSearch")
+            .Columns(columns =>
+            {
+
+                columns.Bound(c => c.SuppName).Title("Supplier/Company");
+                columns.Bound(c => c.PONo).Title("PO Plan No");
+                columns.Bound(c => c.PODate).Format("{0: dd/MM/yyyy}").Title("Date");
+                //columns.Bound(c => c.Remarks);
+                //columns.Command(c => c.Custom("Detail").Click("OrderDetail").Visible("IsVisible"));
+                columns.Command(c => c.Custom("Print").Click("PrintPO"));
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .AutoBind(false)
+            .Navigatable()
+            .ToolBar(t => t.Search())
+            .Search(t=> t.Field(a => a.PONo))
+            //.Editable(e => e.Mode(GridEditMode.InCell))
+            //.HtmlAttributes(new { style = "height:100%;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            //.PageSize(20)
+            //.Batch(true)
+            //.Events(e => e.Error("error_handler"))
+            .Model(model =>
+            {
+                model.Id(m => m.POId);
+                model.Field(m => m.SuppName).Editable(false);
+                model.Field(m => m.PONo).Editable(false);
+                model.Field(m => m.PODate).Editable(false);
+
+            })
+            .Read(read => read.Action("OrderPlanSearch_Read", "Order").Data("filterOrderSearch"))
+            //.Create(create => create.Action("OrderPlan_Create", "Order").Data("MasterOrderPlan"))
+            //.Update(update => update.Action("UserGroup_Update", "Security"))
+            ))
+            @*</div>*@
+        </div>
+    </div>
+</div>
+
+<div id="example">
+    @(Html.Kendo().Dialog()
+        .Name("dialog")
+        .Title("Print")
+        .Content("<p>Do you want to print?<p>")
+        .Width(400)
+        .Modal(true)
+        .Visible(false)
+        .Actions(actions =>
+        {
+            actions.Add().Text("Print PO").Action("POPrint").Primary(true);
+            actions.Add().Text("Print Schedule").Action("SchedulePrint");
+            actions.Add().Text("Cancel");
+        }))
+</div>
+<form action="/Report/PrintSlip" method="post" target="_blank" id="rptForm" hidden="hidden">
+    @Html.AntiForgeryToken()
+    @Html.Hidden("rpt")
+    @Html.Hidden("PlanId")
+</form>
+<script>
+    var dialog = $("#dialog");
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_12000000').addClass('active');
+        //$('#d_12000000').css("display", "block");
+        //$('#m_12050000').addClass('active');
+        //$('#a_12050000').addClass('active');
+    });
+
+    function filterOrderSearch() {
+        return {
+            //SuppId: $('#SuppId').val() || 0,
+            FromDate: $('#FromDate').val(),
+            ToDate: $('#ToDate').val()
+            //Status: $('#StatusId').val() || 0
+        }
+    }
+
+    function loadGrid() {
+        $("#gridOrderSearch").data("kendoGrid").dataSource.read();
+    }
+
+    function OrderDetail(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        console.log(dataItem);
+        window.open('/Order/OrderDetail/' + dataItem.POId, '_blank');
+    }
+
+    function PrintPO(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#rpt").val("POPlanCity");
+        $("#PlanId").val(dataItem.POId);
+        //dialog.data("kendoDialog").open();
+        $("#rptForm").submit();
+    }
+    function POPrint() {
+        $("#rpt").val("PO");
+        $("#rptForm").submit();
+    }
+    function SchedulePrint() {
+        $("#rpt").val("POSchedule");
+        $("#rptForm").submit();
+    }
+    function IsVisible(e) {
+        if (e.POTypeId == 1) {
+            return true
+        }
+        else {
+            return false;
+        }
+    }
+    var gridElement = $("#gridOrderSearch");
+
+    function resizeGrid() {
+        console.log($('.topContent').innerHeight());
+        var height = $(window).innerHeight() - $('header').innerHeight() - $('.topContent').innerHeight() - 190;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridOrderSearch").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+</script>

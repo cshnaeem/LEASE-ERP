@@ -1,0 +1,248 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <!-- /.col -->
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Today Stats</h1>
+
+            </div>
+            <div class="col-sm-6">
+                @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    //.SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("statusChange").DataBound("statusChange"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+
+            </div>
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="info-box shadow-lg" style="background-color:#ff2136;color:white;">
+            <div class="info-box-content">
+                <span class="info-box-text" style="        font-size: 20px;
+        font-weight: 900;">Cash Sale</span>
+                <span class="info-box-number" style="font-size:35px;">Rs. <span id="tdCashSale" class="counter">0</span></span>
+            </div>
+            <!-- /.info-box-content -->
+
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-4">
+        <div class="info-box shadow-lg" style="background-color:#ac1a28;color:white;">
+            @*<span class="info-box-icon"><i class="far fa-dollar"></i></span>*@
+            @*<span class="info-box-icon" style="font-size:35px;font-weight:900;">RS</span>*@
+
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:20px;font-weight:1000;">Installment Sale</span>
+                <span class="info-box-number" style="font-size:35px;">Rs. <span id="tdInstSale" class="counter"></span></span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+</div>
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Monthly Stats</h1>
+            </div><!-- /.col -->
+
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="info-box shadow-lg" style="background-color:#ff2136;color:white;">
+            @*<span class="info-box-icon" style="font-size:35px;font-weight:900;">RS</span>*@
+
+            <div class="info-box-content">
+                <span class="info-box-text" style="        font-size: 20px;
+        font-weight: 900;">Cash Sale</span>
+                <span class="info-box-number" style="font-size:35px;">Rs. <span id="mnCashSale" class="counter"></span></span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-4">
+        <div class="info-box shadow-lg" style="background-color:#ac1a28;color:white;">
+            @*<span class="info-box-icon"><i class="far fa-dollar"></i></span>*@
+            @*<span class="info-box-icon" style="font-size:35px;font-weight:900;">RS</span>*@
+
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:20px;font-weight:1000;">Installment Sale</span>
+                <span class="info-box-number" style="font-size:35px;">Rs. <span id="mnInstSale" class="counter"></span></span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-4">
+        <div class="info-box shadow-lg" style="background-color:#000;color:white;">
+
+            @*<span class="info-box-icon" style="        font-size: 35px;
+                font-weight: 1000;">RS</span>*@
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:20px;font-weight:900;">Recovery</span>
+                <span class="info-box-number" style="font-size:35px;"><span id="recovery" class="counter"></span> %</span>
+            </div>
+        </div>
+    </div>
+    <!-- /.col -->
+    <!-- /.col -->
+    <!--<div class="col-md-3 col-sm-3 col-12">
+        <div class="info-box" style="background-color:#ff0018;color:white;">-->
+    @*<span class="info-box-icon" style="        font-size: 35px;
+        font-weight: 1000;">RS</span>*@
+    <!--<div class="info-box-content">
+        <span class="info-box-text" style="font-size:20px;font-weight:900;">Pending GRN/StockIssue</span>
+        <span class="info-box-number" style="font-size:35px;"><span class="counter">@ViewBag.pendingGrn</span>/<span class="counter">@ViewBag.pendingStockReceive</span></span>
+    </div>-->
+    <!-- /.info-box-content -->
+    <!--</div>-->
+    <!-- /.info-box -->
+    <!--</div>-->
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card bg-white shadow-lg card-outline card-danger">
+            @(Html.Kendo().Chart<TwoMonthSaleVM>()
+.Name("chart1")
+.Title("Cash Sale Monthly Comparison")
+.Legend(legend => legend
+    .Position(ChartLegendPosition.Top)
+)
+.ChartArea(chartArea => chartArea
+.Background("transparent")
+)
+//.DataSource(ds => ds.Read(read => read.Action("GetTwoMonthSale", "DashBoard").Data("GetLocationId")))
+.Series(series =>
+{
+    series.Line(model => model.PSale).Name("Previous Month Sale").CategoryField("Day");
+    series.Line(model => model.CSale).Name("Current Month Sale").CategoryField("Day");
+    series.Line(model => model.PYSale).Name("Previous Year This Month").CategoryField("Day");
+})
+.CategoryAxis(axis => axis
+    .Labels(labels => labels.Rotation(-90))
+
+    .Crosshair(c => c.Visible(true))
+)
+.Tooltip(tooltip => tooltip
+.Visible(true)
+.Shared(true)
+.Format("{0:N0}")
+)
+            )
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-white shadow-lg card-outline card-danger">
+            @(Html.Kendo().Chart<TwoMonthSaleVM>()
+.Name("chart2")
+.Title("Installment Sale Monthly Comparison")
+
+.Legend(legend => legend
+    .Position(ChartLegendPosition.Top)
+)
+.ChartArea(chartArea => chartArea
+.Background("transparent")
+)
+
+//.DataSource(ds => ds.Read(read => read.Action("GetTwoMonthInstSale", "DashBoard").Data("GetLocationId")))
+.Series(series =>
+{
+    series.Line(model => model.PSale).Name("Previous Month Sale").CategoryField("Day");
+    series.Line(model => model.CSale).Name("Current Month Sale").CategoryField("Day");
+    series.Line(model => model.PYSale).Name("Previous Year This Month").CategoryField("Day");
+})
+.CategoryAxis(axis => axis
+    .Labels(labels => labels.Rotation(-90))
+
+    .Crosshair(c => c.Visible(true))
+)
+.Tooltip(tooltip => tooltip
+.Visible(true)
+.Shared(true)
+.Format("{0:N0}")
+)
+            )
+        </div>
+    </div>
+    </div>
+<script src="~/Scripts/waypoints.min.js"></script>
+<script src="~/Scripts/jquery.counterup.min.js"></script>
+
+<script>
+    jQuery(document).ready(function ($) {
+        setInterval(function () {
+            statusChange();
+        }, 300000);
+        //$('.nav-link').click();
+    });
+
+    function statusChange() {
+        var LocId = $('#LocId').data('kendoMultiColumnComboBox').value() || 0;
+        var dat = { "LocId": LocId };
+        $.ajax({
+            url: '/DashBoard/GetHDashboard',
+            type: 'POST',
+            data: JSON.stringify(dat),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                $('#chart1').data('kendoChart').dataSource.data(data.tmCashSale);
+                $('#chart2').data('kendoChart').dataSource.data(data.tmInstSale);
+                $('#tdCashSale').text(data.tdCashSale);
+                $('#tdInstSale').text(data.tdInstSale);
+                $('#mnCashSale').text(data.mnCashSale);
+                $('#mnInstSale').text(data.mnInstSale);
+                $('#recovery').text(data.recovery);
+                $('.counter').counterUp({
+                    delay: 10,
+                    time: 1000
+                });
+            },
+            error: function () {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content("Error");
+                dia.open();
+            }
+        });
+    }
+
+        //function GetLocationId() {
+        //    return {
+        //        LocID: 60
+        //    }
+        //}
+</script>

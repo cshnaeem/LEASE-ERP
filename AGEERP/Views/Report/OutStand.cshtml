@@ -1,0 +1,276 @@
+﻿
+@{
+    ViewBag.Title = "Outstand";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Outstand</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Sale</a></li>
+                    <li class="breadcrumb-item active">Outstand</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+            @using (Html.BeginForm("OutStand", "Report", FormMethod.Post, new { target = "_blank" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Location")
+                        @(Html.Kendo()
+                        .MultiColumnComboBox()
+                        .Name("LocId")
+                        .Placeholder("Select Locations ...")
+                        .DataValueField("LocId")
+                        .DataTextField("LocName")
+                        .SelectedIndex(0)
+                        .Events(e => e.Change("laodOfficer").DataBound("laodOfficer"))
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("LocCode").Width("100px");
+                            columns.Add().Field("LocName").Width("200px");
+                        })
+                        .FilterFields(new string[] { "LocCode", "LocName" })
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Category")
+                        @(Html.Kendo().DropDownList().Name("Category")
+                .BindTo(new List<SelectListItem>
+                () {
+                    new SelectListItem() {
+                    Text = "All",
+                    Value = ""
+                    },
+                    new SelectListItem() {
+                    Text = "Fresh",
+                    Value = "F"
+                    },
+                    new SelectListItem() {
+                    Text = "Regular",
+                    Value = "R"
+                    }
+                })
+                .HtmlAttributes(new { @style = "width:100%" }))
+                    </div>
+                    <div class="col-md-3 col-sm-4 rpt1">
+                        @Html.Label("Status")
+                        @(Html.Kendo().DropDownList().Name("Status")
+                .BindTo(new List<SelectListItem>
+                () {
+                    new SelectListItem() {
+                    Text = "All",
+                    Value = ""
+                    },
+                    new SelectListItem() {
+                    Text = "Partial Only",
+                    Value = "P"
+                    }
+                })
+                .HtmlAttributes(new { @style = "width:100%" }))
+                    </div>
+                    <div class="col-md-3 col-sm-4 rpt1">
+                        @Html.Label("Type")
+                        @(Html.Kendo().DropDownList().Name("Assign")
+                .BindTo(new List<SelectListItem>
+                () {
+                    new SelectListItem() {
+                    Text = "All",
+                    Value = ""
+                    },
+                    new SelectListItem() {
+                    Text = "Assigned",
+                    Value = "A"
+                    },
+                    new SelectListItem() {
+                    Text = "Un-Assigned",
+                    Value = "U"
+                    }
+                })
+                .HtmlAttributes(new { @style = "width:100%" }))
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Report Type")
+                        @(Html.Kendo().DropDownList().Name("ReportType")
+                .BindTo(new List<SelectListItem>
+                () {
+                    new SelectListItem() {
+                    Text = "Recovery Wise",
+                    Value = "R"
+                    },
+                    new SelectListItem() {
+                    Text = "Inquiry Wise",
+                    Value = "I"
+                    }
+                    ,
+                    new SelectListItem() {
+                    Text = "Manager",
+                    Value = "M"
+                    }
+                })
+                .SelectedIndex(0)
+                .Events(e => e.Change("laodOfficer"))
+                .HtmlAttributes(new { @style = "width:100%" }))
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Recovery Officer", new { @Id = "recoff" })
+                        @(Html.Kendo()
+                .DropDownList()
+                .Name("RecoveryId")
+                .OptionLabel("All ...")
+                //.SelectedIndex(0)
+                .DataValueField("EmpId")
+                .DataTextField("EmpName")
+                .Filter(FilterType.Contains)
+                //.CascadeFrom("LocId")
+
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("EmpByRoleLoc", "Sale").Data("filterRecovery"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                    </div>     
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Month")
+                        @Html.Kendo().DatePicker().Name("Month").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                    <div class="col-md-3 col-sm-4 rpt2">
+                        @Html.Label("From Delivery Date")
+                        @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                    </div>
+                    <div class="col-md-3 col-sm-4 rpt2">
+                        @Html.Label("To Delivery Date")
+                        @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                    </div>
+
+                </div>
+                <div class="row rpt1">
+                    <div class="col-md-12 col-sm-12">
+                        @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Landscape")
+                            .Name("IsLandscape")
+                            .Checked(false)
+                                )
+                        @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Product")
+                            .Name("IsProduct")
+                            .Checked(false)
+                                )
+                        @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Guarantor")
+                            .Name("IsGuarantor")
+                            .Checked(false)
+                                )
+                        @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Marketing")
+                            .Name("IsMarketing")
+                            .Checked(false)
+                                )
+                        @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Address")
+                            .Name("IsAddress")
+                            .Checked(false)
+                                )
+                        @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Recovery/Inquiry")
+                            .Name("IsRecInq")
+                            .Checked(false)
+                                )
+                        @*@(Html.Kendo()
+                            .CheckBox()
+                            .Label("Specific Date")
+                            .Name("SpecDate")
+                            .Checked(false)
+                                )*@
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        @Html.Kendo().RadioButton().Name("rpt").Label("Outstand Report").Value("1").Checked(true)<br />
+                        @Html.Kendo().RadioButton().Name("rpt").Label("Remaining Outstand Report").Value("2")<br />
+                    </div>
+                    <div class="col-md-3">
+                        <br />
+                        <button class="k-button margin-10" type="submit">
+                            <i class="fas fa-print"></i>&nbsp; Show
+                        </button>
+                    </div>
+                    <div class="col-md-3"></div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        if ($('input[type=radio][name=rpt]').val() == '1') {
+            $(".rpt1").css("display", "block");
+            $(".rpt2").css("display", "none");
+        }
+        else {
+            $(".rpt2").css("display", "block");
+            $(".rpt1").css("display", "none");
+        }
+        $('input[type=radio][name=rpt]').change(function () {
+            if (this.value == '1') {
+                $(".rpt1").css("display", "block");
+                $(".rpt2").css("display", "none");
+            }
+            else {
+                $(".rpt2").css("display", "block");
+                $(".rpt1").css("display", "none");
+            }
+        });
+    });
+    function filterRecovery() {
+        var rec = $('#ReportType').val();
+        return {
+            LocId: $('#LocId').val(),
+            RoleId: rec == "R" ? 3 : rec == "I" ? 2 : 4
+        }
+    }
+    function filterOutStand() {
+        return {
+            LocId: $('#LocId').val(),
+            Category: $('#Category').val(),
+            Status: $('#Status').val(),
+            Assign: $('#Assign').val()
+        }
+    }
+    function laodOfficer() {
+        $('#recoff').text($('#ReportType').val() == "R" ? "Recovery Officer" : $('#ReportType').val() == "I" ? "Inquiry Officer" : "Manager");
+        $('#RecoveryId').data('kendoDropDownList').dataSource.read();
+    }
+    //$('#SpecDate').click(function () {
+    //    if (this.checked) {
+    //        $("#Month").data('kendoDatePicker').enable(true);
+    //    }
+    //    else {
+    //        var currentDaet = kendo.toString(kendo.parseDate(new Date()), 'MM/dd/yyyy');
+    //        $("#Month").data("kendoDatePicker").value(currentDaet);
+    //        $("#Month").data('kendoDatePicker').enable(false);
+    //    } 
+    //});
+    </script>

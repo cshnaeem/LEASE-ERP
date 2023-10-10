@@ -1,0 +1,103 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "SystemIntegration";
+}
+
+<div class="col s12 m12 l12">
+    <div class="card card card-default scrollspy">
+        <div class="card-content">
+            <h4 class="card-title">SystemIntegration</h4>
+            @(Html.Kendo()
+            .Grid<SystemIntegrationVM>()
+            .Name("gridSystemIntegration")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.TransId).Filterable(false).Hidden();
+                columns.Bound(c => c.TransDescription).Title("Description");
+                columns.Bound(c => c.GLCode);
+                columns.Command(c => { c.Edit(); c.Destroy(); }).Width(250);
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .ToolBar(t => { t.Create(); t.Search(); })
+            .Search(s => { s.Field(a => a.TransDescription); s.Field(a => a.GLCode); })
+            .Editable(e => e.Mode(GridEditMode.InLine))
+            .HtmlAttributes(new { style = "height:400px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(20)
+            .Events(e => e.Error("error_handler"))
+            .Model(model =>
+            {
+                model.Id(m => m.TransId);
+                model.Field(f => f.TransDescription).Editable(false);
+            })
+            .Read(read => read.Action("SystemIntegration_Read", "Account"))
+            .Create(create => create.Action("SystemIntegration_Create", "Account"))
+            .Update(update => update.Action("SystemIntegration_Update", "Account"))
+            .Destroy(update => update.Action("SystemIntegration_Destroy", "Account"))
+            ))
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var gridElement = $("#gridSystemIntegration");
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_10000000').addClass('active');
+        //$('#d_10000000').css("display", "block");
+        //$('#m_10010000').addClass('active');
+        //$('#d_10010000').css("display", "block");
+        //$('#m_10010200').addClass('active');
+        //$('#a_10010200').addClass('active');
+    })
+
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridSystemIntegration").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+     function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message.indexOf("Saved") > -1) {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Success");
+                dia.content(message);
+                dia.open();
+                ClearAll();
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+</script>

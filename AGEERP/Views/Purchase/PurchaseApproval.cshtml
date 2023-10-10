@@ -1,0 +1,252 @@
+﻿@using AGEERP.Models
+@{
+    if (ViewBag.Level == "V")
+    {
+        ViewBag.Title = "POI Validation";
+    }
+    else
+    {
+        ViewBag.Title = "POI Approval";
+    }
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">@ViewBag.Title</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">@ViewBag.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @(Html.Kendo()
+                   .Grid<OrderSearchVM>()
+                   .Name("gridPurchaseApproval")
+                   .Mobile()
+                   .Columns(columns =>
+                   {
+                       columns.Bound(c => c.POId).Hidden();
+                       columns.Bound(c => c.PONo).Width(130).Title("InvNo").Filterable(f => f.Multi(true).Search(true));
+                       columns.Bound(c => c.SuppName).Title("Supplier").Width(250).Filterable(f => f.Multi(true).Search(true));
+                       columns.Bound(c => c.PODate).Format("{0: dd/MM/yyyy}").Width(110).Filterable(f => f.Multi(true).Search(true));
+                       columns.Bound(c => c.DeliveryDate).Format("{0: dd/MM/yyyy}").Width(110).Filterable(f => f.Multi(true).Search(true));
+                       columns.Bound(c => c.FullName).Title("Order By").Filterable(f => f.Multi(true).Search(true)).Width(100);
+                       if (ViewBag.Level == "A")
+                           columns.Bound(c => c.ValidateBy).Filterable(f => f.Multi(true).Search(true)).Width(90);
+                       columns.Command(c => c.Custom("Detail").Click("PrintPurchase")).Width(90);
+                       if (ViewBag.Level == "V")
+                           columns.Command(c => c.Custom("Validate").Click("Validate")).Width(90);
+                       else
+                           columns.Command(c => c.Custom("Approve").Click("Approve")).Width(90);
+                       //columns.Command(c => c.Custom("Revoke").Click("Revoke").Visible("checkRev")).Width(90);
+                   })
+                   .Sortable()
+                   .Pageable()
+                   .Scrollable()
+                   .Filterable()
+                   //.AutoBind(false)
+                   .Navigatable()
+                   .HtmlAttributes(new { style = "height:300px;font-size:12px;" })
+                   .Editable(GridEditMode.InLine)
+                   .Events(e => e.DataBound("setColor"))
+                   .DataSource(dataSource => dataSource
+                   .Ajax()
+                   .PageSize(100)
+
+                   .Model(model =>
+                   {
+                       model.Id(m => m.POId);
+                   })
+                   .Read(read => read.Action("PurchaseApproval_Read", "Purchase").Data("filterPurchaseApproval"))
+                   .Create(create => create.Action("City_Create", "Setup"))
+                   .Update(update => update.Action("PurchaseApproval_Destroy", "Purchase").Data("filterPurchaseApproval"))
+                   .Destroy(read => read.Action("PurchaseApproval_Destroy", "Purchase").Data("filterPurchaseApproval"))
+                   ))
+    </div>
+</div>
+
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<div id="modalWindow">
+    <h4>Do you want to proceed this Purchase?</h4>
+    <button id="yes" class="k-button">Yes</button>
+    <button id="no" class="k-button">No</button>
+</div>
+<script>
+    var level = '@ViewBag.Level';
+    var wnd;
+    $(document).ready(function () {
+        //$('#m_12000000').addClass('active');
+        //$('#d_12000000').css("display", "block");
+        //if (level == "V") {
+        //    $('#m_12110000').addClass('active');
+        //    $('#a_12110000').addClass('active');
+        //}
+        //else {
+        //    $('#m_12120000').addClass('active');
+        //    $('#a_12120000').addClass('active');
+        //}
+        resizeGrid();
+        wnd = $("#modalWindow").kendoWindow({
+                        title: "Confirmation",
+                        modal: true,
+                        visible: false,
+                        resizable: false,
+                        width: 300
+                    }).data("kendoWindow");
+    });
+    var gridElement = $("#gridPurchaseApproval");
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridPurchaseApproval").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    function checkRev(e) {
+        if (e.Status == "R") {
+            return false
+        }
+        else {
+            return true;
+        }
+    }
+    function setColor(e) {
+        var rows = e.sender.tbody.children();
+        for (var j = 0; j < rows.length; j++) {
+            var row = $(rows[j]);
+            var dataItem = e.sender.dataItem(row);
+            var status = dataItem.get("Status");
+            if (status == "R") {
+                row.addClass("revoked");
+            }
+        }
+    }
+    function Validate(e) {
+        e.preventDefault();
+        var grid = this;
+        var row = $(e.currentTarget).closest("tr");
+        var data = this.dataItem(row);
+        wnd.center().open();
+        $("#yes").click(function () {
+            data.Status = "V";
+            console.log(data);
+            grid.dataSource.remove(data);
+            grid.dataSource.sync();
+            wnd.close();
+        });
+        $("#no").click(function () {
+            wnd.close();
+        });
+    }
+    function Approve(e) {
+        e.preventDefault();
+        var grid = this;
+        var row = $(e.currentTarget).closest("tr");
+        var data = this.dataItem(row);
+        wnd.center().open();
+        $("#yes").click(function () {
+            data.Status = "A";
+            grid.dataSource.remove(data);
+            grid.dataSource.sync();
+            wnd.close();
+        });
+        $("#no").click(function () {
+            wnd.close();
+        });
+    }
+    function Revoke(e) {
+        e.preventDefault();
+        var grid = this;
+        var row = $(e.currentTarget).closest("tr");
+        var data = this.dataItem(row);
+        //console.log(e);
+        //console.log(row);
+        //console.log(data);
+
+        wnd.center().open();
+        $("#yes").click(function () {
+            data.Status = "R";
+            //if (level == "A") {
+                grid.dataSource.remove(data);
+            //}
+            //else {
+                //data.dirty = true;
+                //row.addClass("revoked");
+            //}
+            grid.dataSource.sync();
+            wnd.close();
+        });
+        $("#no").click(function () {
+            wnd.close();
+        });
+    }
+    //function Validate(e) {  //add a click event listener on the delete button
+    //    e.preventDefault(); //prevent page scroll reset
+    //    var tr = $(e.target).closest("tr"); //get the row for deletion
+    //    var data = this.dataItem(tr); //get the row data so it can be referred later
+    //    wnd.content(windowTemplate(data)); //send the row data object to the template and render it
+    //    wnd.center().open();
+
+    //    $("#yesButton").click(function () {
+    //        grid.dataSource.remove(data)  //prepare a "destroy" request
+    //        grid.dataSource.sync()  //actually send the request (might be ommited if the autoSync option is enabled in the dataSource)
+    //        wnd.close();
+    //    })
+    //    $("#noButton").click(function () {
+    //        wnd.close();
+    //    })
+    //}
+    function filterPurchaseApproval() {
+        return {
+            Level: '@ViewBag.Level'
+        }
+    }
+    function loadGrid() {
+        $("#gridPurchaseApproval").data("kendoGrid").dataSource.read();
+    }
+    function PrintPurchase(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        //console.log(dataItem);
+        //window.open('/Sale/Guarantor/', '_blank');
+
+        $("#rpt").val("POInvoice");
+        $("#TransId").val(dataItem.POId);
+        $("#rptForm").submit();
+        //$.ajax({
+        //    url: "/Report/PrintPO",
+        //    type: 'POST',
+        //    cache: false,
+        //    contentType: false,
+        //    processData: false,
+        //    data: formData,
+        //    success: function (response) {
+        //        alert(response);
+        //    }
+        //});
+    }
+    //function PrintSlip() {
+    //    e.preventDefault();
+    //    var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+    //    console.log(dataItem);
+    //    window.open('/Sale/Guarantor/' + dataItem.AccNo, '_blank');
+
+
+    //}
+</script>
+<style>
+    .revoked {
+        color: #f00;
+    }
+</style>

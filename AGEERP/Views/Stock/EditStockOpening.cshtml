@@ -1,0 +1,270 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Edit Stock Opening";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Edit Stock Opening</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Stock</a></li>
+                    <li class="breadcrumb-item active">Edit Stock Opening</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        <div class="row">
+            <div class="col-md-6 col-sm-6">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("150px");
+                        columns.Add().Field("LocName");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("LocationList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                .Events(e =>
+                {
+                    e.Change("LoadGrid");
+                })
+                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="postStock()">
+                    <i class="fas fa-arrow-right"></i>&nbsp; Post To Stock
+                </button>
+            </div>
+            <div class="col-md-3 col-xs-12">
+                <label>Select File to Import</label>
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control importfile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Select File" aria-describedby="basic-addon1">
+                    <div class="input-group-append">
+                        <button class="btn btn-info btnLoadFile k-button" type="button">LOAD FILE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            @(Html.Kendo()
+        .Grid<Inv_OpeningStockVM>()
+        .Name("gridEditStockOpening")
+        .Columns(columns =>
+        {
+            columns.Select().Width(50);
+            columns.Bound(c => c.RowId).Hidden(true);
+            columns.ForeignKey(c => c.SuppId, (System.Collections.IEnumerable)ViewData["SuppVD"], "SuppId", "SuppName").Title("Supplier");
+            columns.ForeignKey(c => c.SKUId, (System.Collections.IEnumerable)ViewData["SKUVD"], "SKUId", "SKUName").Title("SKU");
+            //columns.Bound(c => c.SuppId);
+            //columns.Bound(c => c.SKUId);
+            columns.Bound(c => c.SerialNo);
+            columns.Bound(c => c.PPrice).Title("Purchase Price");
+            columns.Bound(c => c.MRP);
+            columns.Bound(c => c.Tax).Title("TaxRate");
+            columns.Bound(c => c.Exempted).ClientTemplate("#= Exempted ? 'Yes' : 'No' #");
+            columns.Bound(c => c.Remarks);
+        })
+        .Sortable()
+        .ToolBar(t =>
+        {
+            t.Excel();
+            t.Save();
+        })
+        //.Pageable()
+        .Filterable(f => f.Mode(GridFilterMode.Row).Extra(false).Operators(a => a.ForString(b => { b.Clear(); b.Contains("Contains"); })))
+            .Scrollable()
+            .AutoBind(false)
+            .Navigatable()
+            //.ToolBar(t => t.Save())
+            .Editable(e => e.Mode(GridEditMode.InCell))
+            //.Events(e => e.SaveChanges("onSaveChanges"))
+            .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .Batch(true)
+            .ServerOperation(false)
+            //.AutoSync(true)
+            .Events(e => e.Error("error_handler"))
+            //.PageSize(100)
+            .Model(model =>
+            {
+                model.Id(m => m.RowId);
+            })
+            .Read(read => read.Action("StockOpening_Read", "Stock").Data("LoadOpeningStock"))
+            .Update(create => create.Action("StockOpening_Update", "Stock"))
+            ))
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="~/scripts/xlsx.full.min.js"></script>
+<script type="text/javascript" src="~/scripts/jszip.js"></script>
+<script>
+    function LoadOpeningStock() {
+        return {
+            LocId: $('#LocId').val() || 0
+        }
+    }
+    $(".btnLoadFile").click(function () {
+        var fileUpload = $(".importfile")[0];
+        var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+        if (regex.test(fileUpload.value.toLowerCase())) {
+            if (typeof (FileReader) != "undefined") {
+                var reader = new FileReader();
+                if (reader.readAsBinaryString) {
+                    reader.onload = function (e) {
+                        ProcessExcel(e.target.result);
+                    };
+                    reader.readAsBinaryString(fileUpload.files[0]);
+                } else {
+                    reader.onload = function (e) {
+                        var data = "";
+                        var bytes = new Uint8Array(e.target.result);
+                        for (var i = 0; i < bytes.byteLength; i++) {
+                            data += String.fromCharCode(bytes[i]);
+                        }
+                        ProcessExcel(data);
+                    };
+                    reader.readAsArrayBuffer(fileUpload.files[0]);
+                }
+            } else {
+                $(".btnLoadFile").html("LOAD FILE");
+                alert('This browser does not support HTML5.');
+            }
+        } else {
+            $(".btnLoadFile").html("LOAD FILE");
+            alert('Please upload a valid Excel file.');
+        }
+    });
+    function ProcessExcel(data) {
+        var workbook = XLSX.read(data, {
+            type: 'binary'
+        });
+        var firstSheet = workbook.SheetNames[0];
+        var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+        var lst = $("#gridEditStockOpening").data('kendoGrid').dataSource.data();
+        for (var i = 0; i < excelRows.length; i++) {
+        
+            var serial = typeof excelRows[i]["Serial No"] === 'undefined' ? "" : excelRows[i]["Serial No"];
+            for (var a = 0; a < lst.length; a++) {
+                if (lst[a].SerialNo == serial) {
+                    debugger;
+                    console.log(lst[a]);
+                    var PPrice = typeof excelRows[i]["Purchase Price"] === 'undefined' ? "" : excelRows[i]["Purchase Price"];
+                    var MRP = typeof excelRows[i]["MRP"] === 'undefined' ? "" : excelRows[i]["MRP"];
+                    var Tax = typeof excelRows[i]["TaxRate"] === 'undefined' ? "" : excelRows[i]["TaxRate"];
+                    var Exempted = typeof excelRows[i]["Exempted"] === 'undefined' ? "" : excelRows[i]["Exempted"];
+                    if (PPrice != "") {
+                        lst[a].PPrice = PPrice;
+                    }
+                    if (MRP != "") {
+                        lst[a].MRP = MRP;
+                    }
+                    if (Tax != "") {
+                        lst[a].Tax = Tax;
+                    }
+                    if (Exempted == "TRUE") {
+                        lst[a].Exempted = true;
+                    }
+                    else if (Exempted == "FALSE") {
+                        lst[a].Exempted = false;
+                    }
+                    lst[a].set("dirtyFields", { PPrice: true });
+                    break;
+                }
+            }
+        }
+        $("#gridEditStockOpening").data('kendoGrid').dataSource.data(lst);
+        //$("#gridEditStockOpening").data('kendoGrid').dataSource.sync();
+    }
+    function LoadGrid() {
+        $("#gridEditStockOpening").data("kendoGrid").dataSource.read();
+    }
+    function onSaveChanges(e) {
+        var dat = $("#gridEditStockOpening").data("kendoGrid").dataSource.data();
+        if (dat.length == 0) {
+            alert("Nothing to Save");
+            e.preventDefault();
+            return;
+        }
+        if (!confirm("Are you sure that you want to proceed?")) {
+            e.preventDefault();
+            return;
+        }
+    }
+    function postStock() {
+        var dat = $("#gridEditStockOpening").data("kendoGrid").dataSource.data();
+        if (dat.length == 0) {
+            alert("Nothing to Save");
+            e.preventDefault();
+            return;
+        }
+        if (!confirm("Are you sure that you want to proceed?")) {
+            e.preventDefault();
+            return;
+        }
+
+        var locId = $('#LocId').val();
+        var TransLst = $('#gridEditStockOpening').data('kendoGrid').selectedKeyNames();
+        var dat = { "TransLst": TransLst };
+        $.ajax({
+            url: "/Stock/PostOpeningStock",
+            type: 'POST',
+            async: false,
+            data: JSON.stringify(dat),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                if (data != null) {
+                    LoadGrid();
+                    kendo.alert("Save Successfully");
+                }
+            }
+        });
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message.indexOf("Saved") > -1) {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Success");
+                dia.content(message);
+                dia.open();
+                LoadGrid();
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+</script>

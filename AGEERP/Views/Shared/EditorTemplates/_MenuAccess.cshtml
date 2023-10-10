@@ -1,0 +1,51 @@
+﻿@using AGEERP.Models
+@model MobileMenuAccessVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+
+@Html.AntiForgeryToken()
+@Html.ValidationSummary(true)
+@Html.HiddenFor(m => m.RowId)
+<div class="row">
+    <div class="col-md-6" style="margin:10px">
+   
+       @Html.Label("Activity")
+        @(Html.Kendo().MultiSelectFor(x => x.ActivityIds)
+          .Name("ActivityIds")
+          .HtmlAttributes(new { style = "width:100%" })
+          .DataTextField("ActivityTitle")
+          .DataValueField("ActivityId")
+          .Filter(FilterType.Contains)
+          .ValuePrimitive(true)
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("MobileMenuObjectList", "Security");
+              });
+          })
+        )
+     
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Group")
+        @(Html.Kendo().DropDownListFor(x => x.GroupId)
+                            .OptionLabel("Select Group")
+                            .DataValueField("GroupId")
+                            .DataTextField("GroupName")
+                            .DataSource(ds =>
+                            {
+                                ds.Read(read => read.Action("GetGroups", "Security"));
+                            })
+                            .HtmlAttributes(new { @style = "width:100%",@disabled="disabled" }))
+    </div>
+
+</div>
+
+

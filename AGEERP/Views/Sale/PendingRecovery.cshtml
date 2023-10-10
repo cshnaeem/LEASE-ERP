@@ -1,0 +1,227 @@
+﻿@using AGEERP.Models
+@model PendingRecoveryVM
+@{
+    ViewBag.Title = "Pending Recovery";
+}
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<style>
+    .box-approval {
+        border: 1px solid #b5b5b5 !important;
+        margin: 20px !important;
+        padding: 20px !important;
+    }
+</style>
+
+@using (Ajax.BeginForm("PendingRecovery", "Sale", new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(x => x.InstId,new { id = "InstId" })
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Pending Recovery</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Sale</a></li>
+                        <li class="breadcrumb-item active">Pending Recovery</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+
+
+            <div class="col-sm-12 ">
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Location")
+                        @(Html.Kendo()
+                        .MultiColumnComboBox()
+                            .Name("LocId")
+                            //.Placeholder("Select Locations ...")
+                            .DataValueField("LocId")
+                            .DataTextField("LocName")
+                            .SelectedIndex(0)
+                            .Columns(columns =>
+                            {
+                                columns.Add().Field("LocCode").Width("100px");
+                                columns.Add().Field("LocName").Width("200px");
+                            })
+                            .FilterFields(new string[] { "LocCode", "LocName" })
+                            .Filter(FilterType.Contains)
+                        .Events(e => e.Change("locChange"))
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%",@required = true })
+                        )
+                    </div>
+
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("AccNo")
+                        @(Html.Kendo()
+                        .MultiColumnComboBox()
+                        .Name("AccNo")
+                        .DataTextField("AccNo")
+                        .DataValueField("AccNo")
+                        .Events(e => e.Change("GetAccountInfo"))
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("AccNo").Width("100px");
+                            columns.Add().Field("CustName").Width("200px");
+                            columns.Add().Field("InstDate").Width("150px");
+                            columns.Add().Field("InstId").Title("RecvNo").Width("100px");
+                        })
+                            .Suggest(true)
+                            .Filter(FilterType.Contains)
+                            .FilterFields(new string[] { "AccNo", "CustName", "InstDate" })
+                            .DataSource(dataSource =>
+                            {
+                                dataSource.Read(read => read.Action("ProceesingListVoucher", "Sale").Data("filterAcc"));
+                            })
+                            .IgnoreCase(true)
+                            .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Name")
+                        @Html.Kendo().TextBox().Name("AccName").HtmlAttributes(new { @style = "width:100%", @required = "required", @disabled = "disabled" })
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Mobile")
+                        @Html.Kendo().TextBox().Name("MobileNumber").HtmlAttributes(new { @style = "width:100%", @required = "required", @disabled = "disabled" })
+                    </div>
+                    
+
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("CNIC")
+                        @Html.Kendo().TextBox().Name("CNIC").HtmlAttributes(new { @style = "width:100%", @required = "required", @disabled = "disabled" })
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Amount To Be Paid")
+                        @Html.Kendo().NumericTextBoxFor(x => x.RemaningAmt).Name("RemaningAmt").HtmlAttributes(new { @style = "width:100%", @required = "required", @disabled = "disabled" })
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Amount Paid")
+                        @Html.Kendo().NumericTextBoxFor(x => x.PaidAmt).Name("PaidAmt").HtmlAttributes(new { @style = "width:100%", @required = "required" })
+                    </div>
+                    @*<div class="col-md-3 col-sm-4">
+
+                        <input type="hidden" id="InstId" name="InstId" value="@Model.InstId" />
+                    </div>*@
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="card-footer">
+            <input class="k-button float-right" onclick="SaveDoc()" value="Save Changes" />
+        </div>
+    </div>
+}
+
+
+
+@section scripts
+{
+
+    <script>
+        var validator = $("#frm").kendoValidator().data("kendoValidator");
+        function SaveDoc() {
+            if (!validator.validate()) {
+                
+                return;
+            }
+            var instId = $('#InstId').val();
+            if (instId == 0) {
+                kendo.alert("Please Select Account");
+                return;
+            }
+            var paid = $('#PaidAmt').data('kendoNumericTextBox').value() || 0;
+            if (paid == 0) {
+                
+                kendo.alert("Please enter Paid Amount");
+                return;
+            }
+            var rem = $('#RemaningAmt').data('kendoNumericTextBox').value() || 0;
+            if (paid > rem) {
+                
+                kendo.alert("Amount Exceeded");
+                return;
+            }
+            if (confirm("Do you want to save?")) {
+                $('#frm').submit();
+            }
+            
+        }
+        function resetAll() {
+            $('#AccName').val('');
+            $('#MobileNumber').val('');
+            $('#CNIC').val('');
+            $('#PaidAmt').data('kendoNumericTextBox').value(0);
+            $('#RemaningAmt').data('kendoNumericTextBox').value(0);
+            $('#InstId').val(0);
+        }
+        function OnSave(result) {
+            var dia = $("#msgBox").data("kendoDialog");
+            if (result == true) {
+                dia.title("Msg");
+                dia.content("Save Successfully");
+                dia.open();
+                resetAll();
+                $('#AccNo').val(0);
+
+            }
+            else {
+                dia.title("Error");
+                dia.content("Not Save Successfully");
+                dia.open();
+            }
+        }
+        function locChange() {
+            $('#AccNo').data('kendoMultiColumnComboBox').dataSource.read();
+
+        }
+         function filterAcc() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+        function GetAccountInfo() {
+            var inst = $('#AccNo').data('kendoMultiColumnComboBox').dataItem();
+            if (inst != null) {
+                $.ajax({
+                    type: "POST",
+                    data: { InstId: inst.InstId },
+                    url: "/Sale/GetAccountInfo",
+                    success: function (msg) {
+                        if (msg.AccName) {
+                            if (msg.RemaningAmt > 0) {
+                                $('#AccName').val(msg.AccName);
+                                $('#MobileNumber').val(msg.MobileNumber);
+                                $('#CNIC').val(msg.CNIC);
+                                $('#RemaningAmt').data('kendoNumericTextBox').value(msg.RemaningAmt);
+                                $('#InstId').val(msg.InstId);
+                                $('#PaidAmt').data('kendoNumericTextBox').value(0);
+                                $('#PaidAmt').data('kendoNumericTextBox').max(msg.RemaningAmt);
+                            }
+                            else {
+                                alert('Installment Already Paid Full');
+                            }
+                        } else {
+                            alert('Account # not found');
+                        }
+                    }
+                });
+            }
+            else {
+                resetAll();
+            }
+        }
+    </script>
+
+}

@@ -1,0 +1,127 @@
+﻿@model IEnumerable<AGEERP.Models.UserMenuInfo>
+@{
+    ViewBag.Title = "Purchase";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ProAsset = Model.Where(it => it.Menu2 == 39).OrderBy(it => it.SortOrder).ToList();
+    var ProStp = Model.Where(it => it.Menu2 == 38).OrderBy(it => it.SortOrder).ToList();
+    var ProFrm = Model.Where(it => it.Menu2 == 37).OrderBy(it => it.SortOrder).ToList();
+    var ProRpt = Model.Where(it => it.Menu2 == 40).OrderBy(it => it.SortOrder).ToList();
+}
+<div class="row">
+    @if (ProStp.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Procurement Setup
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in ProStp)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (ProFrm.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Procurement Forms
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in ProFrm)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (ProAsset.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Assets
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in ProAsset)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (ProRpt.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Reports
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in ProRpt)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+</div>

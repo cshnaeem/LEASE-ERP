@@ -1,0 +1,156 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "CustomerEditingRights";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Customer Editing Rights</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Customer Editing Rights</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("LocId")
+                .Placeholder("Select Locations ...")
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                .SelectedIndex(0)
+                .Columns(columns =>
+                {
+                    columns.Add().Field("LocCode").Width("100px");
+                    columns.Add().Field("LocName").Width("200px");
+                })
+                .FilterFields(new string[] { "LocCode", "LocName" })
+                .Filter(FilterType.Contains)
+                .Events(e => e.Change("LoadGrid"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                )
+            </div>
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Account #")
+                @(Html.Kendo()
+                    .MultiSelect()
+                    .Name("AccNo")
+                    .DataValueField("AccNo")
+                    .DataTextField("AccNo")
+                    .ValuePrimitive(true)
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("CER_Read", "Sale").Data("GetData"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @class = "browser-default" })
+                )
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <a class="k-button margin-10" onclick="Assign()"><i class="fas fa-check"></i>&nbsp; Assign</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-xs-12">
+
+                @(Html.Kendo().Grid<LSECERVM>()
+                                .Name("lsecer")
+                                .Columns(columns =>
+                                    {
+                                        columns.Bound(p => p.AccNo).Title("Acc #");
+                                        columns.Bound(p => p.Customer);
+                                        columns.Command(c => { c.Destroy(); }).Width(100);
+
+                                    })
+                                .Pageable()
+                                .Sortable()
+                                .PersistSelection()
+                                .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .Model(model =>
+                                     {
+                                         model.Id(m => m.AccNo);
+                                         model.Field(m => m.AccNo).Editable(false);
+                                         model.Field(m => m.Status).Editable(true);
+                                     })
+                                         .Read(read => read.Action("CERData_Read", "Sale").Data("GetData"))
+                                         .Destroy(create => create.Action("CER_Destroy", "Sale"))
+                                    ))
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script>
+
+    $(document).ready(function () {
+        //$('#m_18000000').addClass('active');
+        //$('#d_18000000').css("display", "block");
+        //$('#m_18010000').addClass('active');
+        //$('#d_18010000').css("display", "block");
+        //$('#m_18010600').addClass('active');
+        //$('#a_18010600').addClass('active');
+    });
+    function GetData() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+    function LoadGrid() {
+        $('#lsecer').data('kendoGrid').dataSource.read();
+        $('#AccNo').data('kendoMultiSelect').dataSource.read();
+    }
+    function Assign() {
+        $('.windows').show();
+        var selaccno = $('#AccNo').val();
+        var LocIdVal = $('#LocId').val();
+
+        debugger;
+
+           $.ajax({
+                type: "POST",
+                data: { mod: selaccno, LocId: LocIdVal },
+                url: "/Sale/CER_AddEdit",
+                success: function (msg) {
+                    $('.windows').hide();
+                    LoadGrid();
+                    $('#LocId').val('');
+                    $.confirm({
+                        title: 'Saved Successfully!',
+                        content: '',
+                        type: 'red',
+                        typeAnimated: true,
+                        icon: 'fas fa-check',
+                        buttons: {
+                            Ok: function () {
+                            }
+                        }
+                    });
+
+                }
+            });
+    }
+
+
+
+
+
+</script>
+

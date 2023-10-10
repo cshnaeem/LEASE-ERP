@@ -1,0 +1,74 @@
+﻿
+@{
+    ViewBag.Title = "MobileMenuTest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="content-header">
+
+        <div class="card-header">
+            <h3 class="card-title">City</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">City</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row" style="margin-bottom: 20px">
+            <div class="col-sm-4">
+                <div class="col-sm-4 p-t-5">
+                    <span>Select Type</span>
+                </div>
+                <div class="col-sm-8">
+                    @(Html.Kendo().DropDownList()
+              .Name("MenuId")
+              .DataTextField("ObjectName")
+              .DataValueField("MenuId")
+              .BindTo(ViewBag.MenuListVD)
+              .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <button onclick="StartMobileMenuTest()">Start</button>
+            <button onclick="StopMobileMenuTest()">Stop</button>
+            <button onclick="SaveMobileMenuTest()">Save</button>
+        </div>
+        @foreach (var v in AGEERP.Models.MenuObjectTest.Permissions)
+        {
+            <h3>@v.ActionLink</h3>
+        }
+    </div>
+    </div>
+    <script>
+        function SaveMobileMenuTest() {
+            var menuId = $('#MenuId').val();
+            $.getJSON("/Security/SaveMobileMenuTest", { "MenuId": menuId })
+                .done(function (d) {
+                    alert(d);
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Error');
+                });
+        }
+        function StartMobileMenuTest() {
+            $.getJSON("/Security/StartMobileMenuTest")
+                .done(function (d) {
+                    alert(d);
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Error');
+                });
+        }
+        function StopMobileMenuTest() {
+            $.getJSON("/Security/StopMobileMenuTest")
+                .done(function (d) {
+                    alert(d);
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Error');
+                });
+        }
+    </script>

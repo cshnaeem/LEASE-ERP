@@ -1,0 +1,290 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Sale Comparison";
+}
+
+    <div class="card ihead">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Sale Comparison Dashboards</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a>Dashboard</a></li>
+                        <li class="breadcrumb-item active">Sale Comparison Dashboards</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 col-sm-6">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+        .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    //.SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+        .DataSource(ds =>
+        {
+            ds.Read(read => read.Action("LocationList", "Setup"));
+        })
+        .HtmlAttributes(new { @style = "width:100%", @required = true })
+        )
+                </div>
+                <div class="col-md-6">
+                    <a onclick="RefreshChart()" class="k-button">Load Dashboard</a>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-md-6 DashboardDiv" style="display:none;">
+                    @(Html.Kendo().Chart<TwoMonthSaleVM>()
+            .Name("chart2")
+            .Title("Installment Sale Monthly Comparison")
+
+            .Legend(legend => legend
+                .Position(ChartLegendPosition.Top)
+            )
+            .ChartArea(chartArea => chartArea
+            .Background("transparent")
+            )
+            //.DataSource(ds => ds.Read(read => read.Action("GetTwoMonthInstSale", "DashBoard").Data("GetLocationId")))
+            .Series(series =>
+            {
+                series.Line(model => model.PSale).Name("Previous Inst Sale").CategoryField("Day");
+                series.Line(model => model.CSale).Name("Current Inst Sale").CategoryField("Day");
+            })
+            .CategoryAxis(axis => axis
+                .Labels(labels => labels.Rotation(-90))
+
+                .Crosshair(c => c.Visible(true))
+            )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Shared(true)
+            .Format("{0:N0}")
+        )
+        )
+                </div>
+                <div class="col-md-6 DashboardDiv" style="display:none;">
+                    @(Html.Kendo().Chart<TwoMonthSaleVM>()
+            .Name("chart5")
+            .Title("Installment Sale Yearly Comparison")
+            .Legend(legend => legend
+                .Position(ChartLegendPosition.Top)
+            )
+            .ChartArea(chartArea => chartArea
+            .Background("transparent")
+            )
+            //.DataSource(ds => ds.Read(read => read.Action("GetTwoYearInstSale", "DashBoard").Data("GetLocationId")))
+            .Series(series =>
+            {
+                series.Line(model => model.PSale).Name("Previous Inst").CategoryField("Day");
+                series.Line(model => model.CSale).Name("Current Inst").CategoryField("Day");
+            })
+        //.CategoryAxis(axis => axis
+        //    .Labels(labels => labels.Rotation(-90))
+
+        //    .Crosshair(c => c.Visible(true))
+        //)
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Shared(true)
+            .Format("{0:N0}")
+        )
+        )
+                </div>
+                <div class="col-md-6 DashboardDiv" style="display:none;">
+                    @(Html.Kendo().Chart<TwoMonthSaleVM>()
+            .Name("chart3")
+            .Title("Installment Monthly Comparison")
+            .Legend(legend => legend
+                .Position(ChartLegendPosition.Top)
+            )
+            .ChartArea(chartArea => chartArea
+            .Background("transparent")
+            )
+            //.DataSource(ds => ds.Read(read => read.Action("GetTwoMonthInst", "DashBoard").Data("GetLocationId")))
+            .Series(series =>
+            {
+                series.Line(model => model.PSale).Name("Previous Inst").CategoryField("Day");
+                series.Line(model => model.CSale).Name("Current Inst").CategoryField("Day");
+            })
+            .CategoryAxis(axis => axis
+                .Labels(labels => labels.Rotation(-90))
+
+                .Crosshair(c => c.Visible(true))
+            )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Shared(true)
+            .Format("{0:N0}")
+        )
+        )
+                </div>
+                <div class="col-md-6 DashboardDiv" style="display:none;">
+                    @(Html.Kendo().Chart<TwoMonthSaleVM>()
+            .Name("chart6")
+            .Title("Installment Yearly Comparison")
+            .Legend(legend => legend
+                .Position(ChartLegendPosition.Top)
+            )
+            .ChartArea(chartArea => chartArea
+            .Background("transparent")
+            )
+            //.DataSource(ds => ds.Read(read => read.Action("GetTwoYearInst", "DashBoard").Data("GetLocationId")))
+            .Series(series =>
+            {
+                series.Line(model => model.PSale).Name("Previous Inst").CategoryField("Day");
+                series.Line(model => model.CSale).Name("Current Inst").CategoryField("Day");
+            })
+        //.CategoryAxis(axis => axis
+        //    .Labels(labels => labels.Rotation(-90))
+
+        //    .Crosshair(c => c.Visible(true))
+        //)
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Shared(true)
+            .Format("{0:N0}")
+        )
+        )
+                </div>
+                <div class="col-md-6 DashboardDiv" style="display:none;">
+                    @(Html.Kendo().Chart<TwoMonthSaleVM>()
+            .Name("chart1")
+            .Title("Cash Sale Monthly Comparison")
+            .Legend(legend => legend
+                .Position(ChartLegendPosition.Top)
+            )
+            .ChartArea(chartArea => chartArea
+            .Background("transparent")
+            )
+            //.DataSource(ds => ds.Read(read => read.Action("GetTwoMonthSale", "DashBoard").Data("GetLocationId")))
+            .Series(series =>
+            {
+                series.Line(model => model.PSale).Name("Previous Sale").CategoryField("Day");
+                series.Line(model => model.CSale).Name("Current Sale").CategoryField("Day");
+            })
+            .CategoryAxis(axis => axis
+                .Labels(labels => labels.Rotation(-90))
+
+                .Crosshair(c => c.Visible(true))
+            )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Shared(true)
+            .Format("{0:N0}")
+        )
+        )
+                </div>
+                <div class="col-md-6 DashboardDiv" style="display:none;">
+                    @(Html.Kendo().Chart<TwoMonthSaleVM>()
+            .Name("chart4")
+            .Title("Cash Sale Yearly Comparison")
+            .Legend(legend => legend
+                .Position(ChartLegendPosition.Top)
+            )
+            .ChartArea(chartArea => chartArea
+            .Background("transparent")
+            )
+            //.DataSource(ds => ds.Read(read => read.Action("GetTwoYearSale", "DashBoard").Data("GetLocationId")))
+            .Series(series =>
+            {
+                series.Line(model => model.PSale).Name("Previous Inst").CategoryField("Day");
+                series.Line(model => model.CSale).Name("Current Inst").CategoryField("Day");
+            })
+        //.CategoryAxis(axis => axis
+        //    .Labels(labels => labels.Rotation(-90))
+
+        //    .Crosshair(c => c.Visible(true))
+        //)
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Shared(true)
+            .Format("{0:N0}")
+        )
+        )
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+            //function GetLocationId() {
+            //    return {
+            //        LocID: $('#LocId').val() || 0
+            //    }
+            //}
+            function RefreshChart() {
+                //$("#chart1").data("kendoChart").dataSource.read();
+                //$("#chart2").data("kendoChart").dataSource.read();
+                //$("#chart3").data("kendoChart").dataSource.read();
+                //$("#chart4").data("kendoChart").dataSource.read();
+                //$("#chart5").data("kendoChart").dataSource.read();
+                //$("#chart6").data("kendoChart").dataSource.read();
+
+                //instSaleMonth,
+                //    instMonth,
+                //    cashSaleMonth,
+                //    instSaleYear,
+                //    instYear,
+                //    cashSaleYear
+                
+                $('.DashboardDiv').css('display', 'block');
+                var LocId = $('#LocId').data('kendoMultiColumnComboBox').value() || 0;
+                var dat = { "LocId": LocId };
+                $.ajax({
+                    url: '/DashBoard/GetTwoMonthSale',
+                    type: 'POST',
+                    data: JSON.stringify(dat),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        setTimeout(
+                            function () {
+                                $('#chart2').data('kendoChart').dataSource.data(data.instSaleMonth);
+                                setTimeout(
+                                    function () {
+                                        $('#chart5').data('kendoChart').dataSource.data(data.instSaleYear);
+                                        setTimeout(
+                                            function () {
+                                                $('#chart3').data('kendoChart').dataSource.data(data.instMonth);
+                                                setTimeout(
+                                                    function () {
+                                                        $('#chart6').data('kendoChart').dataSource.data(data.instYear);
+                                                        setTimeout(
+                                                            function () {
+                                                                $('#chart1').data('kendoChart').dataSource.data(data.cashSaleMonth);
+                                                                setTimeout(
+                                                                    function () {
+                                                                        $('#chart4').data('kendoChart').dataSource.data(data.cashSaleYear);
+                                                                    }, 1000);
+                                                            }, 1000);
+                                                    }, 1000);
+                                            }, 1000);
+                                    }, 1000);
+                            }, 1000);
+                        
+                        
+                        
+                        
+                        
+                        
+                    },
+                    error: function () {
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content("Error");
+                        dia.open();
+                    }
+                });
+            }
+        </script>

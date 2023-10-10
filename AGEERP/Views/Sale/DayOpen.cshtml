@@ -1,0 +1,165 @@
+﻿
+@{
+    ViewBag.Title = "Day Open/Close";
+}
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Day Open/Close</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Day Open/Close</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+            @using (Ajax.BeginForm("DayOpen", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+            {
+                @Html.ValidationSummary()
+                @Html.Hidden("Status", "")
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Location")
+                        @(Html.Kendo()
+                        .MultiColumnComboBox()
+                    .Name("LocId")
+                    //.Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                        //.Enable(false)
+                        .Events(e => e.DataBound("LocChange"))
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%"})
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Working Date")
+                        @(Html.Kendo().DatePicker()
+                        .Name("WorkingDate")
+                        //.Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+                    @*<div class="col-md-3 col-sm-4">
+                        @Html.Label("OpeningCash")
+                        @(Html.Kendo().NumericTextBox().Name("OpeningCash")
+                        .Value(0)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+                    </div>*@
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Physical Closing Cash")
+                        @(Html.Kendo().NumericTextBox().Name("ClosingCash")
+                        .Value(0)
+                        .HtmlAttributes(new { @style = "width:100%" }))
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        <br />
+                        <button class="k-button margin-10" type="button" id="btnSave" onclick="SaveDoc()">
+                            <i class="fas fa-plus"></i>&nbsp; Save
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        //$('#m_19000000').addClass('active');
+        //$('#d_19000000').css("display", "block");
+        //$('#m_19060000').addClass('active');
+        //$('#a_19060000').addClass('active');
+        //kendo.ui.progress($('.card'), true);
+    });
+    function LocChange() {
+        var locId = $('#LocId').data('kendoMultiColumnComboBox').value() || 0;
+        kendo.ui.progress($('.card'), true);
+        $.ajax({
+            dataType: "json",
+            url: '/Sale/GetDayOpen?LocId=' + locId,
+            success: (function (data) {
+                console.log(data);
+
+                $('#WorkingDate').data('kendoDatePicker').value(data.WorkingDate);
+                //$('#OpeningCash').data('kendoNumericTextBox').value(data.OpeningCash);
+                //if (data.Status == "O") {
+                //    $('#OpeningCash').attr("readonly", false);
+                //    $('#title').text("Day Opening");
+                //    $('#Status').val(data.Status);
+                //}
+                //else
+                if (data.Status == "C") {
+                    //$('#OpeningCash').attr("readonly", true);
+                    $('#title').text("Day Closing");
+                    $('#Status').val(data.Status);
+                }
+                else if (data.Status == "A") {
+                    $('#title').text("Day Already Closing");
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Msg");
+                    dia.content("Day Already Closed");
+                    dia.open();
+                    $('#frm :input').prop("disabled", "disabled");
+                }
+                kendo.ui.progress($('.card'), false);
+            })
+        });
+    }
+    function SaveDoc() {
+        $.confirm({
+            title: 'Confirmation',
+            content: 'Are you sure that you want to proceed?',
+            buttons: {
+                confirm: function () {
+                    $('#frm').submit();
+                    kendo.ui.progress($('.card'), true);
+                },
+                cancel: function () {
+                }
+            }
+        });
+        //myconfirm("Confirmation", "Are you sure that you want to proceed?").then(function () {
+        //    kendo.ui.progress($('.card'), true);
+        //    $('#frm').submit();
+        //});
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+        if (result.TransId > 0) {
+            dia.title("Msg");
+            dia.content("Save Successfully");
+            dia.open();
+            $('#frm :input').prop("disabled", "disabled");
+            //myconfirm("Save Successfully", "Do you want to print?").then(function () {
+            //    $("#rpt").val("Processing");
+            //    $("#TransId").val(result.AccNo);
+            //    $("#rptForm").submit();
+            //});
+        }
+        else {
+            dia.title("Error");
+            dia.content("Not Save Successfully");
+            dia.open();
+        }
+    }
+</script>

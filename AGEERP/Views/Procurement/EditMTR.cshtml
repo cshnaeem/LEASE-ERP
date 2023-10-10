@@ -1,0 +1,119 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "MTR";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">MTR</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Procurement</a></li>
+                    <li class="breadcrumb-item active">MTR</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    @Html.Hidden("MTRRId",(long)ViewBag.MTRId)
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            @(Html.Kendo()
+        .Grid<MTRDetailVM>()
+        .Name("gridMTRDetail")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.Item);
+            columns.Bound(c => c.Qty);
+            columns.Bound(c => c.EstPrice);
+            columns.Bound(c => c.Remarks);
+            columns.Command(c => { c.Edit(); }).Width(100);
+        })
+
+        .Sortable()
+        //.Pageable()
+        .Scrollable()
+        .AutoBind(true)
+        .Navigatable()
+        //.ToolBar(t => t.Save())
+        .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_EditMTR"))
+        //.Events(e => e.SaveChanges("onSaveChanges"))
+        .HtmlAttributes(new { style = "height:300px;" })
+
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(false)
+        .Events(e => e.RequestEnd("onRequestEnd"))
+        //.PageSize(100)
+        .Model(model =>
+        {
+            model.Id(m => m.MTRDtlId);
+            //model.Field(m => m.ItemId).Editable(false);
+            model.Field(m => m.Item).Editable(false);
+            //model.Field(m => m.Remarks).Editable(false);
+        })
+        .Read(read => read.Action("MTR_Read", "Procurement").Data("filterMTR"))
+        .Create(create => create.Action("MTR_Update", "Procurement"))
+        .Update(create => create.Action("MTR_Update", "Procurement"))
+        ))
+        </div>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(function () {
+        resizeGrid();
+    });
+    function onRequestEnd(e) {
+        if (e.type == "update" || e.type == "create") {
+            $.confirm({
+                title: 'Updated Successfully!',
+                content: '',
+                type: 'red',
+                typeAnimated: true,
+                icon: 'fas fa-check',
+                buttons: {
+                    Ok: function () {
+                         
+                    }
+                }
+            });
+            $("#gridMTRDetail").data("kendoGrid").dataSource.read();
+        }
+    }
+
+    function filterMTR() {
+        return {
+            MTR: $('#MTRRId').val()
+        }
+    }
+
+    function filterItem() {
+        return {
+            ItemType: $('#ItemType').val()
+        }
+    }
+    function ItemTypeChange() {
+        $("#ItemId").data("kendoDropDownList").dataSource.read();
+    }
+    var gridElement = $("#gridMTRDetail");
+
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridMTRDetail").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+
+</script>
+

@@ -1,0 +1,125 @@
+﻿@model AGEERP.Models.CashReceiveVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.TransId)
+    @*@Html.HiddenFor(m => m.LocId)
+        @Html.HiddenFor(m => m.WorkingDate)*@
+    <div class="row">
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Location")
+            @(Html.Kendo()
+                    .MultiColumnComboBoxFor(m => m.LocId)
+                    //.Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    //.Events(e => e.DataBound("LocChange"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = "required",@disabled="disabled" })
+            )
+        </div>
+        @*<div class="col-md-3 col-sm-4">
+            @Html.Label("WorkingDate")
+            @Html.Kendo().DatePickerFor(x => x.WorkingDate).Name("WorkingDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = "required",@disabled="disabled" })
+        </div>*@
+
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Account")
+            @(Html.Kendo()
+                            .MultiColumnComboBoxFor(m => m.AccId)
+                            .Placeholder("Select Account.....")
+                            .DataValueField("Id")
+                            .DataTextField("Name")
+                            .Columns(columns =>
+                            {
+                                columns.Add().Field("Code").Title("Code").Width("200px");
+                                columns.Add().Field("Name").Title("Desc").Width("600px");
+                            })
+                            .Filter(FilterType.Contains)
+                            //.Events(e => e.Change("loadSubsidiary").DataBound("loadSubsidiary"))
+                            .DataSource(ds =>
+                            {
+                                ds.Read(read => read.Action("SubCodeList", "Sale"));
+                            })
+                            .HtmlAttributes(new { @style = "width:100%", @required = "required" })
+            )
+        </div>
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Subsidiary A/C")
+            @(Html.Kendo()
+                .MultiColumnComboBoxFor(m => m.SubId)
+                .Name("SubId")
+                .Placeholder("Select COA ...")
+                //.NoDataTemplate("0")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("200px");
+                    columns.Add().Field("Name").Width("200px");
+                })
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                //.MinLength(3)
+                .CascadeFrom("AccId")
+                .AutoBind(false)
+                //.BindTo(ViewBag.COA4)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SubsidaryCodeList", "Account").Data("filterSubsidaryCode")).ServerFiltering(true);
+                })
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+        </div>
+        <div class="col-md-6 col-sm-6">
+            @Html.Label("Cost Center")
+            @(Html.Kendo()
+                            .DropDownListFor(m => m.CCCode)
+                            .OptionLabel("Select Expense")
+                            .DataValueField("CCCode")
+                            .DataTextField("CCDesc")
+                            .Filter(FilterType.Contains)
+                            .BindTo((System.Collections.IEnumerable)ViewData["CCVD"])
+                            .HtmlAttributes(new { @style = "width:100%", @required = "required" })
+            )
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-9 col-sm-9">
+            @Html.Label("Description")
+            @(Html.Kendo().TextBoxFor(m => m.Description)
+                        .HtmlAttributes(new { @style = "width:100%", @required = "required" }))
+        </div>
+        <div class="col-md-3 col-sm-3">
+            @Html.Label("Amount")
+            @(Html.Kendo().NumericTextBoxFor(m => m.Amount)
+                        .HtmlAttributes(new { @style = "width:100%", @required = "required",@disabled="disabled" }))
+        </div>
+    </div>
+}

@@ -1,0 +1,41 @@
+﻿@using AGEERP.Models
+    <div class="col-md-12 col-sm-12">
+        @Html.Label("Date")
+        @Html.Kendo().DatePicker().Name("InstallmentDate").DateInput(true).Value(DateTime.Now.Date).Events(e =>
+          {e.Change("LoadInstallments");}).HtmlAttributes(new { @style = "width:100%", @required = "true" })
+        @(Html.Kendo()
+                        .Grid<InstallmentDetailVM>()
+                        .Name("gridInstallments")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.TransId).Title("RecvNo");
+                            columns.Bound(c => c.AccNo);
+                            columns.Bound(c => c.CustName).Title("Customer");
+                        })
+                        .Selectable(x =>x.Mode(GridSelectionMode.Single).Type(GridSelectionType.Row))
+                        .Navigatable()
+                        .Scrollable()
+                        .Events(e => e.Change("OnRowSelect"))
+                        .ToolBar(t => { t.Search(); })
+                        .Search(s =>
+                        {
+                            s.Field(c => c.AccNo);
+                            s.Field(c => c.CustName);
+                        })
+                        .AutoBind(false)
+                        .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+                        .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .ServerOperation(false)
+                        .Model(model =>
+                        {
+                            model.Id(m => m.TransId);
+                        })
+                        .Read(read => read.Action("TodayInstallment_Read", "Sale").Data("todayInstallments"))
+                        ))
+    </div>
+<script>
+    function LoadInstallments() {
+        $('#gridInstallments').data('kendoGrid').dataSource.read();
+    }
+</script>

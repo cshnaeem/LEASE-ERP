@@ -1,0 +1,87 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "CashDeposit";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Cash Deposit</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Cash</a></li>
+                    <li class="breadcrumb-item active">Cash Deposit</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-4 ">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                .Events(e => e.DataBound("LocChange").Change("LocChange"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("LocationList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-4 ">
+                @Html.Label("WorkingDate")
+                @Html.Kendo().DatePicker().Name("WorkingDate").Value(ViewBag.WorkingDate).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+            </div>
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Bank Account")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("BankCode")
+                //.OptionLabel("NA")
+                .SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SubCodeBankList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Remarks")
+                @Html.Kendo().TextBox().Name("CashierRemarks").HtmlAttributes(new { @style = "width:100%" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-4 ">
+                @Html.Label("CashPayable")
+                @Html.Kendo().NumericTextBox().Name("CashPayable").Value(0).Format("###").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+            </div>
+            <div class="col-md-3 col-sm-4 ">
+                @Html.Label("CashDeposit")
+                @Html.Kendo().NumericTextBox().Name("CashDeposit").Value(0).Format("###").HtmlAttributes(new { @style = "width:100%", @onchange = "CashDepositChange()" })
+            </div>
+            <div class="col-md-3 col-sm-4 ">
+                @Html.Label("Balance")
+                @Html.Kendo().NumericTextBox().Name("Balance").Value(0).Format("###").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+            </div>
+
+        </div>
+
+    </div>
+</div>

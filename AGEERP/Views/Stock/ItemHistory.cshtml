@@ -1,0 +1,124 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Item History";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Item History</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Stock</a></li>
+                    <li class="breadcrumb-item active">Item History</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                    @Html.Label("Serial #")
+                    @(Html.Kendo()
+                        .TextBox()
+                        .Name("Serial")
+                        .HtmlAttributes(new { @style = "width:100%", placeholder="Type Serial no & Enter"})
+                        )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("SKU")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("SKU")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("Company")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("Product")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("SuppName")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    @Html.Label("Item History")
+                    @(Html.Kendo()
+                .Grid<ItemHistoryVM>()
+                .Name("itemHistoryGrid")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.LocName).Title("Location");
+                    columns.Bound(c => c.Date).Format("{0: dd/MM/yyyy}");
+                    columns.Bound(c => c.Action).Title("Remarks");
+                    columns.Bound(c => c.Username);
+                })
+                .Sortable()
+                .Pageable()
+                .Scrollable()
+                .AutoBind(false)
+                .Navigatable()
+                .HtmlAttributes(new { style = "height:300px;" })
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(100)
+                .Read(read => read.Action("ItemHistory_Read", "Stock").Data("filterItemHistory"))
+                ))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var ItemId;
+    function filterItemHistory() {
+        return {
+            ItemId: ItemId
+        }
+    }
+    $('#Serial').on('keypress', function (e) {
+        if (e.which === 13) {
+            $(this).attr("disabled", "disabled");
+            var ser = $('#Serial').val();
+            $.getJSON("/Stock/ItemInfo", { Serial: ser })
+                .done(function (data) {
+                    if (data != null) {
+                        $("#SKU").val(data.SKUCode);
+                        $("#Company").val(data.ComName);
+                        $("#Product").val(data.ProductName);
+                        $("#SuppName").val(data.SuppName);
+                        ItemId = data.ItemId;
+                        $("#itemHistoryGrid").data("kendoGrid").dataSource.read();
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Serial No does not exist');
+                });
+            $(this).removeAttr("disabled")
+        }
+    });
+</script>
+

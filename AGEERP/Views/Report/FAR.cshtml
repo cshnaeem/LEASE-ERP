@@ -1,0 +1,60 @@
+﻿
+@{
+    ViewBag.Title = "FAR";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">FAR Report</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Procurement">Reports</a></li>
+                    <li class="breadcrumb-item active">FAR Report</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("FAR", "Report", FormMethod.Post, new { target = "_blank" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-3">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <br /><br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("FAR Report").Value("1").Checked(true)<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("FAR Opening Report").Value("2")
+                </div>
+                <div class="col-3">
+                    <br />
+                    <button class="k-button k-primary" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Print
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>

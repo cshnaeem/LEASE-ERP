@@ -1,0 +1,179 @@
+﻿
+@{
+    ViewBag.Title = "Cash Transfer";
+}
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Cash Transfer</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">Cash Transfer</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Ajax.BeginForm("CashTransfer", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+        {
+            @Html.ValidationSummary()
+            <div class="col">
+                <div class="row">
+                    <div class="col-md-3">
+                        @Html.Label("WorkingDate")
+                        @(Html.Kendo().DatePicker()
+                        .Name("WorkingDate")
+                        .Value(ViewBag.WorkingDate)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+                    </div>
+                    <div class="col-md-3">
+                        @Html.Label("From Location")
+                        @(Html.Kendo()
+                        .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-3">
+                        @Html.Label("To Location")
+                        @(Html.Kendo()
+                        .DropDownList()
+                        .Name("ToLocId")
+                        //.Placeholder("Select Locations ...")
+                        .OptionLabel("Select Location")
+                        .DataValueField("LocId")
+                        .DataTextField("LocName")
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                        ds.Read(read => read.Action("LocationListAll", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        @Html.Label("TransferedCash")
+                        @(Html.Kendo().NumericTextBox()
+                        .Name("TransferedCash")
+                        .Value(0)
+                        .HtmlAttributes(new { @style = "width:100%" }))
+                    </div>
+                    <div class="col-md-6">
+                        @Html.Label("Remarks")
+                        @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%" })
+                    </div>
+                    <div class="col-md-3">
+                        <br />
+                        <button class="k-button margin-10" type="button" onclick="SaveDoc()">
+                            <i class="fas fa-plus "></i>&nbsp; Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@Html.Partial("~/Views/Report/_Report.cshtml")
+
+
+<script>
+    $(document).ready(function () {
+        //$('#m_19000000').addClass('active');
+        //$('#d_19000000').css("display", "block");
+        //$('#m_19030000').addClass('active');
+        //$('#a_19030000').addClass('active');
+    });
+    function SaveDoc() {
+        if (confirm("Are you sure that you want to proceed?")) {
+            kendo.ui.progress($('.card'), true);
+            $('#frm').submit();
+        }
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        
+        if (result.TransId > 0) {
+            //dia.title("Msg");
+            //dia.content("Save Successfully");
+            //dia.open();
+            $('#TransferedCash').data('kendoNumericTextBox').value(0);
+            $('#Remarks').val("");
+            $('#ToLocId').val("");
+            $.confirm({
+                title: 'Saved Successfully!',
+                content: 'Do you want to print?',
+                type: 'red',
+                typeAnimated: true,
+                icon: 'fas fa-check',
+                buttons: {
+                    Print: function () {
+                        $("#rpt").val("CashTransferSlip");
+                        $("#TransId").val(result.TransId);
+                        $("#rptForm").submit();
+                    },
+                    Cancel: function () {
+                    }
+                }
+            });
+        }
+        else {
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Error");
+            dia.content("Not Save Successfully");
+            dia.open();
+        }
+    }
+                //function typeChange() {
+                //    var type = $("#Type").val();
+                //    if (type == "S") {
+                //        $(".cashDetail").attr("hidden", "hidden");
+                //        $(".cashLoc").removeAttr("hidden");
+                //    }
+                //    else {
+                //        GetCashDet();
+                //        $(".cashDetail").removeAttr("hidden");
+                //        $(".cashLoc").attr("hidden", "hidden");
+                //    }
+                //}
+
+                //function GetCashDet() {
+                //    var LocId = $('#LocId').val();
+                //    var type = $('#Type').val();
+                //    if (LocId > 0 && type == "H") {
+                //        $.getJSON("/Account/CashDetail?LocId=" + LocId, function (data) {
+                //            if (data != null) {
+                //                $('#CashSale').data('kendoNumericTextBox').value(data.Sale);
+                //                $('#CashSaleReturn').data('kendoNumericTextBox').value(data.SaleReturn);
+                //                $('#Processing').data('kendoNumericTextBox').value(data.Processing);
+                //                $('#Advance').data('kendoNumericTextBox').value(data.Advance);
+                //                $('#Inst').data('kendoNumericTextBox').value(data.Inst);
+                //                $('#CashTransfered').data('kendoNumericTextBox').value(data.TransferedCash);
+                //                $('#CashReceived').data('kendoNumericTextBox').value(data.CashReceived);
+                //                $('#PendingCash').data('kendoNumericTextBox').value(data.PendingCash);
+                //                $('#Total').data('kendoNumericTextBox').value(data.Sale - data.SaleReturn + data.Processing + data.Advance +
+                //                    data.Inst-data.TransferedCash+data.CashReceived+data.PendingCash);
+                //            }
+                //        });
+                //    }
+                //}
+</script>

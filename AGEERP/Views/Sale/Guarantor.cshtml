@@ -1,0 +1,172 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Guarantor";
+}
+
+@Html.Hidden("CustomerId",(int)ViewBag.CustId)
+<div class="col s12 m12 l12">
+    <div class="card card card-default scrollspy">
+        <div class="card-content">
+            <h4 class="card-title">Guarantor</h4>
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("Customer Name")
+                    @(Html.Kendo()
+                                                                                      .TextBox()
+                                                                                      .Name("CustName")
+                                                                                      .Value(ViewBag.CustName)
+                                                                                      .Enable(false)
+                                                                                      .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("S/O")
+                    @(Html.Kendo()
+                                                                                              .TextBox()
+                                                                                              .Name("CSO")
+                                                                                              .Value(ViewBag.SO)
+                                                                                              .Enable(false)
+                                                                                              .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                 
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Mobile1")
+                    @(Html.Kendo()
+                                                                                              .TextBox()
+                                                                                              .Name("CMobile1")
+                                                                                              .Value(ViewBag.Mobile1)
+                                                                                              .Enable(false)
+                                                                                              .HtmlAttributes(new { @style = "width:100%" })
+                    )
+
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("NIC")
+                    @(Html.Kendo()
+                                                                                              .TextBox()
+                                                                                              .Name("CNIC")
+                                                                                              .Value(ViewBag.NIC)
+                                                                                              .Enable(false)
+                                                                                              .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                 
+                </div>
+            </div>
+            @(Html.Kendo()
+                      .Grid<GuarantorVM>()
+                      .Name("gridGuarantor")
+                      .Columns(columns =>
+                      {
+                          columns.Bound(c => c.RowId).Hidden();
+                          columns.Bound(c => c.CustId).Hidden();
+                          columns.Bound(c => c.GNo).Hidden();
+                          columns.Bound(c => c.Name);
+                          columns.Bound(c => c.SO);
+                          columns.Bound(c => c.NIC);
+                          columns.Bound(c => c.TelOff);
+                          columns.Bound(c => c.TelRes);
+                          columns.Command(c => { c.Edit(); c.Destroy(); }).Width(250);
+                      })
+                      //.Pageable()
+                      .Sortable()
+                      .Scrollable()
+                            //.Filterable(ftb => ftb.Mode(GridFilterMode.Row).Extra(false)
+                            //.Operators(operators => operators
+                            //.ForString(str => str.Clear()
+                            //.Contains("Contains"))))
+                            @*.ToolBar(toolBar =>
+                        {
+                            toolBar.Template(@<text> <div class="col-sm-2">@item.CreateButton() </div>  <div class="col-sm-4 col-sm-push-7"><span>Search</span> &nbsp;&nbsp; <input class='k-textbox' value="Search..." onfocus="if (this.value==='Search...') this.value='';" onblur="this.value = this.value===''?'Search...':this.value;" id='searchbox' /></div></text>);
+                        })*@
+                            .ToolBar(t => t.Create())
+                            .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_Guarantor"))
+                            .HtmlAttributes(new { style = "height:400px;" })
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                //.PageSize(20)
+                                .Events(e => e.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(m => m.RowId);
+                                    model.Field(m => m.CustId);
+                                    model.Field(m => m.GNo);
+                                    model.Field(m => m.GRelation);
+                                    model.Field(m => m.Name);
+                                    model.Field(m => m.NIC);
+                                    model.Field(m => m.Occupation);
+                                    model.Field(m => m.OffAddress);
+                                    model.Field(m => m.ResAddress);
+                                    model.Field(m => m.SO);
+                                    model.Field(m => m.TelOff);
+                                    model.Field(m => m.TelRes);
+                                })
+                                .Read(read => read.Action("Guarantor_Read", "Sale").Data("CustData"))
+                                .Create(create => create.Action("Guarantor_Create", "Sale").Data("CustData"))
+                                .Update(update => update.Action("Guarantor_Update", "Sale"))
+                                .Destroy(update => update.Action("Guarantor_Destroy", "Sale"))
+                            ))
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script type="text/javascript">
+        var gridElement = $("#gridGuarantor");
+        $(document).ready(function () {
+            resizeGrid();
+            //$('#m_10000000').addClass('active');
+            //$('#d_10000000').css("display", "block");
+            //$('#m_10020000').addClass('active');
+            //$('#a_10020000').addClass('active');
+        });
+
+        function CustData() {
+            console.log($('#CustomerId').val());
+            return {
+                CustomerId: $('#CustomerId').val()
+            }
+        }
+
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridGuarantor").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    </script>
+    <style>
+        th [role="listbox"] {
+            visibility: hidden;
+        }
+
+        .k-filtercell, .k-filtercell .k-widget, .k-filtercell > span {
+            display: table-row;
+        }
+    </style>
+}

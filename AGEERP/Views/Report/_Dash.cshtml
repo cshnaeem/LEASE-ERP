@@ -1,0 +1,23 @@
+﻿
+@{
+    ViewBag.Title = "_Dash";
+    Layout = null;
+}
+
+
+
+    <html>
+    <head>
+        <style>
+            body, html {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0
+            }
+        </style>
+    </head>
+    <body>
+        <iframe src="@ViewBag.src" style="height:calc(100% - 4px);width:calc(100% - 4px)" />
+    </body>
+    </html>

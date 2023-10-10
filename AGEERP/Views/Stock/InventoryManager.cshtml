@@ -1,0 +1,274 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Inventory Manager";
+}
+<div class="card ihead">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Inventory Manager</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Inventory Manager</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="frmM">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ComId")
+                    .OptionLabel("All")
+                    .DataValueField("ComId")
+                    .DataTextField("ComName")
+                     .Filter(FilterType.Contains)
+                    .Events(e => e.Change("LoadProduct"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("CompanyList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ProductId")
+                    .OptionLabel("All")
+                    .SelectedIndex(0)
+                    .DataValueField("ProductId")
+                    .DataTextField("Name")
+                    .Filter(FilterType.Contains)
+                    .AutoBind(false)
+                    //.CascadeFrom("ComId")
+                    .Events(e => e.Change("LoadModel"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("ProductByCompList", "Setup").Data("filterProduct"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Model")
+                    @(Html.Kendo().DropDownList()
+                      .Name("ModelId")
+                      .HtmlAttributes(new { style = "width:100%;" })
+                      .OptionLabel("All")
+                      .DataValueField("ModelId")
+                    .DataTextField("Model")
+                    .AutoBind(false)
+                      .Filter(FilterType.Contains)
+                     .DataSource(ds =>
+                     {
+                         ds.Read(read => read.Action("ModelByComProList", "Setup").Data("filterModel"));
+                     })
+                    .HtmlAttributes(new { @style = "width:100%", @class = "browser-default" })
+                //.Enable(false)
+                //.AutoBind(false)
+                //.CascadeFrom("ProductId")
+                )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Item Status")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ItemStatus")
+                    .OptionLabel("All")
+                    .DataValueField("StatusID")
+                    .DataTextField("StatusTitle")
+                    .BindTo((System.Collections.IEnumerable)ViewData["StatusVD"])
+                    //.DataSource(s =>
+                    //{
+                    //    s.Read(read =>
+                    //    {
+                    //        read.Action("StatusList", "Stock");
+                    //    });
+                    //})
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                        <i class="fas fa-arrow-right"></i>&nbsp; Load
+                    </button>
+                </div>
+                <div class="col-md-6 col-sm-6">
+                    @Html.Label("Scan Serial #")
+                    @(Html.Kendo()
+                        .TextBox()
+                        .Name("Serial")
+                        .HtmlAttributes(new { @style = "width:100%", placeholder="Type Serial no & Enter"})
+                        )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    @(Html.Kendo()
+                          .Grid<Inv_StoreVM>()
+                          .Name("itemStoreGrid")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.ItemId).Hidden();
+                              columns.Bound(c => c.Company);
+                              columns.Bound(c => c.Product);
+                              columns.Bound(c => c.Model);
+                              columns.Bound(c => c.SKU);
+                              columns.Bound(c => c.SerialNo);
+                              columns.Bound(c => c.Remarks).Title("Describe Reason").Width(250);
+                              columns.ForeignKey(p => p.StatusID, (System.Collections.IEnumerable)ViewData["StatusVD"], "StatusID", "StatusTitle")
+             .Title("Status").Width(140);
+                              columns.Command(c => { c.Edit(); }).Width(120);
+                          })
+                          .ToolBar(t => t.Search())
+                          .Pageable()
+                          .Sortable()
+                          .Scrollable()
+                          .AutoBind(false)
+                          .Editable(e => e.Mode(GridEditMode.InLine))
+                          .HtmlAttributes(new { style = "height:500px;" })
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .ServerOperation(false)
+                          .PageSize(20)
+                          .Events(e => e.Error("error_handler"))
+                          .Model(model =>
+                          {
+                              model.Id(m => m.ItemId);
+                              model.Field(c => c.Company).Editable(false);
+                              model.Field(c => c.Product).Editable(false);
+                              model.Field(c => c.Model).Editable(false);
+                              model.Field(c => c.SKU).Editable(false);
+                              model.Field(c => c.SerialNo).Editable(false);
+                          })
+                          .Read(read => read.Action("StockStatus_Read", "Stock").Data("filterRecords"))
+                          .Update(update => update.Action("StockStatus_Update", "Stock"))
+                          ))
+                </div>
+            </div>
+        </div>
+    </div>  
+</div>
+<script>
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Error");
+            dia.content(message);
+            dia.open();
+            loadGrid();
+        }
+    }
+    function LoadProduct() {
+        $('#ProductId').data('kendoDropDownList').dataSource.read();
+    }
+    function LoadModel() {
+        $('#ModelId').data('kendoDropDownList').dataSource.read();
+    }
+    function ModelData() {
+        return {
+            ComId: $('#ComId').val(),
+            ProductId: $('#ProductId').val() || 0
+        }
+    }
+    function filterRecords() {
+        return {
+            LocationId: $("#LocId").val() || 0,
+            CompanyId: $("#ComId").val() || 0,
+            ProductId: $("#ProductId").val() || 0,
+            ModelId: $("#ModelId").val() || 0,
+            StatusId: $("#ItemStatus").val() || 0
+        }
+    }
+    function loadGrid() {
+        $("#itemStoreGrid").data("kendoGrid").dataSource.read();
+    }
+    function filterProduct() {
+        return {
+            ComId: $('#ComId').val()
+        }
+    }
+    function filterModel() {
+        return {
+            ComId: $('#ComId').val(),
+            ProductId: $('#ProductId').val()
+        }
+    }
+    $('#Serial').on('keypress', function (e) {
+        if (e.which === 13) {
+            $(this).attr("disabled", "disabled");
+            var ser = $('#Serial').val();
+            var LocationId = $("#LocId").val() || 0;
+            $.getJSON("/Stock/StockStatus_ReadRow", { SrNo: ser, LocId: LocationId })
+                .done(function (data) {
+                    if (data != null) {
+                        console.log(data);
+                        for (var i = 0; i < data.length; i++) {
+                            var serialExists = $("#itemStoreGrid").data("kendoGrid").dataSource.data().some(
+                                function (dataItem) {
+                                    return dataItem.SerialNo == data[i].SerialNo;
+                                });
+                            if (serialExists) {
+                                $.confirm({
+                                    title: 'Alert',
+                                    content: "Serial # already exists in the Table",
+                                    type: 'red',
+                                    typeAnimated: true,
+                                    icon: 'fas fa-close',
+                                    buttons: {
+                                        Ok: function () {
+                                        }
+                                    }
+                                });
+                            }
+                            else {
+                                $("#itemStoreGrid").data("kendoGrid").dataSource.add(data[i]);
+                            }
+                        }
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Serial No does not exist');
+                });
+            $(this).removeAttr("disabled")
+        }
+    });
+</script>

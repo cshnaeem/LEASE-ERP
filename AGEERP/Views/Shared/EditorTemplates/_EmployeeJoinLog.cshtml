@@ -1,0 +1,111 @@
+﻿@using AGEERP.Models
+@model EmpJoiningLogVM
+
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.JoinId)
+
+<div class="row">
+    <div class="col-md-4  hidedata">
+        @Html.Label("Head Deparment")
+        @(Html.Kendo()
+                                                 .DropDownList()
+                                                 .Name("HDeptId")
+                                                 //.OptionLabel("Select Head Department ...")
+                                                 .SelectedIndex(0)
+                                                 .DataValueField("HDeptId")
+                                                 .DataTextField("HDeptName")
+                                                 //.Suggest(true)
+                                                 //.Filter(FilterType.Contains)
+                                                 .DataSource(x => x.Read("HDepartmentList", "Employee"))
+                                                 .HtmlAttributes(new { @style = "width:100%" })
+        )
+    </div>
+    <div class="col-md-4  hidedata">
+        @Html.Label("Department")
+        @(Html.Kendo()
+                                                        .ComboBoxFor(x => x.DeptId)
+
+                                                        .Placeholder("All Department ...")
+                                                        .SelectedIndex(0)
+                                                        .DataValueField("DeptId")
+                                                        .DataTextField("Department")
+                                                        .Filter(FilterType.Contains)
+                                                        .CascadeFrom("HDeptId")
+                                                        .DataSource(ds =>
+                                                        {
+                                                            ds.Read(read => read.Action("DeptByHDeptList", "Employee").Data("filterDept")).ServerFiltering(true);
+                                                        })
+                                                        .HtmlAttributes(new { @style = "width:100%" })
+        )
+    </div>
+
+    <div class="col-md-4 hidedata">
+        @Html.Label("Employee")
+        @(Html.Kendo()
+                                                        .DropDownListFor(x => x.EmpId)
+
+                                                        .DataValueField("EmpId")
+                                                        .DataTextField("EmpName")
+                                                        .CascadeFrom("DeptId")
+                                                        .SelectedIndex(0)
+                                                        .Filter(FilterType.Contains)
+                                                        .DataSource(ds =>
+                                                        {
+                                                            ds.Read(read => read.Action("EmpByDeptList", "Employee").Data("filterEmp")).ServerFiltering(true);
+                                                        })
+                                                        .HtmlAttributes(new { @style = "width:100%", required = "true", @class = "validate" })
+        )
+    </div>
+
+    <div class="col-md-4 showdata">
+        @Html.Label("Employee Name")
+        @(Html.Kendo().TextBoxFor(x => x.EmpName).HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true" }))
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 col-sm-6">
+        @Html.Label("Join Reason")
+        @(Html.Kendo().TextBoxFor(x => x.JoinReason).HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true" }))
+    </div>
+    <div class="col-md-6 col-sm-6">
+        @Html.Label("Join Date")
+        @(Html.Kendo().DatePickerFor(x => x.JoinDate).Format("{0:MM/dd/yyyy}").HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true" }))
+    </div>
+    @*<div class="col-md-6 col-sm-6">
+
+
+            @Html.Label("Status")
+            @(Html.Kendo()
+                                                            .DropDownListFor(x => x.StatusId)
+                                                            .DataTextField("Text")
+                                                            .DataValueField("Value")
+                                                            .ValuePrimitive(true)
+                                                            .Filter(FilterType.Contains)
+                                                            .BindTo((System.Collections.IEnumerable)ViewBag.EmpStatusSL)
+                                                            .HtmlAttributes(new { @style = "width:100%" })
+            )
+        </div>*@
+
+</div>
+    
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+         
+                @Html.Label("Remarks")
+                @(Html.Kendo().TextBoxFor(x => x.Remarks).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+
+}

@@ -1,0 +1,115 @@
+﻿@model AGEERP.Models.SKUVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.SKUId)
+
+    <div class="row">
+        <div class="col-md-4 col-sm-6">
+            @Html.Label("SKUName")
+            @(Html.Kendo().TextBoxFor(x => x.SKUName).HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+        </div>
+        <div class="col-md-4 col-sm-6">
+            @Html.Label("Color")
+            @(Html.Kendo().DropDownListFor(x => x.ColorId)
+           .DataValueField("ColorId")
+                                   .DataTextField("ColorName")
+                                   .DataSource(ds =>
+                                   {
+                                       ds.Read(read => read.Action("ColorList", "Setup"));
+                                   })
+            .HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4 col-sm-6">
+            @Html.Label("Specs")
+            @(Html.Kendo().TextBoxFor(x => x.Specs).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 col-sm-6">
+            @Html.Label("Description")
+            @(Html.Kendo().TextBoxFor(x => x.Description).HtmlAttributes(new { @style = "width:100%", @maxlength = "200" }))
+        </div>
+
+
+        <div class="col-md-4 col-sm-6">
+            @Html.Label("Short Name")
+            @(Html.Kendo().TextBoxFor(x => x.BarcodeValue).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4 col-sm-6 sku">
+            @Html.Label("Pair")
+            @(Html.Kendo().MultiSelectFor(x => x.PairLst)
+               //.OptionLabel("N/A")
+               .DataValueField("SKUId")
+               .DataTextField("SKUName")
+               .ValuePrimitive(true)
+               //.CascadeFrom("ModelId")
+               .DataSource(ds =>
+               {
+                   ds.Read(read => read.Action("SKUPairList", "Setup").Data("filterPair"));
+               })
+            .HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 col-sm-6">
+            @Html.Label("IsPaired")
+            &nbsp; &nbsp;  &nbsp;
+            @(Html.Kendo().CheckBoxFor(x => x.IsPaired))
+        </div>
+        <div class="col-md-4 col-sm-6">
+            @Html.Label("AvailableForSale")
+            &nbsp; &nbsp;  &nbsp;
+            @(Html.Kendo().CheckBoxFor(x => x.AvailableForSale))
+        </div>
+        <div class="col-md-4 col-sm-6">
+            @Html.Label("AvailableForPurchase")
+            &nbsp; &nbsp;  &nbsp;
+            @(Html.Kendo().CheckBoxFor(x => x.AvailableForPurchase))
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 col-sm-6">
+            @Html.Label("Capacity")
+            @(Html.Kendo().NumericTextBoxFor(x => x.Capacity).Format("#").Decimals(0).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-4 col-sm-6 ImgDiv">
+            <img id="SkuImg" class="responsive-img" style="max-height:200px;" />
+        </div>
+        <div class="col-md-4 col-sm-6">
+            @Html.Label("Picture")
+            @(Html.Kendo().Upload()
+                        .Name("file")
+                        .Multiple(false)
+                        .Async(a => a
+                            .Save("SKUImg", "Setup")
+                            .AutoUpload(true)
+                            )
+                            .Events(e => e
+                            .Upload(@<text>
+                                        function(e) {
+                                        e.data = { id: $("#SKUId").val() };
+                                        }
+                            </text>)
+            ).Validation(validation => validation.AllowedExtensions(new string[] { ".jpg" })))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            @Html.Label("Barcodes")
+            @(Html.Kendo().TextBoxFor(x => x.Barcodes).HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+    </div>
+
+}

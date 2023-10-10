@@ -1,0 +1,317 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AGE ERP | @ViewBag.Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="~/Content/Resources/Favicon3232.jpg">
+    <link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+    <link href="~/Content/ionicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/Content/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="~/Content/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <link rel="stylesheet" href="~/Content/plugins/jqvmap/jqvmap.min.css">
+    <link href="~/Content/adminlte.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/Content/plugins/daterangepicker/daterangepicker.css">
+    <link href="@Url.Content("~/Content/kendo/2020.1.114/kendo.bootstrap-v4.min.css")" rel="stylesheet" type="text/css" />
+    <link href="~/Content/plugins/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <link href="~/Content/jquery-confirm.css" rel="stylesheet" />
+    <link href="~/Content/animate.css" rel="stylesheet" />
+    <link href="~/Content/Custom.css" rel="stylesheet" />
+    <script src="@Url.Content("~/Scripts/kendo/2020.1.114/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2020.1.114/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2020.1.114/kendo.all.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2020.1.114/kendo.aspnetmvc.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
+</head>
+<body class="sidebar-mini layout-fixed  text-sm bggg">
+    <div class="wrapper">
+        <nav class="main-header navbar navbar-expand navbar-dark navbar-danger">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Home/WhatsAGE"><i class="fas fa-envelope-open-text"></i><span>WhatsAGE</span></a>
+                </li>
+                <li class="nav-item" style="padding-left:15px">
+                    <a class="nav-link" href="/Home/Tutorial"><i class="fas fa-play"></i><span class="badge-notification badge-warning navbar-badge" style="direction:rtl;margin:-10px;">1</span><span>Tutorials</span></a>
+                </li>
+                <li class="nav-item" style="padding-left:15px">
+                    <a class="nav-link" href="/Home/HelpDesk"><i class="fas fa-phone"></i> Help Desk </a>
+                </li>
+                <li class="nav-item" style="padding-left:15px">
+                    <a class="nav-link"><i class="fas fa-calendar-day"></i> @Html.Action("GetWorkingDate", "Setup")</a>
+                </li>
+                <li class="nav-item dropdown" style="padding-left:15px">
+
+                    <a class="nav-link" style="color:white;" data-toggle="dropdown" href="#">
+                        <i class="fa fa-user-friends" style="font-size: 1.57rem;"></i>
+                        <span class="badge-notification badge-warning navbar-badge" style="direction: rtl;
+                                margin: -10px;
+                        " id="NoOfOnlineUsers">0</span>
+                    </a>
+
+                    <div id="usersarea" class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0px;height: 237px;overflow-y: scroll;">
+                    </div>
+                </li>
+                <li class="nav-item dropdown" style="padding-left:15px">
+
+                    <a class="nav-link" style="color:white;" data-toggle="dropdown" href="#">
+                        <i class="fa fa-bell" style="font-size: 1.57rem;"></i>
+                        <span class="badge-notification badge-warning navbar-badge" style=" direction: rtl;margin: -10px;" id="counter">0</span>
+                    </a>
+                    <div id="notificationarea" class="dropdown-menu dropdown-menu-lg dropdown-menu-right dropdown-menu-lg-notifi" style="left: inherit; right: 0px;height: 237px;overflow-y: scroll;">
+                    </div>
+                </li>
+                <li class="nav-item dropdown user-menu" style="padding-left:15px">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <img onerror="this.src='/app-assets/images/avatar/user.png'" src="~/Content/EmpImg/@(User.Identity.Name).jpg" class="user-image img-circle elevation-2" alt="User Image">
+                        <span class="d-none d-md-inline">@(User.Identity.Name)</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <li class="user-header bg-white">
+                            <img onerror="this.src='/app-assets/images/avatar/user.png'" src="~/Content/EmpImg/@(User.Identity.Name).jpg" class="img-circle elevation-2" alt="@(User.Identity.Name)">
+                            <p>
+                                @(User.Identity.Name)
+                            </p>
+                            <p>
+                                @Html.Action("GetUser", "Security")
+                            </p>
+                        </li>
+
+                        <li class="user-footer bg-danger">
+                            <a href="/Security/ChangePassword" class="btn btn-primary btn-flat float-left">Change Password</a>
+                            <a href="/Login/Logout" class="btn btn-primary btn-flat float-right">Sign out</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <aside class="main-sidebar elevation-4 sidebar-light-danger">
+            <a href="/Home" class="brand-link navbar-white">
+                <img src="~/Content/Resources/WebLogo.jpg" alt="AGE" class="brand-image"
+                     style="opacity: .8;float:none;">
+                <span class="brand-text font-weight-bold">AGE ERP</span>
+
+            </a>
+            <div class="sidebar">
+                <div class="form-inline" style="padding:9px;">
+                    <div class="input-group" data-widget="sidebar-search">
+                        <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-sidebar">
+                                <i class="fas fa-search fa-fw"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                @Html.Action("GetMenu", "Security")
+
+            </div>
+        </aside>
+    </div>
+    <div class="content-wrapper bdy" style="background-color:transparent;">
+        <section class="content">
+            <div class="container-fluid">
+                <div id="load123" class="k-loading-mask windows" style="width:100%;height:100%;display:none;"><span class="k-loading-text">Loading...</span><div class="k-loading-image"><div class="k-loading-color"></div></div></div>
+                @RenderBody()
+                @(Html.Kendo().Dialog()
+                                                                                  .Name("msgBox")
+                                                                                  .Title("")
+                                                                                  .Content("")
+                                                                                  .Width(200)
+                                                                                  .Modal(true)
+                                                                                  .Visible(false)
+                                                                                  .Actions(a => a.Add().Text("OK"))
+                )
+                <div class="overlay dark" hidden>
+                    <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+                </div>
+            </div>
+        </section>
+        <aside class="control-sidebar control-sidebar-dark">
+        </aside>
+    </div>
+    <script src="~/Content/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/Content/plugins/chart.js/Chart.min.js"></script>
+    <script src="~/Content/plugins/sparklines/sparkline.js"></script>
+    <script src="~/Content/plugins/jqvmap/jquery.vmap.min.js"></script>
+    <script src="~/Content/plugins/moment/moment.min.js"></script>
+    <script src="~/Content/plugins/daterangepicker/daterangepicker.js"></script>
+    <script src="~/Scripts/adminlte.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.steps.min.js"></script>
+    <script src="~/Scripts/waypoints.min.js"></script>
+    <script src="~/Content/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script>
+        var url = window.location;
+        var counter = 0;
+        var usrLst = [];
+
+        $('ul.nav-sidebar a').filter(function () {
+            return this.href == url;
+        }).parent().addClass('active');
+        setTimeout(() => {
+            $('nav li a[href="' + location.pathname + '"]').addClass('active').parents('.has-treeview').addClass('menu-open').find('a:eq(0)');
+        }, 400);
+
+        function MarkSeen(NotiId) {
+            $.post('/Setup/MarkSeen/' + NotiId, function (response) {
+                $('#Noti' + NotiId).slideToggle("slow");
+                counter--;
+                $('#counter').text(counter);
+                if (counter > 0) {
+                    if ($('.fa-bell').hasClass('faa-ring animated fa-5x') == false) {
+                        $('.fa-bell').addClass('faa-ring animated fa-5x');
+                    }
+                }
+                else {
+                    if ($('.fa-bell').hasClass('faa-ring animated fa-5x') == true) {
+                        $('.fa-bell').removeClass('faa-ring animated fa-5x');
+                    }
+                }
+            }, 'json');
+        }
+        function ClearAllNoti() {
+            $.post('/Setup/ClearAllNoti/', function (response) {
+                $('#notificationarea').html("");
+                counter = 0;
+                $('#counter').text(counter);
+            }, 'json');
+        }
+        function imgError(image) {
+            image.onerror = "";
+            image.src = "/app-assets/images/avatar/user.png";
+            return true;
+        }
+        $(".dropdown-menu-lg-notifi").click(function (e) {
+            e.stopPropagation();
+        })
+
+
+
+        $(document).ready(function () {
+
+            function setTotalNotification(totalNotif) {
+                var html = "";
+                for (var i = 0; i < totalNotif.length; i++) {
+                    html += '<a href="#" class="dropdown-item" id = "Noti' + totalNotif[i].Id + '"> <div class="media">  <img src="/Content/EmpImg/' + totalNotif[i].SentBy + '.jpg" onerror="imgError(this);" alt="User Avatar" class="img-size-50 mr-3 img-circle">' +
+                        '<div class="media-body"  > ' +
+                        ' <h3 class="dropdown-item-title">' +
+                        '' + totalNotif[i].SentByUsername + '' +
+                        ' <span class="float-right text-sm text-default closenotifi"><i class="fas fa-times" onclick="MarkSeen(' + totalNotif[i].Id + ')"></i></span>' +
+                        ' </h3>' +
+                        '<p class="text-sm">' + totalNotif[i].Notification + '</p>' +
+                        '<p class="text-sm text-muted"><i class="far fa-clock mr-1"></i>' + totalNotif[i].RelativeNotificationDate + '</p>' +
+                        '</div>' +
+                        '</div>' +
+                        '</a>' +
+                        '<div class="dropdown-divider"></div>';
+                    counter++;
+                }
+                if (counter > 0) {
+                    if ($('.fa-bell').hasClass('faa-ring animated fa-5x') == false) {
+                        $('.fa-bell').addClass('faa-ring animated fa-5x');
+                    }
+                    html += '<a href="#" onclick="ClearAllNoti()" class="dropdown-item dropdown-footer">Clear All Notifications</a>';
+                }
+                else {
+                    if ($('.fa-bell').hasClass('faa-ring animated fa-5x') == true) {
+                        $('.fa-bell').removeClass('faa-ring animated fa-5x');
+                    }
+                }
+                $('#notificationarea').prepend(html);
+                $('#counter').text(counter);
+            }
+
+
+            var hub = $.connection.notificationHub;
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+
+            hub.client.broadcaastNotif = function (totalNotif) {
+                setTotalNotification(totalNotif);
+                if (totalNotif.length >= 1) {
+                    Toast.fire({
+                        type: 'info',
+                        title: 'You have new notifications please check.'
+                    })
+                }
+            };
+
+            hub.client.updateUserList = function (users) {
+
+                var coun = 0;
+                var html = "";
+                for (var i = 0; i < users.length; i++) {
+                    html += '<a href="/Home/Chat/' + users[i].UserName + '" class="dropdown-item"> <div class="media">  <img src="/Content/EmpImg/' + users[i].UserName + '.jpg" onerror="imgError(this);" alt="User Avatar" class="img-size-50 mr-3 img-circle">' +
+                        '<div class="media-body"  > ' +
+                        ' <h3 class="dropdown-item-title">' +
+                        '' + users[i].Name + '' +
+                        ' <span class="float-right text-sm text-default"><i class="fas">' + users[i].NoOfMsg + '</i></span>' +
+                        ' </h3>' +
+                        //'<p class="text-sm">' + users[i].Name + '</p>' +
+                        '<p class="text-sm">' + users[i].LastMsg + '</p>' +
+                        '<p class="text-sm text-muted"><i class="far fa-clock mr-1"></i>' + users[i].LastMsgTime + '</p>' +
+                        '</div>' +
+                        '</div>' +
+                        '</a>' +
+                        '<div class="dropdown-divider"></div>';
+                    coun = coun + parseInt(users[i].NoOfMsg);
+                }
+                $('#usersarea').html(html);
+                $('#NoOfOnlineUsers').text(coun);
+            };
+
+            $.connection.hub.start()
+                .done(function () {
+                    console.log("You are Connected!");
+                    hub.server.getNotification(hub.connection.id);
+                    hub.server.getUserMsg(hub.connection.id);
+                    //hub.server.getUserCount(hub.connection.id);
+                })
+                .fail(function () {
+                    console.log("Fail to connect!");
+                });
+        });
+
+        $(document).bind('keypress', function (event) {
+            if (event.ctrlKey && event.shiftKey && event.originalEvent.code === "KeyA") {
+                window.open("/Sale/Advance/", "_blank");
+            }
+            else if (event.ctrlKey && event.shiftKey && event.originalEvent.code === "KeyE") {
+                window.open("/Sale/LeaseCustomer/", "_blank");
+            }
+            else if (event.ctrlKey && event.shiftKey && event.originalEvent.code === "KeyY") {
+                window.open("/Sale/Processing/", "_blank");
+            }
+            else if (event.ctrlKey && event.shiftKey && event.originalEvent.code === "KeyX") {
+                window.open("/Sale/Expense/", "_blank");
+            }
+            else if (event.ctrlKey && event.shiftKey && event.originalEvent.code === "KeyK") {
+                window.open("/Sale/Installment/", "_blank");
+            }
+            else if (event.ctrlKey && event.shiftKey && event.originalEvent.code === "KeyS") {
+                window.open("/Sale/AccountSearch/", "_blank");
+            }
+        });
+        $(".nocopy").bind("cut copy paste",
+            function (e) {
+                e.preventDefault();
+            });
+
+    </script>
+    @RenderSection("scripts", false)
+</body>
+</html>

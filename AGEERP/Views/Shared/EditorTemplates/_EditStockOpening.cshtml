@@ -1,0 +1,130 @@
+﻿@model AGEERP.Models.FarOpeningVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+<div class="row">
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("Item Type")
+        @(Html.Kendo()
+                .DropDownListFor(m => m.ItemType)
+                //.Name("ItemType")
+                //.OptionLabel("Select ItemType")
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .AutoBind(false)
+                .SelectedIndex(0)
+                .Events(e => e.Change("ItemTypeChange").DataBound("ItemTypeChange"))
+                .BindTo(AGEERP.Models.SelectListVM.ItemTypeSL)
+                .HtmlAttributes(new { @style = "width:100%" })
+                    )
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("Item")
+        @(Html.Kendo().DropDownListFor(m => m.ItemId)
+                    //.Name("ItemId")
+                    .AutoBind(false)
+                    .OptionLabel("Select Item...")
+                    .DataTextField("Item")
+                    .DataValueField("ItemId")
+                    .Filter(FilterType.Contains)
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("ItemByItemTypeList", "Procurement").Data("filterItem"));
+                    })
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+        @Html.ValidationMessage("ItemId")
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("CostType")
+        @(Html.Kendo().DropDownListFor(m => m.CostTypeId)
+                    .OptionLabel("Select Item...")
+                    .DataTextField("CostType")
+                    .DataValueField("CostTypeId")
+                    .Filter(FilterType.Contains)
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("CostTypeList", "Procurement"));
+                    })
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+        @Html.ValidationMessage("CostTypeId")
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("PPrice")
+        @(Html.Kendo().NumericTextBoxFor(m => m.PPrice)
+                        .HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("Condition")
+        @(Html.Kendo().TextBoxFor(m => m.Condition)
+                        .HtmlAttributes(new { @style = "width:100%"}))
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("CurrentValue")
+        @(Html.Kendo().NumericTextBoxFor(m => m.CurrentValue)
+                        .HtmlAttributes(new { @style = "width:100%"}))
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("DepreciationPercent")
+        @(Html.Kendo().NumericTextBoxFor(m => m.DepreciationPercent)
+                        .HtmlAttributes(new { @style = "width:100%"}))
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("InstallationDate")
+        @(Html.Kendo().DatePickerFor(m => m.InstallationDate)
+                        .HtmlAttributes(new { @style = "width:100%"}))
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("PurchaseDate")
+        @(Html.Kendo().DatePickerFor(m => m.PurchaseDate)
+                        .HtmlAttributes(new { @style = "width:100%"}))
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("EmpId")
+        @(Html.Kendo().NumericTextBoxFor(m => m.EmpId)
+                        .HtmlAttributes(new { @style = "width:100%"}))
+    </div>
+    <div class="col-md-4 col-sm-4">
+        @Html.Label("CostCenter")
+        @(Html.Kendo().DropDownListFor(m => m.CCCode)
+                    .OptionLabel("Select Cost Center...")
+                    .DataTextField("CCDesc")
+                    .DataValueField("CCCode")
+                    .Filter(FilterType.Contains)
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("CostCentersList", "Account"));
+                    })
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+        @Html.ValidationMessage("CCCode")
+    </div>
+</div>
+
+
+}
+
+
+@*columns.Bound(c => c.ItemType);
+            columns.Bound(c => c.SerialNo);
+            columns.Bound(c => c.PPrice).Title("Purchase Price");
+            columns.Bound(c => c.Condition);
+            columns.Bound(c => c.CurrentValue);
+            columns.Bound(c => c.DepreciationPercent);
+            columns.Bound(c => c.EmpId);
+            columns.Bound(c => c.InstallationDate).Format("{0:dd/MM/yyyy}");
+            columns.Bound(c => c.PurchaseDate).Format("{0:dd/MM/yyyy}");*@

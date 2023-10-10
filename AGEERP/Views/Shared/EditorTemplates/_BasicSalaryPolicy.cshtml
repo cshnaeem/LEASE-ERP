@@ -1,0 +1,118 @@
+﻿@model AGEERP.Models.BasicSalaryPolicyVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 900px;
+    }
+</style>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.PolicyId)
+
+<div class="row">
+    <div class="col m4 s4">
+        @Html.Label("Designation")
+        @(Html.Kendo().DropDownListFor(m=>m.DesigId)
+              .Name("DesigId")
+              .OptionLabel("Select Designation")
+              .DataTextField("DesgName")
+              .DataValueField("DesgId")
+              .ValuePrimitive(true)
+              .Events(e => e.Select("onDesignationSelect"))
+              .DataSource(source =>
+              {
+                  source.Read(read =>
+                  {
+                      read.Action("DesigList", "Employee");
+                  });
+              })
+              .HtmlAttributes(new { style = "width: 100%", required="required", validationmessage="Please select designation" })
+        )
+        <span class="k-invalid-msg" data-for="DesigId"></span>
+    </div>
+    <div class="col m4 s4">
+        @Html.Label("Salary Slab")
+        @(Html.Kendo().DropDownListFor(m=>m.SlabId)
+        .Name("SlabId")
+        .OptionLabel("Select Slab")
+        .DataTextField("SlabTitle")
+        .DataValueField("SlabId")
+        .DataSource(source =>
+        {
+        source.Read(read =>
+        {
+        read.Action("SalarySlabList", "Employee");
+        });
+        })
+        .HtmlAttributes(new { style = "width: 100%", required="required", validationmessage="Please select Salary Slab" })
+        )
+        <span class="k-invalid-msg" data-for="SlabId"></span>
+    </div>
+</div>
+<div class="row">
+    <div class="col m6 s6">
+        @Html.Label("Policy Title")
+        <div class="input-group">
+            @Html.TextBoxFor(m => m.PolicyTitle, new { placeholder = "Enter Policy Title", @class = "form-control", required = "required", validationmessage = "Please enter Policy Title" })
+            @Html.TextBox("Design", "", new { placeholder = "Select Designation", @class = "form-control", @readonly = "readonly" })
+        </div>
+        <span class="k-invalid-msg" data-for="PolicyTitle"></span>
+    </div>
+    <div class="col-md-4">
+        <label>Effective Date</label>
+        @(Html.Kendo().DatePickerFor(m=>m.EffectiveDate)
+        .Name("EffectiveDate")
+        .HtmlAttributes(new { style = "width: 100%", title = "Effective Date", required="required", validationmessage="Please select Effective Date" })
+        )
+    <span class="k-invalid-msg" data-for="EffectiveDate"></span>
+    </div>
+    <div class="col-md-2">
+        <label>Active Status</label>
+        <br />
+        @(Html.Kendo().CheckBoxFor(m=>m.Status).Name("Status").Label("Active"))
+    </div>
+</div>   
+<div class="row">
+    <div class="col m6 s6">
+        @Html.Label("City")
+        @(Html.Kendo().MultiSelect()
+        .Name("CityLst")
+        .DataTextField("City")
+        .DataValueField("CityId")
+        .Placeholder("Select Cities")
+        .Events(e => e.Change("LoadBranches"))
+        .ValuePrimitive(true)
+        .DataSource(source => {
+        source.Read(read =>
+        {
+        read.Action("CityList", "Setup");
+        })
+        .ServerFiltering(true);
+        })
+        .HtmlAttributes(new { style = "width: 100%", required="required", validationmessage="Please select City" })
+        )
+        <span class="k-invalid-msg" data-for="CityLst"></span>
+    </div>
+    <div class="col m6 s6">
+        @Html.Label("Branches")
+        @(Html.Kendo()
+                .MultiSelect()
+                .Name("LocLst")
+                .Placeholder("Select Branch")
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                .ValuePrimitive(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("LocationByCitiesList", "Setup").Data("filterBranches"))
+                    .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%"})
+                )
+        <span class="k-invalid-msg" data-for="LocLst"></span>
+    </div>
+</div>
+}

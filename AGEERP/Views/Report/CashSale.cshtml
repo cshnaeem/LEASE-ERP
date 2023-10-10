@@ -1,0 +1,142 @@
+﻿
+@{
+    ViewBag.Title = ViewBag.rpt;
+}
+@using (Html.BeginForm("CashSale", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Cash Sale</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                        <li class="breadcrumb-item active">Cash Sale</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("locChange"))
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+              
+                <div class="col-md-3 col-sm-4" id="rmo" style="display:none;">
+                    @Html.Label("Salesman")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("Salesman")
+                    .OptionLabel("All")
+                    .DataValueField("EmpId")
+                    .DataTextField("EmpName")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("EmpByDesgLoc", "Sale").Data("filterSalesman"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Payment Mode")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ModeId")
+                    .OptionLabel("All Mode")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(new List<SelectListItem>() {
+                          new SelectListItem() {
+                              Text = "Cash",
+                              Value = "1"
+                          },
+                          new SelectListItem() {
+                              Text = "Credit Card",
+                              Value = "2"
+                          },
+                        new SelectListItem() {
+                              Text = "Cheque",
+                              Value = "3"
+                          },
+                          new SelectListItem() {
+                              Text = "Online Transfer",
+                              Value = "4"
+                          }
+                      })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-8">
+                    <br /><br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Without Sales Man").Value("3").Checked(true)<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Cash Sale Report").Value("1")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Reference Sale Report").Value("2")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Cash Sale Summary").Value("4")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Sale Order Report").Value("5")
+                </div>
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+            <br />
+        </div>
+    </div>
+}
+<script>
+    function filterSalesman() {
+        return {
+            LocId: $('#LocId').val(),
+            DesgId: 236
+        }
+    }
+    function locChange() {
+        $('#Salesman').data('kendoDropDownList').dataSource.read();
+    }
+    $(document).ready(function () {
+        locChange();
+        $('input[type=radio][name=rpt]').change(function () {
+            if (this.value == '1') {
+                $("#rmo").css("display", "block");
+                $('#Salesman').data('kendoDropDownList').dataSource.read();
+            }
+            else {
+                $("#rmo").css("display", "none");   
+            }
+        });
+    });
+</script>

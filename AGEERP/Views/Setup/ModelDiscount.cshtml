@@ -1,0 +1,299 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Model Discount Policy";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Model Discount Policy</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Model Discount Policy</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="frm" class="row">
+            <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                @Html.Label("Company")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("ComId")
+                .OptionLabel("Select Company")
+                .DataValueField("ComId")
+                .DataTextField("ComName")
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("CompanyList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Product")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("ProductId")
+                .OptionLabel("Select Product")
+                .DataValueField("ProductId")
+                .DataTextField("Name")
+                .CascadeFrom("ComId")
+                //.Events(e => e.Change("LoadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("ProductByCompList", "Setup").Data("filterProduct"))
+                .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Type")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("TypeId")
+                .OptionLabel("Select Type")
+                .DataValueField("TypeId")
+                .DataTextField("Name")
+                .CascadeFrom("ProductId")
+                .Events(e => e.Change("LoadModel"))
+                //.Enable(false)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("TypeList", "Setup").Data("filterModel"))
+                .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Policy Id")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("PolicyId")
+                .OptionLabel("New")
+                .DataValueField("PolicyId")
+                .DataTextField("PolicyId")
+                .CascadeFrom("TypeId")
+                .Events(e => e.Change("LoadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("DiscountPolicyList", "Setup").Data("filterType"))
+                .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Start Date")
+                @(Html.Kendo().DatePicker().Name("StartDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = true }))
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("End Date")
+                @(Html.Kendo().DatePicker().Name("EndDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = true }))
+            </div>
+            <div class="col-md-3 col-sm-3" style="margin-top:6px">
+                @Html.Label("Model")
+                @(Html.Kendo()
+                .MultiSelect()
+                .Name("ModelId")
+                .Placeholder("Select Model")
+                .DataValueField("ModelId")
+                .DataTextField("Model")
+                //.CascadeFrom("ProductId")
+                //.Events(e => e.Change("LoadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("ModelByTypeList", "Setup").Data("filterType"))
+                .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%", @class = "browser-default", @required = true })
+                )
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        @(Html.Kendo()
+                          .Grid<ModelDiscountSlabVM>()
+                          .Name("gridModelDiscount")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(c => c.RowId).Hidden();
+                              columns.Bound(c => c.PolicyId).Hidden();
+                              columns.Bound(c => c.MinSlabQty);
+                              columns.Bound(c => c.MaxSlabQty);
+                              columns.Bound(c => c.IncentiveAmt);
+                              columns.Bound(c => c.ExtraQtyRate);
+                              columns.Bound(c => c.Tour);
+                              columns.Command(c => { c.Destroy(); }).Width(220);
+                          })
+                          .Pageable()
+                          .Sortable()
+                          .Scrollable()
+                          .Navigatable()
+                          .AutoBind(false)
+                          .ToolBar(t => { t.Create(); t.Save(); })
+                          .Editable(e => e.Mode(GridEditMode.InCell))
+                          .HtmlAttributes(new { style = "height:400px;" })
+                          .Events(e => e.SaveChanges("onSaveChanges"))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .PageSize(20)
+                          .Batch(true)
+                          .Events(e => e.Error("error_handler").RequestEnd("onRequestEnd"))
+                          .Model(model =>
+                          {
+                              model.Id(m => m.RowId);
+                          })
+                          .Read(read => read.Action("ModelDiscount_Read", "Setup").Data("filterPolicy"))
+                          .Create(create => create.Action("ModelDiscount_Create", "Setup").Data("ModelData"))
+                          .Update(update => update.Action("ModelDiscount_Update", "Setup"))
+                          .Destroy(update => update.Action("ModelDiscount_Destroy", "Setup"))
+                          ))
+    </div>
+    </div>
+
+   
+        @section scripts
+{
+            <script type="text/javascript">
+                var gridElement = $("#gridModelDiscount");
+                var validator = $("#frm").kendoValidator().data("kendoValidator");
+                $(document).ready(function () {
+                    resizeGrid();
+                    //$('#m_10000000').addClass('active');
+                    //$('#d_10000000').css("display", "block");
+                    //$('#m_10010000').addClass('active');
+                    //$('#d_10010000').css("display", "block");
+                    //$('#m_10011000').addClass('active');
+                    //$('#a_10011000').addClass('active');
+
+                });
+                function onSaveChanges(e) {
+                    if ($('#gridModelDiscount').data('kendoGrid').dataSource.data().length == 0) {
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.content("Nothing to Save");
+                        dia.open();
+                        e.preventDefault();
+                    }
+                    else if (!validator.validate()) {
+                        e.preventDefault();
+                    }
+                    else if (!confirm("Are you sure that you want to proceed?")) {
+                        e.preventDefault();
+                    }
+                }
+                function filterProduct() {
+                    return {
+                        ComId: $('#ComId').val()
+                    }
+                }
+                function filterType() {
+                    return {
+                        TypeId: $('#TypeId').val()
+                    }
+                }
+                function filterPolicy() {
+                    return {
+                        PolicyId: $('#PolicyId').val()
+                    }
+                }
+                function filterModel() {
+                    return {
+                        ComId: $('#ComId').val(),
+                        ProductId: $('#ProductId').val()
+                    }
+                }
+                function ModelData() {
+                    return {
+                        Policy: $('#PolicyId').val() || 0,
+                        ModelLst: $('#ModelId').val(),
+                        StartDate: $('#StartDate').val(),
+                        EndDate: $('#EndDate').val(),
+                        TypeId: $('#TypeId').val()
+                    }
+                }
+                function LoadGrid() {
+                    var policy = $('#PolicyId').val() || 0;
+                    if (policy > 0) {
+                        $('#gridModelDiscount').data('kendoGrid').dataSource.read();
+                        $.getJSON("/Setup/DiscountPolicyModelList?PolicyId=" + policy, function (data) {
+                            $('#ModelId').data('kendoMultiSelect').value(data);
+                        });
+                        var pol = $('#PolicyId').data('kendoDropDownList').dataItem();
+                        $('#StartDate').data('kendoDatePicker').value(pol.StartDate);
+                        $('#EndDate').data('kendoDatePicker').value(pol.EndDate);
+
+                        $('#StartDate').data('kendoDatePicker').enable(false);
+                        $('#EndDate').data('kendoDatePicker').enable(false);
+                        $('#ModelId').data('kendoMultiSelect').enable(false);
+                    }
+                    else {
+                        $('#gridModelDiscount').data('kendoGrid').dataSource.data([]);
+                        $('#ModelId').data('kendoMultiSelect').value([]);
+
+                        $('#StartDate').data('kendoDatePicker').enable(true);
+                        $('#EndDate').data('kendoDatePicker').enable(true);
+                        $('#ModelId').data('kendoMultiSelect').enable(true);
+                    }
+                }
+                function LoadModel() {
+                    $('#ModelId').data('kendoMultiSelect').dataSource.read();
+                }
+                function resizeGrid() {
+                    var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+                    if (height < 200) {
+                        height = 200;
+                    }
+                    else if (height > 910) {
+                        height = 910;
+                    }
+                    $("#gridModelDiscount").css("height", height);
+                    gridElement.data("kendoGrid").resize();
+                }
+
+                $(window).resize(function () {
+                    resizeGrid();
+                });
+                function error_handler(e) {
+                    if (e.errors) {
+                        var message = "Errors:\n";
+                        $.each(e.errors, function (key, value) {
+                            if ('errors' in value) {
+                                $.each(value.errors, function () {
+                                    message += this + "\n";
+                                });
+                            }
+                        });
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content(message);
+                        dia.open();
+                    }
+                }
+                function onRequestEnd(e) {
+                    if ((e.type == "create" || e.type == "update") && !e.response.Errors) {
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Success");
+                        dia.content("Save Successfully");
+                        dia.open();
+                        $('#PolicyId').data('kendoDropDownList').value("");
+                        LoadGrid();
+                    }
+                }
+            </script>
+            @*<style>
+                    th [role="listbox"] {
+                        visibility: hidden;
+                    }
+
+                    .k-filtercell, .k-filtercell .k-widget, .k-filtercell > span {
+                        display: table-row;
+                    }
+                </style>*@
+        }

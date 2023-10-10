@@ -1,0 +1,19 @@
+﻿@model int?
+
+@(Html.Kendo().ComboBoxFor(m => m)
+            //.AutoBind(false)
+            .Placeholder("Select Model...")
+            //.OptionLabel("Select Product...")
+            .DataTextField("Model")
+            .DataValueField("ModelId")
+            .Suggest(true)
+            .Filter(FilterType.StartsWith)
+            .Events(e => e.DataBound("onModelDataBound"))
+            .DataSource(dataSource =>
+            {
+                dataSource.Read(read => read.Action("ModelByLocList", "Setup").Data("filterModel")).ServerFiltering(true);
+            })
+            .CascadeFrom("LocId")
+            .IgnoreCase(true)
+)
+@Html.ValidationMessageFor(m => m)

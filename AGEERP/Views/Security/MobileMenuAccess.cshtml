@@ -1,0 +1,108 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Mobile Menu Access";
+}
+
+@(Html.Kendo()
+                      .Grid<MobileMenuAccessVM>()
+                      .Name("gridMobileMenuAccess")
+                      .Columns(columns =>
+                      {
+                          columns.Bound(c => c.GroupId).Hidden();
+                          columns.Bound(c => c.GroupName);
+                          columns.Command(c => { c.Edit(); }).Width(250);
+                      })
+                      .Pageable()
+                      .Sortable()
+                      .Scrollable()
+                      //.Filterable()
+                      .ToolBar(t => t.Create())
+                          .ToolBar(t => { t.Search(); })
+                                                       .Search(s => s.Field(a => a.GroupName))
+                    .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_MenuAccess"))
+                    .HtmlAttributes(new { style = "height:400px;" })
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .PageSize(20)
+                        .Events(e => e.Error("error_handler"))
+                        .Model(model =>
+                        {
+                            model.Id(m => m.GroupId);
+                            model.Field(m => m.GroupName);
+                              model.Field(m => m.ActivityIds);
+                        })
+                        .Read(read => read.Action("MobileMenuAccessObject_Read", "Security"))
+                    .Create(create => create.Action("MobileMenuAccessObject_Create", "Security").Data("FormData"))
+                    .Update(update => update.Action("MobileMenuAccessObject_Update", "Security").Data("FormData"))
+                     .Destroy(update => update.Action("MobileMenuAccessObject_Delete", "Setup"))
+                    ))
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            //$('#m_11000000').addClass('active');
+            //$('#d_11000000').css("display", "block");
+            //$('#m_11020000').addClass('active');
+            //$('#a_11020000').addClass('active');
+            resizeGrid();
+
+        });
+
+        var gridElement = $("#gridMobileMenuAccess");
+
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridMobileMenuAccess").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+        function GetGroup() {
+            return {
+                id : $('#GroupId').val()
+            }
+        }
+        function TooglePassword() {
+            $("#togglepassword").toggleClass("k-i-lock k-i-unlock");
+            var input = $("[id='" + $("#togglepassword").attr("toggle") + "']");
+            if (input.attr("type") === "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+        }
+
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+        function FormData() {
+                return {
+                    //DeptId: $('#DeptId').val(),
+                    SelectedActivity: $("#ActivityIds").data("kendoMultiSelect").value()
+                }
+            }
+   
+
+    </script>
+}

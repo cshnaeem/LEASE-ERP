@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "Branch Profitability";
+}
+@using (Html.BeginForm("BranchProfitability", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    
+    @Html.AntiForgeryToken()
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Branch Profitability</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Report</a></li>
+                    <li class="breadcrumb-item active">Branch Profitability</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Fiscal Year")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("YrCode")
+                .SelectedIndex(0)
+                .DataValueField("YrCode")
+                .DataTextField("YrName")
+                //.Suggest(true)
+                //.Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("FinancialYearList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                        )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+        </div>
+        <div class="row rpt4" style="display:none;">
+            <div class="col-md-6">
+                @Html.Label("Region")
+                @(Html.Kendo()
+                        .MultiSelect()
+                        .Name("RegionId")
+                        //.OptionLabel("All")
+                        .DataValueField("RegionId")
+                        .DataTextField("Region")
+                        .Filter(FilterType.Contains)
+                        .ValuePrimitive(true)
+                         .Events(e => e.Change("loadProfitCenter"))
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("RegionList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+            </div>
+            <div class="col-md-6">
+                @Html.Label("Profit Center")
+                @(Html.Kendo()
+                    .MultiSelect()
+                    .Name("PCCode")
+                    //.OptionLabel("All")
+                    .DataValueField("PCCode")
+                    .DataTextField("PCDesc")
+                    .ValuePrimitive(true)
+                    .AutoBind(false)
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("ProfitCentersByRegionList", "Account").Data("filterProfitCenter"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            <div class="col-md-6">
+                <br />
+                @Html.Kendo().RadioButton().Name("SaleType").Label("All").Value("").Checked(true)
+                @Html.Kendo().RadioButton().Name("SaleType").Label("Cash").Value("C")
+                @Html.Kendo().RadioButton().Name("SaleType").Label("Installment").Value("I")
+            </div>
+            <div class="col-md-6">
+                <br />
+                @Html.Kendo().RadioButton().Name("PRType").Label("All").Value("").Checked(true)
+                @Html.Kendo().RadioButton().Name("PRType").Label("Profit").Value("P")
+                @Html.Kendo().RadioButton().Name("PRType").Label("Loss").Value("L")
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <br />
+                @Html.Kendo().RadioButton().Name("rpt").Label("Version 1").Value(1).Checked(true)
+                @Html.Kendo().RadioButton().Name("rpt").Label("Version 2").Value(2)
+                @Html.Kendo().RadioButton().Name("rpt").Label("Version 3").Value(3)
+                @Html.Kendo().RadioButton().Name("rpt").Label("Version 4").Value(4)
+            </div>
+            <div class="col-3">
+                <br />
+                <button class="k-button k-primary" type="submit">
+                    <i class="fas fa-print"></i>&nbsp; Print
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+    }
+
+
+    <script>
+        $(document).ready(function () {
+            $(".rpt4").css("display", "none");
+            $('input[type=radio][name=rpt]').change(function () {
+                if (this.value == 4) {
+                    $(".rpt4").css("display", "block");
+                }
+                else {
+                    $(".rpt4").css("display", "none");
+                }
+            });
+        });
+        function loadProfitCenter() {
+            $('#PCCode').data('kendoMultiSelect').dataSource.read();
+        }
+        function filterProfitCenter() {
+            return {
+                RegLst: $('#RegionId').val() || []
+            }
+        }
+    </script>

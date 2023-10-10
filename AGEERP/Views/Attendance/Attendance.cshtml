@@ -1,0 +1,510 @@
+﻿
+@{
+    ViewBag.Title = "Attendance";
+}
+
+
+<div id="mainatt">
+    <div class="card-panel material-shadow">
+        <div class="info-box bg-navy">
+            <div class="info-box-content">
+                <div class="row">
+                    <div class="col-sm-12 col-md-3">
+                        <a href="#" class="avatar">
+                            <img id="img" src="../../../app-assets/images/avatar/user.png" alt="users view avatar" class="z-depth-4 circle" width="200" height="200">
+                        </a>
+                    </div>
+                    <div class="col-sm-12 col-md-3 center-align">
+                        <h1 id="EmployeeId" class="info-box-text"></h1>
+                        <h3 id="EmployeeName" class="info-box-text"></h3>
+                        <h3 id="Designation" class="info-box-text"></h3>
+                        <h3 id="Department" class="info-box-text"></h3>
+                    </div>
+                    <div class="col-sm-12 col-md-3 center-align">
+                        <h3 class="bold" id="status"></h3>
+                        @*<h3 class="bold" id="qualityInputBox"></h3>*@
+                        <div class="row">
+                            <div class="col-6 right-align">
+                                <h6 class="mb-0 white-text">InTime</h6>
+                            </div>
+                            <div class="col-6 left-align">
+                                <h6 class="mb-0 white-text" id="InTime"> </h6>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 right-align">
+                                <h6 class="mb-0 white-text">OutTime</h6>
+                            </div>
+                            <div class="col-6 left-align">
+                                <h6 class="mb-0 white-text" id="OutTime"> </h6>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 right-align">
+                                <h6 class="mb-0 white-text">Device Status</h6>
+                            </div>
+                            <div class="col-6 left-align">
+                                <h6 class="mb-0 white-text" id="DeviceStatus"> </h6>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 right-align">
+                                <h6 class="mb-0 white-text">Message</h6>
+                            </div>
+                            <div class="col-6 left-align">
+                                <h6 class="mb-0 white-text" id="Message"> </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-3">
+                        <a href="#" class="avatar">
+                            <img id="imagediv" class="img-responsive" height="200" width="200" src="~/Content/Attendance/fingerprint.png" style="background-color:white" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-3">
+            <div class="card card-widget widget-user-2 material-shadow" id="card1">
+                <div class="widget-user-header bg-green ">
+                    <div class="widget-user-image text-center">
+                        <img id="img1" class="img-circle material-shadow" src="../../../app-assets/images/avatar/user.png" alt="Age Employee">
+                    </div>
+                </div>
+                <div class="card-footer p-0">
+                    <ul class="nav flex-column">
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link text-center">
+                                <h3 class="badge text-center" id="status1">--</h3>
+                            </a>
+                        </li>
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link text-center cl-black">
+                                <h3 id="EmployeeId1"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link text-center cl-black">
+                                <h3 id="EmployeeName1"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link text-center cl-black">
+                                <h3 id="Department1"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item text-center text-center">
+                            <a href="#" class="nav-link text-center cl-black">
+                                <h3 id="Designation1"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link ">
+                                <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME IN</b> <h3 class="float-right badge bg-primary" id="InTime1">00:00:00</h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME OUT</b> <h3 class="float-right badge bg-primary" id="OutTime1">00:00:00</h3>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3">
+            <div class="card card-widget widget-user-2 material-shadow" id="card2">
+                <div class="widget-user-header bg-primary text-center">
+                    <div class="widget-user-image">
+                        <img id="img2" class="img-circle material-shadow" src="../../../app-assets/images/avatar/user.png" alt="Age Employee">
+                    </div>
+                </div>
+                <div class="card-footer p-0">
+                    <ul class="nav flex-column">
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link text-center">
+                                <h3 class="badge text-center" id="status2">--</h3>
+                            </a>
+                        </li>
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link">
+                                <h3 id="EmployeeId2"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link">
+                                <h3 id="EmployeeName2"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link">
+                                <h3 id="Department2"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link">
+                                <h3 id="Designation2"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME IN</b> <h3 class="float-right badge bg-green" id="InTime2">00:00:00</h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME OUT</b> <h3 class="float-right badge bg-green" id="OutTime2">00:00:00</h3>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3">
+            <div class="card card-widget widget-user-2 material-shadow" id="card3">
+                <div class="widget-user-header bg-secondary text-center">
+                    <div class="widget-user-image">
+                        <img id="img3" class="img-circle material-shadow" src="../../../app-assets/images/avatar/user.png" alt="Age Employee">
+                    </div>
+
+                </div>
+                <div class="card-footer p-0">
+                    <ul class="nav flex-column">
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link text-center">
+                                <h3 class="badge text-center" id="status3">--</h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link text-center">
+                                <h3 id="EmployeeId3"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link text-center">
+                                <h3 id="EmployeeName3"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link text-center">
+                                <h3 id="Department3"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link text-center">
+                                <h3 id="Designation3"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME IN</b> <h3 class="float-right badge bg-info" id="InTime3">00:00:00</h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME OUT</b> <h3 class="float-right badge bg-info" id="OutTime3">00:00:00</h3>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3">
+            <div class="card card-widget widget-user-2 material-shadow" id="card4">
+                <div class="widget-user-header bg-info text-center">
+                    <div class="widget-user-image">
+                        <img id="img4" class="img-circle material-shadow" src="../../../app-assets/images/avatar/user.png" alt="Age Employee">
+                    </div>
+                </div>
+                <div class="card-footer p-0">
+                    <ul class="nav flex-column">
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link text-center">
+                                <h3 class=" badge text-center" id="status4">--</h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link text-center">
+                                <h3 id="EmployeeId4"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item text-center">
+                            <a href="#" class="nav-link text-center">
+                                <h3 id="EmployeeName4"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link text-center">
+                                <h3 id="Department4"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link text-center">
+                                <h3 id="Designation4"><b>-----</b></h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME IN</b> <h3 class="float-right badge bg-secondary" id="InTime4">00:00:00</h3>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-clock cl-black"></i>&nbsp;<b class="cl-black">TIME OUT</b> <h3 class="float-right badge bg-secondary" id="OutTime4">00:00:00</h3>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script src="~/Scripts/Attendance/es6-shim.js"></script>
+    <script src="~/Scripts/Attendance/websdk.client.bundle.min.js"></script>
+    <script src="~/Scripts/Attendance/fingerprint.sdk.min.js"></script>
+    @* <script src="~/Scripts/Attendance/app.js"></script>*@
+    <script src="~/Scripts/Attendance/attendance.js"></script>
+
+    <script src="~/Scripts/randomColor.js"></script>
+    <script src="~/Scripts/confettiKit.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            //$('#m_20000000').addClass('active');
+            //$('#d_20000000').css("display", "block");
+            //$('#m_20300000').addClass('active');
+            //$('#a_20300000').addClass('active');
+
+        });
+        $('body').addClass('sidebar-collapse');
+
+
+        var EmpList = [];
+        var CData = null;
+        function EmpChange(dat) {
+            $('#EmployeeId').text(dat.EmpId);
+            $('#EmployeeName').text(dat.EmpName);
+            $('#Department').text(dat.DeptName);
+            $('#Designation').text(dat.DesgName);
+
+            document.getElementById("img").src = "../../../Content/EmpImg/" + dat.EmpId + ".jpg";
+            if (dat.Status == "REPEAT") {
+                $('#InTime').text("");
+                $('#OutTime').text("");
+                $('#status').removeClass('white-text').addClass('red-text');
+                $('#status').text("PLEASE DO NOT MARK REPEATEDLY");
+            }
+            else if (dat.Status == "SHORT OUT") {
+                $('#InTime').text(dat.InTime);
+                $('#OutTime').text(dat.OutTime);
+                $('#status').removeClass('white-text').addClass('red-text');
+                $('#status').text(dat.Status);
+                if (dat.IsBirthday == true) {
+                    var i = 0;
+                    $('#status').text(dat.Status + " Happy Birthday");
+                    var interv = setInterval(
+                        function () {
+                            if (i <= 10) {
+                                bottombtn();
+                                //topbtn();
+                                i++;
+                            }
+                            else {
+                                myStopFunction();
+                            }
+                        }, 500);
+                    function myStopFunction() {
+                        clearInterval(interv);
+                    }
+                }
+                else if (dat.IsWorkAnniversary == true) {
+                    var i = 0;
+                    $('#status').text(dat.Status + " Happy Work Anniversary");
+                    var interv = setInterval(
+                        function () {
+                            if (i <= 10) {
+                                bottombtn();
+                                //topbtn();
+                                i++;
+                            }
+                            else {
+                                myStopFunction();
+                            }
+                        }, 500);
+                    function myStopFunction() {
+                        clearInterval(interv);
+                    }
+                }
+            }
+            else {
+                $('#InTime').text(dat.InTime);
+                $('#OutTime').text(dat.OutTime);
+                $('#status').text(dat.Status);
+                $('#status').removeClass('red-text').addClass('white-text');
+                if (dat.IsBirthday == true) {
+                    var i = 0;
+                    $('#status').text(dat.Status + " Happy Birthday");
+                    var interv = setInterval(
+                        function () {
+                            if (i <= 10) {
+                                bottombtn();
+                                //topbtn();
+                                i++;
+                            }
+                            else {
+                                myStopFunction();
+                            }
+                        }, 500);
+                    function myStopFunction() {
+                        clearInterval(interv);
+                    }
+                }
+                else if (dat.IsWorkAnniversary == true) {
+                    var i = 0;
+                    $('#status').text(dat.Status + " Happy Work Anniversary");
+                    var interv = setInterval(
+                        function () {
+                            if (i <= 10) {
+                                bottombtn();
+                                //topbtn();
+                                i++;
+                            }
+                            else {
+                                myStopFunction();
+                            }
+                        }, 500);
+                    function myStopFunction() {
+                        clearInterval(interv);
+                    }
+                }
+            }
+            if (CData != null) {
+                if (EmpList.length == 4) {
+                    EmpList.splice(3, 1);
+                }
+                EmpList.splice(0, 0, CData);
+            }
+            if (dat.Status != "IN" && dat.Status != "OUT" && dat.Status != "SHORT OUT") {
+                CData = null;
+            }
+            else {
+                CData = dat;
+            }
+            setPrevData();
+        }
+        function setPrevData() {
+            for (var i = 0; i < (EmpList.length); i++) {
+                $('#EmployeeId' + (i + 1)).text(EmpList[i].EmpId);
+                $('#EmployeeName' + (i + 1)).text(EmpList[i].EmpName);
+                $('#Department' + (i + 1)).text(EmpList[i].DeptName);
+                $('#Designation' + (i + 1)).text(EmpList[i].DesgName);
+                $('#status' + (i + 1)).text(EmpList[i].Status);
+
+                if (EmpList[i].Status == 'SHORT OUT') {
+                    $('#card' + (i + 1)).addClass('pulse card-attendance-animate');
+                    $('#status' + (i + 1)).addClass('bg-orange');
+                }
+                else if (EmpList[i].Status == 'IN') {
+                    $('#card' + (i + 1)).removeClass('card-attendance-animate');
+                    $('#status' + (i + 1)).addClass('bg-green');
+                }
+                else if (EmpList[i].Status == 'OUT') {
+                    $('#card' + (i + 1)).removeClass('card-attendance-animate');
+                    $('#status' + (i + 1)).addClass('bg-red');
+                }
+                $('#InTime' + (i + 1)).text(EmpList[i].InTime);
+                $('#OutTime' + (i + 1)).text(EmpList[i].OutTime);
+                document.getElementById("img" + (i + 1)).src = "../../../Content/EmpImg/" + EmpList[i].EmpId + ".jpg";
+            }
+        }
+
+        function Reset() {
+            $('#EmployeeId').text("");
+            $('#EmployeeName').text("");
+            $('#Department').text("");
+            $('#Designation').text("");
+            $('#InTime').text("");
+            $('#OutTime').text("");
+            $('#status').removeClass('white-text').addClass('red-text');
+            $('#status').text("Not Found");
+            document.getElementById("img").src = "../../../app-assets/images/avatar/user.png";
+            if (CData != null) {
+                if (EmpList.length == 4) {
+                    EmpList.splice(3, 1);
+                }
+                EmpList.splice(0, 0, CData);
+            }
+            CData = null;
+            setPrevData();
+        }
+
+        function bottombtn(e) {
+            new confettiKit({
+                confettiCount: 40,
+                angle: 90,
+                startVelocity: 50,
+                colors: randomColor({ hue: 'blue', count: 18 }),
+                elements: {
+                    'confetti': {
+                        direction: 'down',
+                        rotation: true,
+                    },
+                    'star': {
+                        count: 10,
+                        direction: 'down',
+                        rotation: true,
+                    },
+                    'ribbon': {
+                        count: 5,
+                        direction: 'down',
+                        rotation: true,
+                    },
+                    'custom': [{
+                        count: 1,
+                        width: 50,
+                        textSize: 15,
+                        content: '/Content/Resources/1194986736244974413balloon-red-aj.svg.thumb.png',
+                        contentType: 'image',
+                        direction: 'up',
+                        rotation: false,
+                    }]
+                },
+                position: 'bottomLeftRight',
+            });
+        }
+
+        function topbtn(e) {
+            new confettiKit({
+                colors: randomColor({ hue: 'pink', count: 18 }),
+                confettiCount: 40,
+                angle: 90,
+                startVelocity: 50,
+                elements: {
+                    'confetti': {
+                        direction: 'down',
+                        rotation: true,
+                    },
+                    'star': {
+                        count: 10,
+                        direction: 'down',
+                        rotation: true,
+                    },
+                    'ribbon': {
+                        count: 5,
+                        direction: 'down',
+                        rotation: true,
+                    },
+                },
+                position: 'topLeftRight',
+            });
+        }
+
+
+
+    </script>
+}

@@ -1,0 +1,19 @@
+﻿@model string
+
+@(Html.Kendo().ComboBoxFor(m => m)
+                                        .Name("ItemId")
+                                        .AutoBind(false)
+                                        .Placeholder("Select Serial...")
+                                        .DataTextField("SerialNo")
+                                        .DataValueField("ItemId")
+                                        .Suggest(true)
+                                        .Filter(FilterType.StartsWith)
+                                        //.Events(e => e.Change("SrNoChange"))
+                                        .DataSource(dataSource =>
+                                        {
+                                            dataSource.Read(read => read.Action("ItemBySKULoc", "Sale").Data("filterGridItem")).ServerFiltering(true);
+                                        })
+                                        .CascadeFrom("SKUId")
+                                        .IgnoreCase(true)
+                                        .HtmlAttributes(new { @style = "width:100%" })
+)

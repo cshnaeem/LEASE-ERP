@@ -1,0 +1,216 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "VPNSearch";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <style>
+        .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+            font-size: 12px !important;
+        }
+    </style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h2 class="card-title">VPN SEARCH</h2>
+            <div style="float:left">
+                <br />
+                <br />
+                <span id="status" style="font-size:14px;"></span>
+            </div>
+            <div style="float:right">
+                <div class="form-group" style="float:left;">
+                    <label for="exampleInputEmail1">STATUS</label>
+                    @(Html.Kendo().DropDownList()
+          .Name("StatusId")
+          .SelectedIndex(0)
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(ViewBag.Status)
+          .HtmlAttributes(new { style = "width: 100%" }))
+
+                </div>
+                <div class="form-group" style="        float: left;
+">
+                    <label for="exampleInputEmail1">SEARCH BY</label>
+                    @(Html.Kendo()
+                                .ComboBox()
+                                .Name("Crit2")
+                                .Placeholder("Search By")
+                                .SelectedIndex(0)
+                                .DataValueField("RowId")
+                                .DataTextField("Title")
+                                .Suggest(true)
+                                .Events(e => e.Change("SetMasking"))
+                                .Filter(FilterType.Contains)
+                                .DataSource(ds =>
+                                {
+                                 ds.Read(read => read.Action("VPNSearchCriteria", "Sale"));
+                                })
+                                .HtmlAttributes(new { @style = "width:90%", required = "required" })
+                    )
+                </div>
+                <div class="form-group" style="float:left;margin-top:2px;">
+                    <label for="exampleInputPassword1">SEARCH</label>
+                    @(Html.Kendo()
+                               .MaskedTextBox()
+                               .Name("CritVal1")
+                               //.Events(e => e.Change("NICChange"))
+                               .Mask("00000-0000000-0")
+                               .HtmlAttributes(new { @style = "width:100%", required = "required" })
+                    )
+                </div>
+                <div class="form-group" style="float:left;">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                        <i class="fas fa-search"></i>&nbsp; Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.card-header -->
+    <!-- form start -->
+    <form role="form">
+        <div class="card-body">
+
+
+            <section class="content">
+                <div class="container-fluid">
+                    <div id="CLosVouc">
+
+                        <div class="col-sm-12">
+                            @(Html.Kendo()
+                            .Grid<VPNSearchVM>()
+                            .Name("gridAccountSearch")
+                            .Columns(columns =>
+                            {
+                                columns.Command(c => c.Custom("Print").Click("PrintSlip")).Width(80);
+                                columns.Bound(c => c.NIC).Title("NIC").Width(120);
+                                columns.Bound(c => c.Mobile1).Width(100);
+                                columns.Bound(c => c.Mobile2).Width(100);
+                                columns.Bound(c => c.LocCode).Width(90);
+                                columns.Bound(c => c.AccNo).Width(80);
+                                columns.Bound(c => c.DeliveryDate).Format("{0: dd/MM/yyyy}").Width(100);
+                                columns.Bound(c => c.Customer).Width(110);
+                                columns.Bound(c => c.FName).Width(110);
+                                columns.Bound(c => c.MonthlyInst).Title("Inst").Width(80);
+                                columns.Bound(c => c.InstPrice).Title("Price").Width(80);
+                                columns.Bound(c => c.Status).Width(80);
+                                columns.Bound(c => c.Type).Width(80);
+                            })
+                            .Sortable()
+                            .Scrollable()
+                            .Pageable()
+                            .AutoBind(false)
+                            .Navigatable()
+                            .Events(e => e.DataBound("setColor"))
+                            .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+                            .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Model(model =>
+                            {
+                                model.Id(m => m.AccNo);
+                            })
+                            .Read(read => read.Action("VPNSearch_Read", "Sale").Data("filterAccountSearch"))
+                            ))
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </form>
+</div>
+@Html.Partial("~/Views/Report/_CReport.cshtml")
+<style>
+    .redC {
+        color: #ff0000 !important;
+    }
+    .greenC {
+        color: #008000 !important;
+    }
+</style>
+@section scripts {
+    <script>
+
+        function PrintSlip(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            //console.log(dataItem);
+            $("#rptC").val("Customer");
+            $("#TransIdC").val(dataItem.AccNo);
+            $("#rptCForm").submit();
+        }
+
+        function SetMasking(e) {
+            var scriteria = $('#Crit2').val();
+            if (scriteria == 42 || scriteria == 49 || scriteria == 74) {
+                $("#CritVal1").data('kendoMaskedTextBox').setOptions({ mask: "00000-0000000-0" });
+            }
+            else if (scriteria == 41 || scriteria == 48 || scriteria == 75) {
+                $("#CritVal1").data('kendoMaskedTextBox').setOptions({ mask: "0000-0000000" });
+            }
+        }
+
+
+        function NICChange(e) {
+            //var scriteria = $('#Crit2').val();
+            //if (scriteria == 42 || scriteria == 49 || scriteria == 74) {
+            var NIC = $('#CritVal1').val();
+
+            //kendo.ui.progress($('.card'), true);
+            $.getJSON("/Sale/CheckBlock", { str: NIC })
+                .done(function (data) {
+                    //kendo.ui.progress($('.card'), false);
+                    var sta = $('#status');
+                    if (data != "OK") {
+                        sta.addClass('text-danger');
+                        sta.text(data);
+                    }
+                    else {
+                        sta.text('');
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    //kendo.ui.progress($('.card'), false);
+                    kendo.alert('Error');
+                    this.value("");
+                });
+
+            //}
+            //else if (scriteria == 41 || scriteria == 48 || scriteria == 70) {
+
+            //}
+
+        }
+        $('body').addClass('sidebar-collapse');
+        function loadGrid() {
+            NICChange();
+            $("#gridAccountSearch").data("kendoGrid").dataSource.read();
+        }
+        function filterAccountSearch() {
+            return {
+
+                Crit1: $('#Crit2').val() || 0,
+                CritVal1: $('#CritVal1').val(),
+                Status: $('#StatusId').val()
+            }
+        }
+        function setColor(e) {
+            var rows = e.sender.tbody.children();
+            for (var j = 0; j < rows.length; j++) {
+                var row = $(rows[j]);
+                var dataItem = e.sender.dataItem(row);
+                var mrp = dataItem.get("Status");
+                if (mrp == "Open") {
+                    row.addClass("redC");
+                }
+                else {
+                    row.addClass("greenC");
+                }
+            }
+        }
+
+    </script>
+}

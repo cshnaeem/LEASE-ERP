@@ -1,0 +1,35 @@
+﻿@model AGEERP.Models.ShiftVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m=>m.ShiftId)
+
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("Shift Name")
+        @(Html.Kendo().TextBoxFor(x => x.ShiftTitle).HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Start Time")
+        @(Html.Kendo().TimePickerFor(x => x.StartTime).Format("{0:hh:mm tt}").HtmlAttributes(new { @style = "width:100%", @maxlength = "15" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("End Time")
+        @(Html.Kendo().TimePickerFor(x => x.EndTime).Format("{0:hh:mm tt}").HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Grace Time")
+        @(Html.Kendo().TextBoxFor(x => x.GraceTime).HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true" }))
+    </div>
+</div>
+
+}

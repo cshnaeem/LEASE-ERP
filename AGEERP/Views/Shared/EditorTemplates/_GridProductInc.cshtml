@@ -1,0 +1,106 @@
+﻿@model AGEERP.Models.ProductIncPolicyVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 900px;
+    }
+</style>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.PolicyId)
+
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Sale Type")
+            @(Html.Kendo()
+      .DropDownList()
+      .Name("SaleType")
+      .DataValueField("Value")
+      .DataTextField("Text")
+      .Filter(FilterType.Contains)
+      .DataSource(x => x.Read("GetSaleTypes", "Employee"))
+      .HtmlAttributes(new { @style = "width:100%" })
+            )
+            <span class="k-invalid-msg" data-for="SaleType"></span>
+        </div>
+        <div class="col-md-8">
+            @Html.Label("Policy Title")
+            <div class="input-group">
+                @Html.TextBoxFor(m => m.PolicyTitle, new { placeholder = "Enter Policy Title", @class = "form-control", required = "required", validationmessage = "Please Enter Policy Title" })
+            </div>
+            <span class="k-invalid-msg" data-for="PolicyTitle"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            <label>From Date</label>
+            @(Html.Kendo().DatePickerFor(m => m.PolicyStartDate)
+            .Name("PolicyStartDate")
+            .HtmlAttributes(new { style = "width: 100%", title = "From Date", required = "required", validationmessage = "Please select From Date" })
+            )
+            <span class="k-invalid-msg" data-for="PolicyStartDate"></span>
+        </div>
+        <div class="col-md-5">
+            <label>To Date</label>
+            @(Html.Kendo().DatePickerFor(m => m.PolicyExpiryDate)
+            .Name("PolicyExpiryDate")
+            .HtmlAttributes(new { style = "width: 100%", title = "To Date", required = "required", validationmessage = "Please select To Date" })
+            )
+            <span class="k-invalid-msg" data-for="PolicyExpiryDate"></span>
+        </div>
+        <div class="col-md-2">
+            <label>Active Status</label>
+            <br />
+            @(Html.Kendo().CheckBoxFor(m => m.PolicyStatus).Name("PolicyStatus"))
+        </div>
+    </div>
+    <div class="row">
+        @Html.Label("Remarks")
+        @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%" })
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            @Html.Label("City")
+            @(Html.Kendo().MultiSelect()
+            .Name("Cities")
+            .DataTextField("City")
+            .DataValueField("CityId")
+            .Placeholder("Select Cities")
+            .Events(e => e.Change("LoadBranches"))
+            .ValuePrimitive(true)
+            .DataSource(source =>
+                    {
+            source.Read(read =>
+            {
+            read.Action("CityList", "Setup");
+            })
+            .ServerFiltering(true);
+            })
+            .HtmlAttributes(new { style = "width: 100%", required = "required", validationmessage = "Please select City" })
+            )
+            <span class="k-invalid-msg" data-for="CityLst"></span>
+        </div>
+        <div class="col-md-5">
+            @Html.Label("Location")
+            @(Html.Kendo()
+                    .MultiSelect()
+                    .Name("Locations")
+                    .Placeholder("Select Branch")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .ValuePrimitive(true)
+                    .AutoBind(true)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationByCitiesLst", "Setup").Data("filterBranches"))
+                        .ServerFiltering(true);
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+            )
+            <span class="k-invalid-msg" data-for="LocLst"></span>
+        </div>
+    </div>
+}

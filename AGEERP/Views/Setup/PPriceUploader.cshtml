@@ -1,0 +1,163 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "PPriceUploader";
+}
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            <label>Select File to Import</label>
+            <div class="input-group mb-3">
+                <input type="file" class="form-control importfile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Select File" aria-describedby="basic-addon1">
+                <div class="input-group-append">
+                    <button class="btn btn-info btnLoadFile k-button" type="button">LOAD FILE</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-xs-12">
+            <a href="~/Content/PriceUploaderTemplate.xlsx">Download Upload Temple</a>
+        </div>
+            <div class="col-lg-12 col-md-12 col-xs-12">
+                @Html.Label("Purchase Price")
+                @(Html.Kendo()
+        .Grid<PPriceVM>()
+        .Name("gridPPrice")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.RowId).Hidden();
+            columns.Bound(c => c.SKU).Hidden();
+            columns.Bound(c => c.Supplier).Hidden();
+            columns.Bound(c => c.SuppId).Width(90);
+            columns.ForeignKey(c => c.SuppId, (System.Collections.IEnumerable)ViewData["SuppVD"], "SuppId", "SuppName").Title("Supplier");
+            columns.Bound(c => c.SKUId).Width(90);
+            columns.ForeignKey(c => c.SKUId, (System.Collections.IEnumerable)ViewData["SKUVD"], "SKUId", "SKUName").Title("SKU");
+            columns.Bound(c => c.TP).Width(90);
+            columns.Bound(c => c.MRP).Width(90);
+            columns.Bound(c => c.Discount).Width(100);
+            columns.Bound(c => c.Remarks).Width(100);
+            columns.Bound(c => c.FromDate).Width(110);
+            columns.Bound(c => c.ToDate).Width(100);
+            //columns.Command(c => c.Destroy());
+        })
+        .Sortable()
+        .Scrollable()
+        .AutoBind(false)
+        .Navigatable()
+            .ToolBar(t =>
+            {
+                t.Save();
+            })
+        .Editable(e => e.Mode(GridEditMode.InCell))
+        .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .Events(e => e.Error("error_handler").RequestEnd("onRequestEnd"))
+        .Model(model =>
+        {
+            model.Id(m => m.RowId);
+            model.Field(m => m.SKUId).Editable(false);
+            model.Field(m => m.TP).Editable(false);
+            model.Field(m => m.MRP).Editable(false);
+            model.Field(m => m.Remarks).Editable(false);
+            model.Field(m => m.Discount).Editable(false);
+            model.Field(m => m.FromDate).Editable(false);
+            model.Field(m => m.ToDate).Editable(false);
+            model.Field(m => m.SKU).Editable(false);
+            model.Field(m => m.Supplier).Editable(false);
+        })
+        .Update(read => read.Action("PPriceUploader_Save", "Setup"))
+        .Create(read => read.Action("PPriceUploader_Save", "Setup"))
+        ))
+            </div>
+        </div>
+        <script type="text/javascript" src="/scripts/xlsx.full.min.js"></script>
+        <script type="text/javascript" src="/scripts/jszip.js"></script>
+        <script>
+            $(".btnLoadFile").click(function () {
+                var fileUpload = $(".importfile")[0];
+                var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+                if (regex.test(fileUpload.value.toLowerCase())) {
+                    if (typeof (FileReader) != "undefined") {
+                        var reader = new FileReader();
+                        if (reader.readAsBinaryString) {
+                            reader.onload = function (e) {
+                                ProcessExcel(e.target.result);
+                            };
+                            reader.readAsBinaryString(fileUpload.files[0]);
+                        } else {
+                            reader.onload = function (e) {
+                                var data = "";
+                                var bytes = new Uint8Array(e.target.result);
+                                for (var i = 0; i < bytes.byteLength; i++) {
+                                    data += String.fromCharCode(bytes[i]);
+                                }
+                                ProcessExcel(data);
+                            };
+                            reader.readAsArrayBuffer(fileUpload.files[0]);
+                        }
+                    } else {
+                        $(".btnLoadFile").html("LOAD FILE");
+                        alert('This browser does not support HTML5.');
+                    }
+                } else {
+                    $(".btnLoadFile").html("LOAD FILE");
+                    alert('Please upload a valid Excel file.');
+                }
+            });
+            function ProcessExcel(data) {
+                var workbook = XLSX.read(data, {
+                    type: 'binary'
+                });
+                var firstSheet = workbook.SheetNames[0];
+                var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+                var lst = [];
+                for (var i = 0; i < excelRows.length; i++) {
+                    var SuppId = typeof excelRows[i]["SuppId"] === 'undefined' ? "" : excelRows[i]["SuppId"];
+                    var SKUId = typeof excelRows[i]["SKUId"] === 'undefined' ? "" : excelRows[i]["SKUId"];
+                    var TP = typeof excelRows[i]["TP"] === 'undefined' ? "" : excelRows[i]["TP"];
+                    var MRP = typeof excelRows[i]["MRP"] === 'undefined' ? "" : excelRows[i]["MRP"];
+                    var Discount = typeof excelRows[i]["Discount"] === 'undefined' ? "" : excelRows[i]["Discount"];
+                    var Remarks = typeof excelRows[i]["Remarks"] === 'undefined' ? "" : excelRows[i]["Remarks"];
+                    var FromDate = typeof excelRows[i]["FromDate"] === 'undefined' ? "" : excelRows[i]["FromDate"];
+                    var ToDate = typeof excelRows[i]["ToDate"] === 'undefined' ? "" : excelRows[i]["ToDate"];
+                    lst.push({
+                        SuppId: SuppId,
+                        SKUId: SKUId,
+                        SKU: "S",
+                        Supplier: "S",
+                        TP: TP,
+                        MRP: MRP,
+                        Discount: Discount,
+                        Remarks: Remarks,
+                        FromDate: FromDate,
+                        ToDate: ToDate,
+                        RowId:0
+                    });
+                }
+                $("#gridPPrice").data('kendoGrid').dataSource.data(lst);
+            }
+            function error_handler(e) {
+                if (e.errors) {
+                    var message = "Errors:\n";
+                    $.each(e.errors, function (key, value) {
+                        if ('errors' in value) {
+                            $.each(value.errors, function () {
+                                message += this + "\n";
+                            });
+                        }
+                    });
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Error");
+                    dia.content(message);
+                    dia.open();
+                }
+            }
+            function onRequestEnd(e) {
+                if (e.type == "create" && !e.response.Errors) {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Success");
+                    dia.content("Save Successfully");
+                    dia.open();
+                    $('#gridPPrice').data('kendoGrid').dataSource.data([]);
+                }
+            }
+        </script>

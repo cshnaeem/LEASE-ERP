@@ -1,0 +1,130 @@
+﻿
+@{
+    ViewBag.Title = "Trial Balance All Profit Centers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using (Html.BeginForm("TrialBalanceAllProfitCenters", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Trial Balance Comparison</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Report</a></li>
+                        <li class="breadcrumb-item active">Trial Balance Comparison</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Fiscal Year")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("YrCode")
+                .SelectedIndex(0)
+                .DataValueField("YrCode")
+                .DataTextField("YrName")
+                //.Suggest(true)
+                //.Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("FinancialYearList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-6 CC">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-6 CC">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-6 LL">
+                    @Html.Label("Profit Center")
+                    @(Html.Kendo()
+                        .DropDownList()
+                        .Name("PCCode")
+                        .OptionLabel("NA")
+                        .SelectedIndex(0)
+                        .DataValueField("PCCode")
+                        .DataTextField("PCDesc")
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                        ds.Read(read => read.Action("ProfitCentersList", "Account"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                </div>
+                <div class="col-md-3 col-sm-6 LL">
+                    @Html.Kendo().CheckBox().Name("NonZero").Label("With Zero").Checked(true)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Profit Center Wise").Value("C").Checked(true)
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Period Wise").Value("A")
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    @Html.Kendo().CheckBox().Name("Opening").Label("Opening").Checked(true)
+                    @Html.Kendo().CheckBox().Name("ForPeriod").Label("For Period").Checked(true)
+                    @Html.Kendo().CheckBox().Name("Closing").Label("Closing").Checked(true)
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <br />
+                    @Html.Kendo().RadioButton().Name("Lvl").Label("Level 1").Value(1)
+                    @Html.Kendo().RadioButton().Name("Lvl").Label("Level 2").Value(2)
+                    @Html.Kendo().RadioButton().Name("Lvl").Label("Level 3").Value(3)
+                    @Html.Kendo().RadioButton().Name("Lvl").Label("Level 4").Value(4).Checked(true)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-9">
+                </div>
+                <div class="col-3">
+                    <br />
+                    <button class="k-button k-primary" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section scripts{
+<script>
+       //$(".CC").show();
+       // $(".LL").hide();
+    $(document).ready(function () {
+        $(".LL").hide();
+        $('input[type=radio][name=rpt]').on('change', function () {
+            if (this.value == "C") {
+                $(".CC").show();
+                $(".LL").hide();
+            }
+            else //if (this.value == "A")
+            {
+                $(".CC").hide();
+                $(".LL").show();
+            }
+        });
+    });
+</script>
+}

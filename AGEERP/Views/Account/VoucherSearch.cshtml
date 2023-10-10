@@ -1,0 +1,244 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Voucher Search";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Voucher Search</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Voucher Search</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Voucher Type")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("TypeId")
+                //.SelectedIndex(0)
+                .DataValueField("VrTypeId")
+                .DataTextField("VrTypeDesc")
+                .Filter(FilterType.Contains)
+                .OptionLabel("All")
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("VoucherTypeList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3" style="margin-top:6px">
+                @Html.Label("VoucherNo")
+                @(Html.Kendo()
+                .TextBox()
+                .Name("VoucherNo")
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-sm-6" style="margin-top:-6px">
+                @Html.Label("A/C")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("Code")
+                .Placeholder("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("200px");
+                    columns.Add().Field("Name").Width("200px");
+                })
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                .MinLength(3)
+                //.Events(e => e.Change("loadGrid"))
+                .AutoBind(false)
+                //.BindTo(ViewBag.COA4)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SubCodeList", "Account").Data("filterSubCode"))
+                    .ServerFiltering(true);
+                })
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("ChequeNo")
+                @(Html.Kendo()
+                .TextBox()
+                .Name("ChequeNo")
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Narration")
+                @(Html.Kendo()
+                .TextBox()
+                .Name("Narration")
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Profit Center")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("PCCode")
+                .OptionLabel("NA")
+                .SelectedIndex(0)
+                .DataValueField("PCCode")
+                .DataTextField("PCDesc")
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("ProfitCentersList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Status")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("VStatus")
+                .OptionLabel("All")
+                .BindTo(SelectListVM.VrStatusSL)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("RefDocNo")
+                @(Html.Kendo()
+                .TextBox()
+                .Name("RefDocNo")
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-4" style="margin-top:6px">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                @(Html.Kendo()
+                .Grid<VoucherSearchVM>()
+                .Name("gridVoucherSearch")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.VrId).Hidden();
+                    columns.Bound(c => c.VrNo);
+                    columns.Bound(c => c.VrDate).Format("{0: dd/MM/yyyy}");
+                    columns.Bound(c => c.VrTypeId);
+                    columns.Bound(c => c.Amount);
+                    columns.Command(c => c.Custom("Edit").Click("EditVoucher").Visible("checkEdit"));
+                    columns.Command(c => c.Custom("Print").Click("PrintVoucher"));
+                })
+                .Sortable()
+                .Pageable()
+                .Scrollable()
+                .AutoBind(false)
+                .Navigatable()
+                .HtmlAttributes(new { style = "height:300px;" })
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(100)
+                .Model(model =>
+                {
+                    model.Id(m => m.VrId);
+                })
+                .Read(read => read.Action("VoucherSearch_Read", "Account").Data("filterVoucherSearch"))
+                ))
+            </div>
+        </div>
+    </div>
+</div>
+@using (Html.BeginForm("VoucherEdit", "Account", FormMethod.Post, new
+{
+    @Id = "VEditForm",
+    @target = "_blank",
+    //@hidden = "hidden",
+    //@onsubmit = "window.open('about:blank','_blank','fullscreen=0,location=0');"
+}))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("VcrId")
+}
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<script>
+    var level = '@ViewBag.Level';
+    var usr = '@ViewBag.UserId';
+    $(document).ready(function () {
+        //$('#m_15000000').addClass('active');
+        //$('#d_15000000').css("display", "block");
+        //$('#m_15070000').addClass('active');
+        //$('#a_15070000').addClass('active');
+    });
+    function filterVoucherSearch() {
+        return {
+            FromDate: $('#FromDate').val(),
+            ToDate: $('#ToDate').val(),
+            TypeId: $('#TypeId').val() || '',
+            VNo: $('#VoucherNo').val(),
+            Narration: $('#Narration').val(),
+            Code: $('#Code').val(),
+            VStatus: $('#VStatus').val() || '',
+            PCCode: $('#PCCode').val() || 0,
+            ChequeNo: $('#ChequeNo').val(),
+            RefDocNo: $('#RefDocNo').val() || ''
+        }
+    }
+    function loadGrid() {
+        $("#gridVoucherSearch").data("kendoGrid").dataSource.read();
+    }
+    function PrintVoucher(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        $("#rpt").val("Voucher");
+        $("#TransId").val(dataItem.VrId);
+        $("#rptForm").submit();
+    }
+    function filterSubCode() {
+        return {
+            str: $('#Code').data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+    function EditVoucher(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#VcrId").val(dataItem.VrId);
+        $("#VEditForm").submit();
+    }
+    function checkEdit(e) {
+        if (e.UserId == usr) {
+            return true
+        }
+        else {
+            return false;
+        }
+    }
+</script>

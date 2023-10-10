@@ -1,0 +1,80 @@
+﻿@model AGEERP.Models.SuppPaymentVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.TransId)
+
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Supplier Name")
+            @(Html.Kendo().TextBoxFor(x => x.SuppName).HtmlAttributes(new { @style = "width:100%", @readonly = true}))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("ClosingBalance")
+            @(Html.Kendo().NumericTextBoxFor(x => x.ClosingBalance).HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("WHT")
+            @(Html.Kendo().NumericTextBoxFor(x => x.WHT).HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("IsWHTPaid")
+            @(Html.Kendo().CheckBoxFor(x => x.IsWHTPaid))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 col-sm-4">
+            @Html.Label("Bank Account")
+            @(Html.Kendo()
+                .DropDownListFor(m => m.BankAccId)
+                //.OptionLabel("NA")
+                .SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SubCodeBankList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Instrument")
+            @(Html.Kendo().TextBoxFor(x => x.Instrument).HtmlAttributes(new { @style = "width:100%"}))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("InstrumentNo")
+            @(Html.Kendo().TextBoxFor(x => x.InstrumentNo).HtmlAttributes(new { @style = "width:100%"}))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Payment")
+            @(Html.Kendo().NumericTextBoxFor(x => x.Payment).Spinners(false).HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Bank Amount")
+            @(Html.Kendo().NumericTextBoxFor(x => x.BankAmount).Spinners(false).HtmlAttributes(new { @style = "width:100%",@class= "BankAmount" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Cash Amount")
+            @(Html.Kendo().NumericTextBoxFor(x => x.CashAmount).Spinners(false).HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+        </div>
+    </div>
+
+}
+

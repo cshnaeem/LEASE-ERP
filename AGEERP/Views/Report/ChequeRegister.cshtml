@@ -1,0 +1,111 @@
+﻿
+@{
+    ViewBag.Title = "ChequeRegister";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Cheque Register</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Accounts</a></li>
+                    <li class="breadcrumb-item active">Cheque Register</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        @using (Html.BeginForm("ChequeRegister", "Report", FormMethod.Post, new { target = "_blank" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("A/C Number")
+                    @(Html.Kendo().MultiColumnComboBox()
+                        .Name("AccId")
+                        .DataTextField("Name")
+                        .DataValueField("Id")
+                        .FilterFields(new string[] { "Code", "Name" })
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("Code").Width("200px");
+                            columns.Add().Field("Name").Width("200px");
+                        })
+                        .Suggest(true)
+                        .IgnoreCase(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(dataSource =>
+                        {
+                            dataSource.Read(read => read.Action("SubCodeBankList", "Account"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%"})
+                        )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 cqt">
+                    @Html.Label("Cheque Type")
+                    @(Html.Kendo()
+                     .DropDownList()
+                     .Name("ChequeType")
+                     .OptionLabel("Select Cheque Type")
+                     .BindTo(AGEERP.Models.SelectListVM.ChequeType)
+                     .HtmlAttributes(new { @style = "width:100%"  })
+                        )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Cheque Status")
+                    @(Html.Kendo()
+                     .DropDownList()
+                     .Name("ChequeStatus")
+                     .OptionLabel("Select Cheque Status")
+                     .BindTo(AGEERP.Models.SelectListVM.ChequeStatus)
+                     .HtmlAttributes(new { @style = "width:100%"  })
+                        )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Payment Type")
+                    @(Html.Kendo()
+                     .TextBox()
+                     .Name("PaymentType")
+                     .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                </div>
+                <div class="col-md-6 col-sm-6">
+                    <br />
+                    <br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Cheque Register").Checked(true).Value("1")
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Security Cheques").Value("2")
+                    @Html.Kendo().RadioButton().Name("rpt").Label("PDC").Value("3")
+                </div>
+                    <div class="col-md-3">
+                        <br />
+                        <button class="k-button margin-10" type="submit">
+                            <i class="fas fa-print"></i> Show
+                        </button>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+<script>
+    $(document).ready(function () {
+        $('input[type=radio][name=rpt]').change(function () {
+            if (this.value == '1') {
+                $(".cqt").css("display", "block");
+            }
+            else {
+                $(".cqt").css("display", "none");
+            }
+        });
+    });
+</script>

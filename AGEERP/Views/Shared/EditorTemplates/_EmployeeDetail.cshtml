@@ -1,0 +1,329 @@
+﻿@model AGEERP.Models.EmployeeVM
+@{
+    ViewBag.Title = "_EmployeeDetail";
+}
+
+
+@*@using (Ajax.BeginForm("Registration", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+
+    {*@
+<div class="row">
+    @*<div class="col-md-3 col-sm-3">
+        @Html.Label("EmpId")
+        @Html.Kendo().TextBox().Name("EmpId").HtmlAttributes(new { @style = "width:100%" })
+        </div>*@
+    @Html.HiddenFor(x => x.EmpId)
+    @*<div class="col-md-3 col-sm-3">*@
+    @*@(Html.Kendo().MultiColumnComboBox()
+                                                        .Name("EmpId")
+                                                        //.AutoBind(false)
+                                                        .Placeholder("New")
+                                                        .DataTextField("EmpId")
+                                                        .DataValueField("EmpId")
+                                                        .Columns(columns =>
+                                                        {
+                                                            columns.Add().Field("EmpId").Width("200px");
+                                                            columns.Add().Field("EmpName").Width("200px");
+                                                            columns.Add().Field("CNIC").Width("200px");
+
+                                                        })
+                                                        .Suggest(true)
+                                                        .Filter(FilterType.Contains)
+                                                        .FilterFields(new string[] { "EmpName", "CNIC", "EmpId" })
+                                                        .Events(e => e.Change("EmpChange").DataBound("StepperLoad"))
+                                                        //.MinLength(3)
+                                                        .BindTo(ViewBag.EmpLst)
+                                                        //.DataSource(dataSource =>
+                                                        //{
+                                                        //dataSource.Read(read => read.Action("EmployeeList", "Employee"));
+                                                        //})
+                                                        .IgnoreCase(true)
+                                                        .HtmlAttributes(new { @style = "width:100%" })
+        )*@
+    @*</div>*@
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Employee Name")
+        @Html.Kendo().TextBox().Name("EmpName").HtmlAttributes(new { @style = "width:100%", @required = "required", @class = "validate" })
+    </div>
+    <div class="col-md-3 col-sm-3">
+
+        @Html.Label("CNIC")
+        @(Html.Kendo()
+                                                        .MaskedTextBox()
+                                                        .Name("CNIC")
+                                                        .Mask("00000-0000000-0")
+                                                        .HtmlAttributes(new { @style = "width:100%", @required = "required", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Father Name")
+        @Html.Kendo().TextBox().Name("FName").HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Email")
+        @Html.Kendo().TextBox().Name("Email").HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Address")
+        @Html.Kendo().TextBox().Name("Address").HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Mobile 1")
+        @(Html.Kendo()
+                                                        .MaskedTextBox()
+                                                        .Name("Mobile1")
+                                                        .Mask("0000-0000000")
+                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Mobile 2")
+        @(Html.Kendo()
+                                                        .MaskedTextBox()
+                                                        .Name("Mobile2")
+                                                        .Mask("0000-0000000")
+                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Date of Birth")
+        @Html.Kendo().DatePicker().Name("DOB").Format("{0:MM/dd/yyyy}").HtmlAttributes(new { @style = "width:100%", @class = "validate", @type = "text" })
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Religion")
+        @Html.Kendo().TextBox().Name("Religion").HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Gender")
+        @(Html.Kendo()
+                                                        .DropDownList()
+                                                        .Name("Gender")
+
+                                                        .DataTextField("Text")
+                                                        .DataValueField("Value")
+                                                        .ValuePrimitive(true)
+                                                        .Filter(FilterType.Contains)
+                                                        .BindTo((System.Collections.IEnumerable)ViewBag.GenderSL)
+                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Blood Group")
+        @(Html.Kendo()
+                                                        .DropDownList()
+                                                        .Name("BloodGrp")
+                                                        .SelectedIndex(0)
+                                                        .DataTextField("Text")
+                                                        .DataValueField("Value")
+                                                        .ValuePrimitive(true)
+                                                        .Filter(FilterType.Contains)
+                                                        .BindTo((System.Collections.IEnumerable)ViewBag.BloodGroupSL)
+                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Marital Status")
+        @(Html.Kendo()
+                                                        .DropDownList()
+                                                        .Name("MaritalStatus")
+
+                                                        .DataTextField("Text")
+                                                        .DataValueField("Value")
+                                                        .ValuePrimitive(true)
+                                                        .Filter(FilterType.Contains)
+                                                        .BindTo((System.Collections.IEnumerable)ViewBag.MaritalStatusSL)
+                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>
+</div>
+    <div class="row">
+        <div class="col-md-3 col-sm-3">
+            @Html.Label("Designation")
+            @(Html.Kendo()
+                                                            .DropDownList()
+                                                            .Name("DesgId")
+                                                            .OptionLabel("Select Designation ...")
+                                                            .DataValueField("DesgId")
+                                                            .DataTextField("DesgName")
+                                                            .Filter(FilterType.Contains)
+                                                            .DataSource(ds =>
+                                                            {
+                                                                ds.Read(read => read.Action("SelectListDesignationList", "Employee"));
+                                                            })
+                                                            .HtmlAttributes(new { @style = "width:100%", @required = "required", @class = "validate" })
+            )
+        </div>
+        <div class="col-md-3 col-sm-3">
+            @Html.Label("Head Department")
+            @(Html.Kendo()
+                                                            .DropDownList()
+                                                            .Name("HDeptId")
+                                                            .OptionLabel("Select Department ...")
+                                                            .DataValueField("HDeptId")
+                                                            .DataTextField("HDeptName")
+                                                            .Filter(FilterType.Contains)
+                                                            .DataSource(ds =>
+                                                            {
+                                                                ds.Read(read => read.Action("HDepartmentList", "Employee"));
+                                                            })
+                                                            .HtmlAttributes(new { @style = "width:100%", @required = "required", @class = "validate" })
+            )
+        </div>
+        <div class="col-md-3 col-sm-3">
+            @Html.Label("Department")
+            @(Html.Kendo()
+                                                            .DropDownList()
+                                                            .Name("DeptId")
+                                                            .OptionLabel("Select Department ...")
+                                                            .DataValueField("DeptId")
+                                                            .DataTextField("Department")
+                                                            .Filter(FilterType.Contains)
+                                                            .CascadeFrom("HDeptId")
+                                                            .DataSource(ds =>
+                                                            {
+                                                                ds.Read(read => read.Action("DeptByHDeptList", "Employee").Data("filterDept")).ServerFiltering();
+                                                            })
+                                                            .HtmlAttributes(new { @style = "width:100%", @required = "required", @class = "validate" })
+            )
+        </div>
+        <div class="col-md-3 col-sm-3">
+            @Html.Label("Date of Joining")
+            @Html.Kendo().DatePicker().Name("DOJ").Format("{0:MM/dd/yyyy}").HtmlAttributes(new { @style = "width:100%", @required = "required", @class = "validate", @type = "text" })
+        </div>
+    </div>
+<div class="row">
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Weekend")
+        @(Html.Kendo()
+                                                        .DropDownList()
+                                                        .Name("Weekend")
+                                                        .SelectedIndex(0)
+                                                        .DataTextField("Text")
+                                                        .DataValueField("Value")
+                                                        .ValuePrimitive(true)
+                                                        .Filter(FilterType.Contains)
+                                                        .BindTo((System.Collections.IEnumerable)ViewBag.WeekDaySL)
+                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Weekly Holiday")
+        @(Html.Kendo()
+                                                        .DropDownList()
+                                                        .Name("WeeklyHoliday")
+                                                        .SelectedIndex(0)
+                                                        .DataTextField("Text")
+                                                        .DataValueField("Value")
+                                                        .ValuePrimitive(true)
+                                                        .Filter(FilterType.Contains)
+                                                        .BindTo((System.Collections.IEnumerable)ViewBag.WeekDaySL)
+                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Shift")
+        @(Html.Kendo()
+                                                        .DropDownList()
+                                                        .Name("ShiftId")
+                                                        .OptionLabel("Select Shift ...")
+                                                        .DataValueField("ShiftId")
+                                                        .DataTextField("ShiftTitle")
+                                                        .Filter(FilterType.Contains)
+                                                        .DataSource(ds =>
+                                                        {
+                                                            ds.Read(read => read.Action("SelectListShiftList", "Employee").Data("filterShift")).ServerFiltering();
+                                                        })
+                                                        .HtmlAttributes(new { @style = "width:100%", @required = "required", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Reporting To")
+        @(Html.Kendo().DropDownList()
+                                                        .Name("RptTo")
+                                                        .OptionLabel("Select Reporting To ...")
+                                                        .DataValueField("EmpId")
+                                                        .DataTextField("EmpName")
+                                                        .Filter(FilterType.Contains)
+                                                        .CascadeFrom("DesgId")
+                                                        .DataSource(ds =>
+                                                        {
+                                                            ds.Read(read => read.Action("GetMappedDesignationEmployees", "Employee").Data("DesgData")).ServerFiltering();
+                                                        })
+                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Job Type")
+        @(Html.Kendo()
+                                                        .DropDownListFor(x => x.JobType)
+                                                        .DataTextField("Text")
+                                                        .DataValueField("Value")
+                                                        .Filter(FilterType.Contains)
+                                                        .ValuePrimitive(true)
+                                                        .BindTo((System.Collections.IEnumerable)ViewBag.JobTypeSL)
+                                                        .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-3 col-sm-3">
+        @Html.Label("Status")
+        @(Html.Kendo()
+                                                        .DropDownListFor(x => x.Status)
+                                                        .DataTextField("Text")
+                                                        .DataValueField("Value")
+                                                        .ValuePrimitive(true)
+                                                        .Filter(FilterType.Contains)
+                                                        .BindTo((System.Collections.IEnumerable)ViewBag.EmpStatusSL)
+                                                        .HtmlAttributes(new { @style = "width:100%", @required = "required", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-2 col-sm-2">
+        @Html.Label("Pay Scale")
+        @(Html.Kendo().DropDownListFor(x => x.PayScaleId)
+                                                         .OptionLabel("Select Pay Scale ...")
+                                                         .DataValueField("BPS")
+                                                         .DataTextField("BPS")
+                                                         .Filter(FilterType.Contains)
+                                                         .DataSource(ds =>
+                                                         {
+                                                             ds.Read(read => read.Action("PayScaleList", "Employee")).ServerFiltering();
+                                                         })
+                                                         .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>
+    <div class="col-md-2 col-sm-2">
+        @Html.Label("Refer By")
+        @Html.Kendo().TextBox().Name("RefPerson").HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+    </div>
+    @*<div class="col-md-2 col-sm-2">
+        @Html.Label("Employee Role")
+        @(Html.Kendo().MultiSelectFor(x => x.EmpRolesIds)
+                                                         .Placeholder("Select Employee Role ...")
+                                                         .DataValueField("EROle")
+                                                         .DataTextField("RoleName")
+                                                         .Filter(FilterType.Contains)
+                                                         .ValuePrimitive(true)
+                                                         .DataSource(ds =>
+                                                         {
+                                                             ds.Read(read => read.Action("GetEmpRoles", "Employee")).ServerFiltering();
+                                                         })
+                                                         .HtmlAttributes(new { @style = "width:100%", @class = "validate" })
+        )
+    </div>*@
+
+    @*<div class="col-md-3 col-sm-3">
+        <br />
+        <button class="k-button k-primary" type="button" onclick="SaveDoc()">
+            <i class="material-icons left">save</i> Save
+        </button>*@
+    @*<button class="waves-effect waves-dark btn ">CONTINUE</button>*@
+    @*</div>*@
+</div>
+
+
+

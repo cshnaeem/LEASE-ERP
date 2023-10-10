@@ -1,0 +1,170 @@
+﻿@{
+    Layout = null;
+
+}
+<!DOCTYPE html>
+
+<html class="loading" lang="en" data-textdirection="ltr">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <title>User Login | AGE ERP</title>
+    <link rel="apple-touch-icon" href="~/app-assets/images/favicon/apple-touch-icon-152x152.png">
+    <link rel="shortcut icon" type="image/x-icon" href="~/app-assets/images/favicon/favicon-32x32.png">
+    <link rel="stylesheet" type="text/css" href="~/app-assets/Login/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="~/app-assets/Login/bootstrap-extended.min.css">
+    <link rel="stylesheet" type="text/css" href="~/app-assets/Login/colors.min.css">
+    <link rel="stylesheet" type="text/css" href="~/app-assets/Login/components.min.css">
+    <style>
+
+        .bx-right-arrow-alt::before {
+            content: none;
+        }
+
+        .btn-primary.glow {
+            box-shadow: 0 2px 4px 0 rgb(215, 49, 53) !important;
+        }
+
+        .btn-primary {
+            border-color: #D73135 !important;
+            background-color: #D73135 !important;
+            color: #FFF;
+        }
+
+            .btn-primary.hover.glow, .btn-primary:hover.glow {
+                box-shadow: 0 4px 12px 0 rgba(215, 49, 53, 0.7) !important;
+            }
+
+            .btn-primary.hover, .btn-primary:hover {
+                background-color: #D73135CC !important;
+                color: #FFF;
+            }
+
+    </style>
+</head>
+<!-- END: Head-->
+<!-- BEGIN: Body-->
+<body class="vertical-layout vertical-menu-modern 1-column  navbar-sticky footer-static bg-full-screen-image  blank-page blank-page" data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
+    <!-- BEGIN: Content-->
+    
+    <div class="app-content content">
+        <div class="content-overlay"></div>
+        <div class="content-wrapper">
+            <div class="content-header row">
+            </div>
+            <div class="content-body">
+                <!-- login page start -->
+                <section id="auth-login" class="row flexbox-container">
+                    <div class="col-xl-8 col-11">
+                        <div class="card bg-authentication mb-0">
+                            <div class="row m-0">
+                                <!-- left section-login -->
+                                <div class="col-md-6 col-12 px-0">
+                                    <div class="card disable-rounded-right mb-0 p-2 h-100 d-flex justify-content-center">
+                                        <div class="card-header pb-1">
+                                            <div class="card-title">
+                                                <h4 class="text-center mb-2">Welcome to AGE ERP</h4>
+                                            </div>
+                                        </div>
+                                        <div class="card-content">
+                                            <div class="card-body">
+
+                                                <div class="divider">
+                                                    <div class="divider-text text-uppercase text-muted">
+                                                        <small>
+                                                            Login with username provided
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                @using (Html.BeginForm("Login", "Login", FormMethod.Post))
+                                                {
+                                                    <form class="login-form">
+                                                        <input type="hidden" name="ReturnUrl" value="@Request.QueryString["ReturnUrl"]" />
+                                                        <div class="form-group mb-50">
+                                                            <label class="text-bold-600" for="exampleInputEmail1">Username</label>
+                                                            <input type="text" class="form-control" id="Username" name="Username"
+                                                                   placeholder="Username">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="text-bold-600" for="Password">Password</label>
+                                                            <input type="Password" class="form-control" id="Password" name="Password"
+                                                                   placeholder="Password">
+                                                        </div>
+                                                        <div class="form-group d-flex flex-md-row flex-column justify-content-between align-items-center">
+                                                            @*<div class="text-left">
+                                                                    <div class="checkbox checkbox-sm">
+                                                                        <input type="checkbox" class="form-check-input" id="IsRemember">
+                                                                        <label class="checkboxsmall" for="IsRemember">
+                                                                            <small>
+                                                                                Remember Me
+                                                                            </small>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>*@
+                                                            <div class="text-right">
+                                                                <div class="form-group" style="display:none;">
+                                                                    <select id="ThemeSel" class="form-control" name="ThemeSel">
+                                                                        <option value="agepremium.css">Age Premium</option>
+                                                                        <option value="blueflat.css">Blue Flat</option>
+                                                                        <option value="blueopal.css">Blue Opal</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <button type="submit" class="btn btn-primary glow w-100 position-relative">
+                                                            Login
+                                                        </button>
+                                                        <div class="form-group mb-50">
+                                                            <h6 class="ml-4" style="color:red">@Html.ValidationSummary()</h6>
+                                                        </div>
+                                                        <p>
+                                                            <b>@ViewBag.ip</b>
+                                                        </p>
+                                                        <a href="/Login/ForgotPassword" class="text-center">
+                                                            Forgot Password
+                                                        </a>
+                                                    </form>
+                                                }
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- right section image -->
+                                <div class="col-md-6 d-md-block d-none text-center align-self-center p-3">
+                                    <div class="card-content">
+                                        <img class="img-fluid" src="~/app-assets/Login/Images/AGE_LOGO.png" alt="AGE ERP">
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- login page ends -->
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            $('#ThemeSel').change(function () {
+                localStorage.setItem('Theme', this.value);
+            });
+            if (localStorage.getItem('Theme')) {
+                $('#ThemeSel').val(localStorage.getItem('Theme'));
+            }
+        });
+        
+    </script>
+
+
+</body>
+<!-- END: Body-->
+</html>

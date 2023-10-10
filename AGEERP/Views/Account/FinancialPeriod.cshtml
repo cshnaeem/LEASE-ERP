@@ -1,0 +1,137 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Financial Period";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Financial Period</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">Financial Period</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Fiscal Year")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("YrCode")
+                .SelectedIndex(0)
+                .DataValueField("YrCode")
+                .DataTextField("YrName")
+                .Events(e => e.Change("yrChange").DataBound("yrChange"))
+                //.Suggest(true)
+                //.Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("FinancialYearList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                        )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-xs-12">
+                @(Html.Kendo()
+                   .Grid<FinancialPeriodVM>()
+                   .Name("gridFinancialPeriod")
+                   .Columns(columns =>
+                   {
+                       //columns.Bound(c => c.YrCode);
+                       columns.Bound(c => c.PrName).Title("Period");
+                       columns.Bound(c => c.PrStart).Format("{0:dd MMM yyyy}").Title("Period Start");
+                       columns.Bound(c => c.PrEnd).Format("{0:dd MMM yyyy}").Title("Period End");
+                       columns.ForeignKey(c => c.PrStatus, (System.Collections.IEnumerable)ViewData["FinStatus"], "Value", "Text").Title("Status");
+                       columns.Command(c => { c.Edit();  }).Width(250);
+                   })
+                   .Pageable()
+                   .Sortable()
+                   .Scrollable()
+                   .AutoBind(false)
+                       // .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+                       //.ToolBar(t => {  t.Search(); })
+                       //     .Search(s => { s.Field(a => new { a.YrName}); })
+                       .Editable(e => e.Mode(GridEditMode.InLine))
+                       .HtmlAttributes(new { style = "height:400px;" })
+                       .DataSource(dataSource => dataSource
+                       .Ajax()
+                       .PageSize(20)
+                       .Events(e => e.Error("error_handler"))
+                       .Model(model =>
+                       {
+                           model.Id(m => m.PrCode);
+                           model.Field(m => m.PrCode).Editable(false);
+                           model.Field(m => m.PrCode).Editable(false);
+                           model.Field(m => m.PrName).Editable(false);
+                           model.Field(m => m.PrStart).Editable(false);
+                           model.Field(m => m.PrEnd).Editable(false);
+                           model.Field(m => m.PrStatus);
+                       })
+                       .Read(read => read.Action("FinancialPeriod_Read", "Account").Data("filterData"))
+                       .Create(create => create.Action("FinancialPeriod_Create", "Account"))
+                        .Update(create => create.Action("FinancialPeriod_Create", "Account"))
+                       ))
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script type="text/javascript">
+        var gridElement = $("#gridFinancialPeriod");
+        $(document).ready(function () {
+            resizeGrid();
+            //$('#m_18000000').addClass('active');
+            //$('#d_18000000').css("display", "block");
+            //$('#m_18010000').addClass('active');
+            //$('#d_18010000').css("display", "block");
+            //$('#m_18010400').addClass('active');
+            //$('#a_18010400').addClass('active');
+        });
+
+        function filterData() {
+            return {
+                YrCode: $('#YrCode').val()
+            }
+        }
+
+        function yrChange() {
+            $("#gridFinancialPeriod").data('kendoGrid').dataSource.read();
+        }
+
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridFinancialPeriod").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    </script>

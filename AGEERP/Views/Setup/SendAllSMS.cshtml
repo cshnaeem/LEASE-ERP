@@ -1,0 +1,199 @@
+﻿
+@{
+    ViewBag.Title = "SendAllSMS";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">SMS</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Setup</a></li>
+                    <li class="breadcrumb-item active">SMS</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("SendAllSMS", "Setup", FormMethod.Post, new { @Id = "frm" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-3" style="margin-top:-6px">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("LocId")
+                .Placeholder("Select Locations ...")
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                .SelectedIndex(0)
+                .Columns(columns =>
+                {
+                    columns.Add().Field("LocCode").Width("100px");
+                    columns.Add().Field("LocName").Width("200px");
+                })
+                .FilterFields(new string[] { "LocCode", "LocName" })
+                .Filter(FilterType.Contains)
+                .Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", required = true, validationmessage = "Location is Required" })
+                    )
+                    <span class="k-invalid-msg" data-for="LocId"></span>
+                </div>
+                <div class="col-md-3" style="margin-top:-6px">
+                    @Html.Label("Category")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("Category")
+                //.OptionLabel("Select Category")
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .SelectedIndex(0)
+                .BindTo(new List<SelectListItem>() {
+                      //new SelectListItem() {
+                      //    Text = "Fresh OS",
+                      //    Value = "F"
+                      //},
+                      //new SelectListItem() {
+                      //    Text = "Regular OS",
+                      //    Value = "R"
+                      //},
+                      new SelectListItem() {
+                          Text = "Live Accounts",
+                          Value = "O"
+                      },
+                       new SelectListItem() {
+                          Text = "Closed Accounts",
+                          Value = "C"
+                      },
+                       new SelectListItem() {
+                          Text = "All Accounts",
+                          Value = "A"
+                      }
+              })
+            .HtmlAttributes(new { @style = "width:100%", required = true, validationmessage = "Category is Required" })
+                )
+                    <span class="k-invalid-msg" data-for="Category"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-sm-6">
+                    @Html.Label("Message")
+                    @Html.TextArea("SMS", "", new { @class = "k-textbox urdu", style = "width: 100%; height:200px;", required = "required", validationmessage = "SMS Template" })
+                    <span class="k-invalid-msg" data-for="SMS"></span>
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    <button class="k-button btn-send" type="button" onclick="StartSMS()" style="margin-top:28px;">
+                        <i class="fas fa-sms"></i> START
+                    </button>
+                    <br />
+                    @*<input type="checkbox" class="isUrdu" /> Urdu SMS ?*@
+                </div>
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-4 col-sm-4">
+                <label>Test Message</label>
+                <div class="input-group">
+                    @(Html.Kendo()
+                       .TextBox()
+                       .Name("testnumber")
+                       .HtmlAttributes(new { placeholder = "Enter any mobile number", @class = "form-control" })
+                      )
+                    <div class="input-group-append">
+                        <button class="btn btn-info k-button btn-selftest" type="button"> <i class="fas fa-sms"></i>  SEND</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+    {
+    <script>
+        function StartSMS() {
+            $.confirm({
+                title: 'Confirmation',
+                content: 'Do you want to Send all SMS?',
+                type: 'red',
+                typeAnimated: true,
+                icon: 'fas fa-check',
+                buttons: {
+                    Confirm: function () {
+                        kendo.ui.progress($('.card'), true);
+                        $("#frm").submit();
+                    },
+                    Cancel: function () {
+                    }
+                }
+            });
+        }
+
+
+        $(".btn-selftest").click(function () {
+            $(".btn-selftest").html("<i class='fas fa-spinner'></i> SENDING");
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/Setup/TestSMS",
+                    data: {
+                        TestNo: $("#testnumber").val(),
+                        Message: $('#SMS').val()
+                    },
+                    success: function (res) {
+                        if (res === "Message Sent") {
+                            $.confirm({
+                                title: 'Success',
+                                content: res,
+                                type: 'green',
+                                typeAnimated: true,
+                                icon: 'fas fa-check',
+                                buttons: {
+                                    Ok: function () {
+                                    }
+                                }
+                            });
+                            $(".btn-selftest").html("<i class='fas fa-sms'></i> SEND");
+                            $("#testnumber").val('');
+                        }
+                        else  {
+                            $.confirm({
+                                title: 'Failed',
+                                content: res,
+                                type: 'red',
+                                typeAnimated: true,
+                                icon: 'fas fa-times',
+                                buttons: {
+                                    Ok: function () {
+                                    }
+                                }
+                            });
+                            $(".btn-selftest").html("<i class='fas fa-sms'></i> SEND");
+                        }
+                        //else {
+                        //    $.confirm({
+                        //        title: 'Failed',
+                        //        content: res,
+                        //        type: 'red',
+                        //        typeAnimated: true,
+                        //        icon: 'fas fa-times',
+                        //        buttons: {
+                        //            Ok: function () {
+                        //            }
+                        //        }
+                        //    });
+                        //    $(".btn-selftest").html("<i class='fas fa-sms'></i> SEND");
+                        //}
+                    }
+                });
+            $(".btn-selftest").html("<i class='far fa-check-circle'></i> SENT");
+        });
+    </script>
+}

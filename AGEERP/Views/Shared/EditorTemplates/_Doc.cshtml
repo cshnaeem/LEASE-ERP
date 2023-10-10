@@ -1,0 +1,7 @@
+﻿@using AGEERP.Models
+@model AccountSearchVM
+<div class="row">
+    <div id="documentview" style="width: 100%;">
+        @Html.Partial("DocumentManager", new DocumentManagerVM() { id = (long)Model.AccNo, RefObjId = 3 })
+    </div>
+</div>

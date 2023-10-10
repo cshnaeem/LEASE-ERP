@@ -1,0 +1,118 @@
+﻿@model AGEERP.Models.UserVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+
+@Html.AntiForgeryToken()
+@Html.ValidationSummary(true)
+@Html.HiddenFor(m => m.UserID)
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("Group")
+        @(Html.Kendo().DropDownListFor(x => x.GroupId)
+                            .OptionLabel("Select Group")
+                            .DataValueField("GroupId")
+                            .DataTextField("GroupName")
+                            .DataSource(ds =>
+                            {
+                                ds.Read(read => read.Action("GetGroups", "Security"));
+                            })
+                            .HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col m8 s6">
+        @Html.Label("EmployeeId")
+        @(Html.Kendo().MultiColumnComboBoxFor(x => x.EmployeeId)
+        .Name("EmployeeId")
+        //.AutoBind(false)
+        .Placeholder("Select Employee")
+        .DataTextField("EmpName")
+        .DataValueField("EmpId")
+        .Columns(columns =>
+        {
+        columns.Add().Field("EmpId").Width("100px");
+        columns.Add().Field("EmpName").Width("200px");
+        columns.Add().Field("DeptName").Width("200px");
+        columns.Add().Field("DesgName").Width("200px");
+        })
+        .Events(e => e.Change("EmpChange"))
+        .Filter(FilterType.Contains)
+        .FilterFields(new string[] { "EmpName", "DepName", "EmpId", "DesgName" })
+        //.MinLength(3)
+        .DataSource(dataSource =>
+        {
+        dataSource.Read(read => read.Action("EmpList", "Employee").Data("filterEmp")).ServerFiltering(true);
+        })
+        .IgnoreCase(true)
+        .HtmlAttributes(new { @style = "width:100%" })
+        )
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("User Name")
+        @(Html.Kendo().TextBoxFor(x => x.Username).HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Password")
+        @(Html.Kendo().TextBoxFor(x => x.Password).HtmlAttributes(new { @style = "width:90%", @maxlength = "15", @type = "password" }))
+        @*<span id="togglepassword" toggle="Password" class="k-icon k-i-lock toggle-password" onclick="TooglePassword()"></span>*@
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Full Name")
+        @(Html.Kendo().TextBoxFor(x => x.FullName).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+    </div>
+</div>
+
+<div class="row">
+    @*@if (Model.UserID > 0)
+    {*@
+        <div class="col-md-4" style="padding: 14px;">
+            @Html.Label("Status")
+            @(Html.Kendo().CheckBoxFor(x => x.Status))
+        </div>
+        @*}*@
+    <div class="col-md-4" style="padding: 14px;">
+        @Html.Label("Send Login Details / SMS")
+        @(Html.Kendo().CheckBoxFor(x => x.SendSMS).HtmlAttributes(new { @maxlength = "15" }))
+    </div>
+    @*<div class="col-md-4" style="padding: 14px;">
+        @Html.Label("Send Login Details / Email")
+        @(Html.Kendo().CheckBoxFor(x => x.SendEmail).HtmlAttributes(new { @maxlength = "15" }))
+    </div>*@
+</div>
+
+<div class="row">
+
+    <div class="col-md-4" style="padding: 14px;">
+        @Html.Label("Mobile Device Id")
+        @(Html.Kendo().TextBoxFor(x => x.DeviceId).HtmlAttributes(new { @style = "width:100%", @maxlength = "100" }))
+    </div>
+    <div class="col-md-4" style="padding: 14px;">
+        @Html.Label("MobileNo")
+        @(Html.Kendo().TextBoxFor(x => x.msg).HtmlAttributes(new { @style = "width:100%", @readonly = true}))
+    </div>
+
+</div>
+@*@if (Model.UserID > 0)
+{*@
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Last Login Date")
+            @(Html.Kendo().TextBoxFor(x => x.LastLoginDate).Enable(false).HtmlAttributes(new { @style = "width:100%", @maxlength = "100" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Last Modified Date")
+            @(Html.Kendo().TextBoxFor(x => x.ModifiedDate).Enable(false).HtmlAttributes(new { @style = "width:100%", @maxlength = "100" }))
+        </div>
+
+    </div>
+@*}*@
+<script>
+
+</script>

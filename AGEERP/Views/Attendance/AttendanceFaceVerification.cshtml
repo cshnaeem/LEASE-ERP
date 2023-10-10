@@ -1,0 +1,113 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "AttendanceFaceVerification";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Face Verification</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Attendance</a></li>
+                    <li class="breadcrumb-item active">Face Verification</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row ">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("LocationList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-3">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+        </div>
+ 
+        <div class="row">
+            @Html.Label("Face Attendance")
+            @(Html.Kendo()
+            .Grid<AttendanceFaceVM>()
+            .Name("gridOrderSearch")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.EmpId);
+                columns.Bound(c => c.EmpName);
+                columns.Bound(c => c.AttendanceDate).Format("{0: dd/MM/yyyy}");
+                columns.Bound(c => c.EmpPic).ClientTemplate("<img style='height:200px;' src='#=EmpPic#'/>");
+                columns.Bound(c => c.IN).ClientTemplate("<img style='height:200px;' src='#=IN#'/>").Title("IN");
+                columns.Bound(c => c.OUT).ClientTemplate("<img style='height:200px;' src='#=OUT#'/>").Title("OUT");
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .AutoBind(false)
+            .Navigatable()
+            //.Filterable()
+            .ToolBar(t => t.Search())
+            .Search(s => { s.Field(a => a.EmpId); s.Field(a => a.EmpName); })
+            //.Editable(e => e.Mode(GridEditMode.InCell))
+            .HtmlAttributes(new { style = "height:500px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(50)
+            .ServerOperation(false)
+            //.Batch(true)
+            //.Events(e => e.Error("error_handler"))
+            .Model(model =>
+            {
+                model.Id(m => m.EmpId);
+            })
+            .Read(read => read.Action("AttendanceFaceVerification_Read", "Attendance").Data("filterOrderSearch"))
+            //.Create(create => create.Action("OrderPlan_Create", "Order").Data("MasterOrderPlan"))
+            //.Update(update => update.Action("UserGroup_Update", "Security"))
+            ))
+            @*</div>*@
+        </div>
+    </div>
+</div>
+<script>
+    function loadGrid() {
+        $("#gridOrderSearch").data("kendoGrid").dataSource.read();
+    }
+    function filterOrderSearch() {
+        return {
+            LocId: $('#LocId').val(),
+            FromDate: $('#FromDate').val(),
+            ToDate: $('#ToDate').val()
+        }
+    }
+</script>

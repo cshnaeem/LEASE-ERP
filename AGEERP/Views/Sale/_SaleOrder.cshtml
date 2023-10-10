@@ -1,0 +1,23 @@
+﻿@model List<AGEERP.Models.SaleDetailVM>
+<table style="width:100%" border="1">
+    <tr>
+        <th>
+            Order Detail
+        </th>
+    </tr>
+    <tr>
+        <th>
+            SKU
+        </th>
+        <th>
+            Price
+        </th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.SKUName</td>
+            <td>@item.SPrice</td>
+        </tr>
+    }
+</table>

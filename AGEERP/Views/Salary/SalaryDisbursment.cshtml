@@ -1,0 +1,399 @@
+﻿@{
+    ViewBag.Title = "Salary Disbursment";
+}
+<style>
+    .profile-user-img {
+        border: 3px solid #adb5bd;
+        margin: 0 auto;
+        margin-bottom: 0px;
+        padding: 0px;
+        width: 140px;
+    }
+
+    .modal-footer {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-align: center;
+        align-items: center;
+        -ms-flex-pack: end;
+        justify-content: flex-end;
+        padding: 0.5rem;
+        border-top: 1px solid #e9ecef;
+        border-bottom-right-radius: .3rem;
+        border-bottom-left-radius: .3rem;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+
+            <div class="row">
+                <div class="col-md-2">
+                    <h3 class="card-title" style="margin:10px">SALARY MONTH</h3>
+                </div>
+                <div class="col-md-2">
+                    @(Html.Kendo()
+                                                            .DropDownList()
+                                                            .Name("DisbursementTypeId")
+                                                            .OptionLabel("Select Type")
+                                                            .SelectedIndex(1)
+                                                            .DataValueField("DisbursementTypeId")
+                                                            .DataTextField("DisbursementType")
+                                                            .Events(x => x.Change("ChkCalendar"))
+                                                            .DataSource(x => x.Read("GetSalaryDisbursementTypes", "Employee"))
+                                                            .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-2" id="MonthCalendar">
+                    @Html.Kendo().DatePicker().Name("SalMon").Min(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(-6)).Depth(CalendarView.Year).Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(-1)).Start(CalendarView.Year)
+                </div>
+                <div class="col-md-3" style="display:none;" id="PeriodCalendar">
+                    @(Html.Kendo().DropDownList()
+                    .Name("PeriodId")
+                    .OptionLabel("Select Period")
+                    .DataValueField("RowId")
+                    .DataTextField("Month")
+                    .Template("<div style=\"display: flex\"><span class=\"k-state-default\" style=\"flex: 1;text-align:center;\"><p ><b>Period</b> #: data.FromDate #  #: data.ToDate # </p></span> <span class=\"k-state-default\" style=\"flex: 1;text-align:center;\"><p><b>Week</b> #: data.Week # </p></span> <span class=\"k-state-default\" style=\"flex: 1\"><p><b>Month</b> #: data.Month #</p></span></div>")
+                    .ValueTemplate("#: data.FromDate # - #: data.ToDate #")
+                    .AutoBind(false)
+                    .Filter(FilterType.Contains)
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("ProductIncPerList", "Employee").Data("filterPeriod")).ServerFiltering(true);
+                    })
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-2">
+                    <a class="k-button" data-toggle="modal" data-target="#modal-default" style="height:50px;float:right;"><i class="fas fa-user"></i>&nbsp; MANUAL PAY </a>
+                </div>
+                <div class="col-md-4">
+                    <h3 class="card-title" style="float:right;" id="Message"></h3>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="card-body">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-3">
+
+                        <div class="card card-primary card-outline" style="border-top: 5px solid #dc3545;">
+                            <div class="card-body box-profile">
+                                <div class="text-center">
+                                    <img onerror="this.src='/app-assets/images/avatar/user.png'" id="img" style="margin-bottom: 15px;width:130px" src="#" class=" img-fluid" alt="User Image">
+                                    <img id="imagediv" class="img-responsive" height="50" width="50" src="~/Content/Attendance/fingerprint.png" style="background-color:white" />
+
+                                </div>
+                                <ul class="list-group list-group-unbordered mb-3">
+                                    <li class="list-group-item">
+                                        <b>Employee Code</b> <a class="float-right" id="EmpCode">--</a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>Employee Name</b> <a class="float-right" id="EmpName">--</a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>CNIC</b> <a class="float-right" id="CNIC">--</a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>Designation</b> <a class="float-right" id="Desg">--</a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>Department</b> <a class="float-right" id="Dept">--</a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>Location</b> <a class="float-right" id="Loc">--</a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>Days Worked</b> <a class="float-right" id="DaysWork">--</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-9">
+                        <div class="text-center" id="SalPayHead" style="display:none;"><h1 id="SalPay"> <a class="k-button" onclick="PaySalary()" style="width:80px;height:50px;float:right;"><i class="fas fa-money-bill"></i>&nbsp; PAY</a></h1> </div>
+                        <div class="card">
+                            <div class="card-body p-0">
+
+                                <table class="table table-bordered" style="float:left;width:50%;display:none;">
+                                    <thead>
+                                        <tr style="background-color: #dc3545;color: white;font-size: large;">
+                                            <th colspan="2">Earnings</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblearss" ></tbody>
+                                </table>
+                                <table class="table table-bordered" style="float:left;width:50%;">
+                                    <thead>
+                                        <tr style="background-color: #dc3545;color: white;font-size: large;">
+                                            <th colspan="2">Deductions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblded"></tbody>
+                                </table>
+                                <table class="table table-bordered">
+                                    <tbody id="stats" style="display:none">
+                                        @*<tr><td style="width:50%"><b>GROSS SALARY</b></td><td id="gssal">-</td><td style="width:50%"><b>DEDUCTION TOTAL</b></td><td id="dedttl">-</td></tr>
+        <tr><td style="width:50%"><b>NET SALARY</b></td><td id="nssal">-</td><td style="width:50%">-</td><td>-</td></tr>*@
+                                        <tr><td style="width:50%"><b>DEDUCTION TOTAL</b></td><td id="dedttl">-</td></tr>
+                                        <tr><td style="width:50%">-</td><td>-</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            @Html.Hidden("EmpHiId")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-default">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Employee CNIC:</label>
+
+                    <div class="input-group">
+                        @(Html.Kendo()
+                  .MaskedTextBox()
+                  .Name("NIC")
+                  .Mask("00000-0000000-0")
+                  .HtmlAttributes(new { @style = "width:100%", @required = "true", @class = "form-control" })
+                        )
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-default" data-dismiss="modal">Close</a>
+                <a class="k-button" onclick="GetSalary()">Get Salary</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts {
+    <script src="~/Scripts/Attendance/es6-shim.js"></script>
+    <script src="~/Scripts/Attendance/websdk.client.bundle.min.js"></script>
+    <script src="~/Scripts/Attendance/fingerprint.sdk.min.js"></script>
+    <script src="~/Scripts/accounting.min.js"></script>
+    <script src="~/Scripts/Attendance/salary.js"></script>
+    <script>
+
+        $('body').addClass('sidebar-collapse');
+
+        function onChange(e) {
+            var date = this.value();
+            //var y = date.getFullYear(), m = date.getMonth();
+            //var lastDay = new Date(y, m + 1, 0);
+            //dts = new Date(y, m, lastDay.getDay());
+            //debugger;
+            this.value(dts);  //or put this.set("bindname", date); if you use a data-bind.
+        }
+          function filterPeriod() {
+        return {
+            Month: $('#SalMon').val() || ""
+        }
+    }
+        var EmpList = [];
+        var CData = null;
+        function EmpChange(dat) {
+            if (dat) {
+                //  if (dat.Msg == "ALREADY PAID") {
+                //     var dia = $("#msgBox").data("kendoDialog");
+                //    dia.title("Error");
+                //    dia.content("Salary Already Paid");
+                //    dia.open();
+                //    Reset();
+                //}
+                //else
+                $('#NIC').val('');
+                if (dat.Title == "Error") {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Error");
+                    dia.content(dat.Msg);
+                    dia.open();
+                    Reset();
+                }
+                else {
+                    if (dat.EmpSal.length > 0) {
+                        var EmpSl = dat.EmpSal;
+                        var allw = "";
+                        var dedu = "";
+                        var gssal = "";
+                        var nssal = "";
+                        var dedttl = "";
+                        var cashsal = "";
+                        var wrdays = "";
+                        var DistId = $('#DisbursementTypeId').val();
+
+
+                        $.each(EmpSl, function (index, value) {
+                            if (EmpSl[index].Type == "Basic") {
+                                allw += "<tr><td><b>" + EmpSl[index].Title + "</b></td> <td><b>" + EmpSl[index].Amount + "</b></td></tr>";
+                            }
+                            else if (EmpSl[index].Type == "Allowance") {
+                                allw += "<tr><td><b>" + EmpSl[index].Title + "</b></td> <td><b>" + EmpSl[index].Amount + "</b></td></tr>";
+                            }
+                            else if (EmpSl[index].Type == "Deduction") {
+                                dedu += "<tr><td><b>" + EmpSl[index].Title + "</b></td> <td><b>" + EmpSl[index].Amount + "</b></td></tr>";
+                            }
+                            else if (EmpSl[index].Type == "Gross") {
+                                gssal = EmpSl[index].Amount;
+                            }
+                            else if (EmpSl[index].Type == "WorkingDays") {
+                                wrdays = EmpSl[index].Amount;
+                            }
+                            else if (EmpSl[index].Type == "Net") {
+                                nssal = EmpSl[index].Amount;
+                            }
+                            else if (EmpSl[index].Type == "Cash") {
+                                cashsal = EmpSl[index].Amount;
+                            }
+                            else if (EmpSl[index].Type == "Advance") {
+                                cashsal = EmpSl[index].Amount;
+                            }
+
+                        });
+                        if (cashsal >= 0) {
+                            $('#SalPayHead').css('display', 'block');
+                            $('#EmpCode').html(dat.EmpId);
+                            $('#EmpHiId').val(dat.EmpId);
+                            $('#EmpName').html(dat.EmpIncentiveName);
+                            $('#CNIC').html(dat.CNIC);
+                            $('#Desg').html(dat.Designation);
+                            $('#Dept').html(dat.Department);
+                            $('#Loc').html(dat.Location);
+                            document.getElementById("img").src = "https://192.168.77.40/Content/EmpImg/" + dat.EmpId + ".jpg";
+                            $('#tblear').html(allw);
+                            $('#tblded').html(dedu);
+                           // $('#gssal').html(gssal);
+                            //$('#nssal').html(nssal);
+                            $('#DaysWork').html(wrdays);
+                            var cashsal = accounting.formatMoney(cashsal, "Rs ", 0);
+                            if (DistId == 1) {
+                                $('#SalPay').html("SALARY PAYABLE &nbsp;&nbsp;<b>" + cashsal + "/- <a class='k-button' onclick='PaySalary()' style='width:80px;height:50px;float:right;'><i class='fas fa-money-bill'></i>&nbsp; PAY</a>");
+                                $('#stats').css('display', 'block');
+                            }
+                            else if (DistId == 2) {
+                                $('#SalPay').html("ADVANCE PAYABLE &nbsp;&nbsp;<b>" + cashsal + "/- <a class='k-button' onclick='PaySalary()' style='width:80px;height:50px;float:right;'><i class='fas fa-money-bill'></i>&nbsp; PAY</a>");
+                                $('#stats').css('display', 'none');
+                            }
+                            else if (DistId == 3 || DistId == 4 || DistId == 10) {
+                                $('#SalPay').html("INCENTIVE PAYABLE &nbsp;&nbsp;<b>" + cashsal + "/- <a class='k-button' onclick='PaySalary()' style='width:80px;height:50px;float:right;'><i class='fas fa-money-bill'></i>&nbsp; PAY</a>");
+                                $('#stats').css('display', 'none');
+                            }
+                            else if (DistId == 5) {
+                                $('#SalPay').html("BRANCH INCENTIVE &nbsp;&nbsp;<b>" + cashsal + "/- <a class='k-button' onclick='PaySalary()' style='width:80px;height:50px;float:right;'><i class='fas fa-money-bill'></i>&nbsp; PAY</a>");
+                                $('#stats').css('display', 'none');
+                            }
+                            else if (DistId == 6) {
+                                $('#SalPay').html("ZAKAT PAYABLE &nbsp;&nbsp;<b>" + cashsal + "/- <a class='k-button' onclick='PaySalary()' style='width:80px;height:50px;float:right;'><i class='fas fa-money-bill'></i>&nbsp; PAY</a>");
+                                $('#stats').css('display', 'none');
+                            }
+                            else if (DistId == 7) {
+                                $('#SalPay').html("IFTARI PAYABLE &nbsp;&nbsp;<b>" + cashsal + "/- <a class='k-button' onclick='PaySalary()' style='width:80px;height:50px;float:right;'><i class='fas fa-money-bill'></i>&nbsp; PAY</a>");
+                                $('#stats').css('display', 'none');
+                            }
+                            else if (DistId == 8) {
+                                $('#SalPay').html("INCENTIVE PAYABLE &nbsp;&nbsp;<b>" + cashsal + "/- <a class='k-button' onclick='PaySalary()' style='width:80px;height:50px;float:right;'><i class='fas fa-money-bill'></i>&nbsp; PAY</a>");
+                                $('#stats').css('display', 'none');
+                            }
+                            else if (DistId == 9) {
+                                $('#SalPay').html("EIDI PAYABLE &nbsp;&nbsp;<b>" + cashsal + "/- <a class='k-button' onclick='PaySalary()' style='width:80px;height:50px;float:right;'><i class='fas fa-money-bill'></i>&nbsp; PAY</a>");
+                                $('#stats').css('display', 'none');
+                            }
+                              else if (DistId == 11) {
+                                $('#SalPay').html("AMOUNT PAYABLE &nbsp;&nbsp;<b>" + cashsal + "/- <a class='k-button' onclick='PaySalary()' style='width:80px;height:50px;float:right;'><i class='fas fa-money-bill'></i>&nbsp; PAY</a>");
+                                $('#stats').css('display', 'none');
+                            }
+                            
+
+
+                        }
+                        else if (cashsal == 0) {
+                            $('#EmpCode').html(dat.EmpId);
+                            $('#EmpHiId').val(dat.EmpId);
+                            $('#EmpName').html(dat.EmpName);
+                            $('#CNIC').html(dat.CNIC);
+                            $('#Desg').html(dat.Designation);
+                            $('#Dept').html(dat.Department);
+                            $('#Loc').html(dat.Location);
+                            document.getElementById("img").src = "https://192.168.77.40/Content/EmpImg/" + dat.EmpId + ".jpg";
+                            $('#tblear').html(allw);
+                            $('#tblded').html(dedu);
+                         //   $('#gssal').html(gssal);
+                           // $('#nssal').html(nssal);
+                            $('#DaysWork').html(wrdays);
+                            var cashsal = accounting.formatMoney(cashsal, "Rs ", 0);
+                            $('#SalPay').html("SALARY PAYABLE &nbsp;&nbsp;<b>" + cashsal + "/-");
+                        }
+                        else {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Not Found. Plese Contact HR");
+                            dia.open();
+                            Reset();
+                        }
+                    }
+                    else {
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content("Not Found. Plese Contact HR");
+                        dia.open();
+                        Reset();
+                    }
+                }
+
+            }
+            else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content("Employee Not found");
+                dia.open();
+                Reset();
+            }
+
+        }
+
+        function ChkCalendar() {
+            var Sel = $('#DisbursementTypeId').val();
+            if (Sel == 8) {
+                $('#MonthCalendar').css('display', 'none');
+                $('#PeriodCalendar').css('display', 'block');
+            }
+            else {
+                $('#PeriodCalendar').css('display', 'none');
+                $('#MonthCalendar').css('display', 'block');
+            }
+        }
+
+        function Reset() {
+            $('#SalPayHead').css('display', 'none');
+            $('#EmpCode').html("--");
+            $('#EmpName').html("--");
+            $('#EmpHiId').val('');
+            $('#CNIC').html("--");
+            $('#Desg').html("--");
+            $('#Dept').html("--");
+            $('#Loc').html("--");
+            document.getElementById("img").src = "https://192.168.77.40/Content/EmpImg/0.jpg";
+            $('#tblear').html("");
+            $('#tblded').html("");
+            $('#gssal').html("");
+            $('#nssal').html("");
+            $('#DaysWork').html("--");
+            //$('#SalPay').html("SALARY PAYABLE &nbsp;&nbsp;<b> /-");
+            $('#stats').css('display', 'none');
+        }
+    </script>
+}

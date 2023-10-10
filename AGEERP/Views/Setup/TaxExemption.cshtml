@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "Tax Exemption";
+}
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Tax Exemption</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Tax Exemption</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row" id="formTax">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Serial")
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Type Serial and Enter" aria-label="Recipient's username" aria-describedby="basic-addon2" name="Serial" id="Serial">
+                        <div class="input-group-append">
+                            <button class="k-button" type="button" onclick="searchSKU();"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-md-3 col-sm-4">
+                    @Html.Label("SKUId")
+                    <input type="number" min="0" max="999999" class="form-control" id="SSKUId" name="SSKUId" required="required" validationmessage="SKUId is Required" />
+                </div>*@
+                <div class="col-md-3 col-sm-4" style="display:none">
+                    @Html.Label("ItemId")
+                    <input type="number" min="0" max="999999" class="form-control" id="ItemId" name="ItemId" readonly="readonly" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("SKUName")
+                    <input type="text" class="form-control" id="SSKUName" name="SSKUName" readonly="readonly" />
+                </div>
+                <div class="col-md-3 col-sm-4" style="display:none">
+                    @Html.Label("ModelId")
+                    <input type="number" min="0" max="999999" class="form-control" id="MModelId" name="MModelId" readonly="readonly" />
+                </div>
+                @*<div class="col-md-3 col-sm-4">
+                    @Html.Label("PPrice")
+                    <input type="number" min="0" max="999999" class="form-control" id="PPrice" name="PPrice" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("MRP")
+                    <input type="number" min="0" max="999999" class="form-control" id="MRP" name="MRP" />
+                </div>*@
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("StatusTitle")
+                    <input type="text" class="form-control" id="StatusTitle" name="StatusTitle" readonly="readonly" />
+                </div>
+                <div class="col-md-3 col-sm-4 mt-1">
+                    <br />
+                    @(Html.Kendo().CheckBox().Name("Tax").Label("Tax Exempted"))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Remarks")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("Remarks")
+                    .HtmlAttributes(new { @style = "width:100%", placeholder= "c/o Fla'n DO" })
+                )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <br />
+                    <button class="k-button margin-30 mt-2" type="button" onclick="updateExemption();">
+                        <i class="fas fa-check"></i>&nbsp; UPDATE EXEMPTION
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function searchSKU() {
+            var Serial = $("#Serial").val();
+            $.getJSON("/Setup/SKUDetails", { Serial: Serial })
+                .done(function (res) {
+                    if (res != null) {
+                        //$("#SSKUId").val(res.SKUId);
+                        $("#ItemId").val(res.ItemId);
+                        //$("#PPrice").val(res.PPrice);
+                        //$("#MRP").val(res.MRP);
+                        $("#SSKUName").val(res.SKU);
+                        $("#MModelId").val(res.Model);
+                        $("#StatusTitle").val(res.Status);
+                        if (res.Exempted) {
+                            $("#Tax").prop('checked', true);
+                        }
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert("Serial doesn't Exists or Sold Out!");
+                });
+        }
+        function updateExemption() {
+            var taxForm = $("#formTax").kendoValidator().data("kendoValidator");
+            if (taxForm.validate()) {
+                $.ajax({
+                    url: "/Setup/UpdateExemption",
+                    type: 'POST',
+                    data: {
+                        ItemId: $('#ItemId').val() || 0,
+                        Remarks: $('#Remarks').val(),
+                        Exemption: $("#Tax").is(':checked')
+                    },
+                    success: function (res) {
+                        if (res != null) {
+                            if (res == "ok") {
+                                alert("ok");
+                                location.reload();
+                            }
+                            else {
+                                alert(res);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>

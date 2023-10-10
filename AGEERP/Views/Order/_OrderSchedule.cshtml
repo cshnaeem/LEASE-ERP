@@ -1,0 +1,172 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Order Schedule";
+    Layout = null;
+}
+@Html.Hidden("PODtlId", (int)ViewBag.PODtlId)
+
+    <div class="card">
+        @*<div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Order Schedule</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="/Home/Index">Order</a></li>
+                        <li class="breadcrumb-item active">Order Schedule</li>
+                    </ol>
+                </div>
+            </div>
+        </div>*@
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    @Html.Label("Model")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("Model")
+                    .Value(ViewBag.Model)
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    @Html.Label("SKU")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("SKU")
+                    .Value(ViewBag.SKU)
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    @Html.Label("OrderQty")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("OrderQty")
+                    .Value(ViewBag.OrderQty)
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    @Html.Label("RemainQty")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("RemainQty")
+                    .Value("0")
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <br />
+                    <button class="k-button k-primary" type="button" onclick="SaveSchedule()">
+                        <i class="fa fa-save"></i> Save
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    @(Html.Kendo()
+                    .Grid<OrderScheduleVM>()
+                    .Name("gridOrderSchedule")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.PODtlId).Hidden();
+                        columns.Bound(c => c.ModelId).Hidden();
+                        columns.Bound(c => c.SKUId).Hidden();
+                        columns.Bound(c => c.LocId).Hidden();
+                        columns.Bound(c => c.LocName).Width(120).Filterable(f => f.Multi(true));
+                        //columns.Bound(c => c.Model);
+                        columns.Bound(c => c.SKU).Width(150).Filterable(false);
+                        columns.Bound(c => c.PendingQty).Title("Received").Filterable(false);
+                        columns.Bound(c => c.SaleQty).Title("Sale").Filterable(false);
+                        columns.Bound(c => c.StockQty).Title("Stock").Filterable(false);
+                        columns.Bound(c => c.Qty).Filterable(false);
+                        //.ClientFooterTemplate("Sum: #=sum#")
+                        //.ClientGroupFooterTemplate("Sum: #=sum#");
+                    })
+                    //.Pageable()
+
+                    .Sortable()
+                    .Filterable()
+                    //.Filterable(ftb => ftb.Mode(GridFilterMode.Row).Extra(false)
+                    // .Operators(operators => operators
+                    // .ForString(str => str.Clear()
+                    // .Contains("Contains"))))
+                    .Scrollable()
+                    .AutoBind(true)
+                    .Navigatable()
+                    .Events(e => e.DataBound("onDataLoad"))
+                    //.ToolBar(t => t.Save())
+                    .Editable(e => e.Mode(GridEditMode.InCell))
+                    .HtmlAttributes(new { style = "height:300px;font-size:12px;" })
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    //.PageSize(20)
+                    .Batch(true)
+                    .Events(e => e.Change("OnQtyChange").Error("error_handler"))
+                    .ServerOperation(false)
+                    //.Group(groups => groups.Add(p => p.Model))
+                    //.Aggregates(aggregates =>
+                    //{
+                    // aggregates.Add(p => p.Qty).Sum();
+                    //})
+                    .Model(model =>
+                    {
+                        model.Id(m => m.LocId);
+                        model.Field(m => m.LocId).Editable(false);
+                        model.Field(m => m.PODtlId).Editable(false);
+                        model.Field(m => m.LocName).Editable(false);
+                        model.Field(m => m.ModelId).Editable(false);
+                        model.Field(m => m.Model).Editable(false);
+                        model.Field(m => m.PendingQty).Editable(false);
+                        model.Field(m => m.SaleQty).Editable(false);
+                        model.Field(m => m.StockQty).Editable(false);
+                        model.Field(m => m.SKU).Editable(false);
+                        model.Field(m => m.SKUId).Editable(false);
+                        model.Field(m => m.Qty);
+                    })
+                    .Read(read => read.Action("OrderSchedule_Read", "Order").Data("filterOrderSchedule"))
+                    .Create(create => create.Action("OrderSchedule_Create", "Order"))
+                    .Update(update => update.Action("OrderSchedule_Create", "Order"))
+                    ))
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+
+    $(document).ready(function () {
+
+        // $('.modal').modal();
+        // $('#m_12000000').addClass('active');
+        // $('#d_12000000').css("display", "block");
+        // $('#m_12010000').addClass('active');
+        // $('#a_12010000').addClass('active');
+        // resizeGrid();
+    });
+//function refrGrid() {
+// var grid = this;
+// setTimeout(function () {
+// grid.refresh();
+// })
+// //$("#gridOrderSchedule").data("kendoGrid").refresh();
+//}
+
+
+//var gridElement = $("#gridOrderSchedule");
+//function resizeGrid() {
+// var height = $(window).innerHeight() - $('header').innerHeight() - 150;
+// if (height < 200) {
+// height = 200;
+// }
+// else if (height > 910) {
+// height = 910;
+// }
+// $("#gridOrderSchedule").css("height", height);
+// gridElement.data("kendoGrid").resize();
+//}
+
+//$(window).resize(function () {
+// resizeGrid();
+//});
+</script>

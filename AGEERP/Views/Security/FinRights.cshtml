@@ -1,0 +1,354 @@
+﻿
+@{
+    ViewBag.Title = "Rights";
+}
+<style>
+    .k-state-default > .k-select {
+        border-color: #737373;
+        background: #dc3545;
+        color: white;
+    }
+
+        .k-state-default > .k-select:hover {
+            border-color: #737373;
+            background: #dc3545;
+            color: white;
+        }
+
+    .k-checkbox {
+        border-radius: 0;
+        margin: 0;
+        padding: 0;
+        width: 16px;
+        height: 16px;
+        line-height: initial;
+        border-width: 1px;
+        border-style: solid;
+        outline: 0;
+        box-sizing: border-box;
+        display: inline-block;
+        vertical-align: middle;
+        position: relative;
+        -webkit-appearance: none;
+    }
+
+        .k-checkbox::before {
+            content: "\e118";
+            width: 10px;
+            height: 10px;
+            font-size: 10px;
+            font-family: WebComponentsIcons,monospace;
+            -webkit-transform: scale(0) translate(-50%,-50%);
+            -ms-transform: scale(0) translate(-50%,-50%);
+            transform: scale(0) translate(-50%,-50%);
+            overflow: hidden;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+
+        .k-checkbox:focus {
+            border-color: rgb(0, 0, 0);
+            box-shadow: 0 0 0 2px rgb(14, 14, 14);
+        }
+
+    .k-checkbox {
+        border-color: rgb(0, 0, 0);
+        color: transparent;
+        background-color: #fff;
+    }
+</style>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>User Rights</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">User Rights</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="card card-outline card-danger">
+    <div class="card-header">
+        <h3 class="card-title">Type of Rights</h3>
+    </div>
+    <div class="card-body">
+        <div class="row" style="margin-bottom: 20px">
+            <div class="col-sm-4">
+                <div class="col-sm-4 p-t-5">
+                    <span>Select Type</span>
+                </div>
+                <div class="col-sm-8">
+                    @(Html.Kendo().DropDownList()
+              .Name("RightsType")
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .Events(e => e.Change("change"))
+              .BindTo(new List<SelectListItem>()
+              {
+                  new SelectListItem()
+                  {
+                      Text = "Select",
+                      Value = "0"
+                  },
+                  new SelectListItem()
+                  {
+                      Text = "Groups",
+                      Value = "1"
+                  },
+                  new SelectListItem()
+                  {
+                      Text = "Users",
+                      Value = "2"
+                  }
+              })
+              .Value("0")
+              .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="col-sm-4">
+
+                <div class="col-sm-4 p-t-5">
+                    <span> Group </span>
+                </div>
+                <div class="col-sm-8">
+
+                    @(Html.Kendo().ComboBox()
+                          .Name("LoginID")
+                          .DataTextField("Username")
+                          .DataValueField("UserID")
+                          .HtmlAttributes(new { @class = "browser-default" })
+                          .DataSource(source =>
+                          {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetUserOrGroupList", "Security")
+                                      .Data("filterUserGroup");
+                              })
+                                  .ServerFiltering(true);
+                          }).Suggest(true)
+                          .Events(e => e.Change("setRights"))
+                          .CascadeFrom("RightsType")
+                          .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <button class="k-button" style="width: 100%" id="SaveRights">
+                    Save
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="card card-outline card-danger">
+    <div class="card-header">
+        <h3 class="card-title">Modules</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-8 push-sm-1">
+                @(Html.Kendo().TreeView()
+               .Name("formList")
+               .DataTextField("Name")
+               //.HtmlAttributes(new { @class = ".k-treeview" })
+               //.ExpandAll(true)
+               .Checkboxes(checkboxes => checkboxes
+                   //.Name("checkedNodes")
+                   .CheckChildren(true)
+               //.Template("<input type='checkbox' #= (item.enabled === false) ? 'disabled' : '' # #= item.checked ? 'checked' : '' #>")
+               )
+               .DataSource(dataSource => dataSource
+                   .Read(read => read
+                       .Action("FinForms", "Security")
+                   )
+               )
+                )
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+<!-- /.Main content -->
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            //$('#m_11000000').addClass('active');
+            //$('#d_11000000').css("display", "block");
+            //$('#m_11030000').addClass('active');
+            //$('#a_11030000').addClass('active');
+        });
+
+        function getCheckedItems() {
+            var treeview = $("#formList").data("kendoTreeView");
+            var nodes = treeview.dataSource.view();
+
+            return getCheckedNodes(nodes);
+        }
+
+        function getCheckedNodes(nodes) {
+            var node, childCheckedNodes;
+            var checkedNodes = [];
+
+            for (var i = 0; i < nodes.length; i++) {
+                node = nodes[i];
+                if (node.checked) {
+                    checkedNodes.push(node);
+                }
+
+                if (node.hasChildren) {
+                    childCheckedNodes = getCheckedNodes(node.children.view());
+                    if (childCheckedNodes.length > 0) {
+                        checkedNodes = checkedNodes.concat(childCheckedNodes);
+                    }
+                }
+
+            }
+
+            return checkedNodes;
+        }
+
+        function setRights() {
+            var typeId = $('#RightsType').val();
+            var id = $('#LoginID').data('kendoComboBox').value();
+            clearTree();
+            if (id > 0) {
+                if (typeId === '1') {
+
+                    $.ajax({
+                        url: "/Security/FinGetGroupRightsDetails/" + id,
+                        dataType: "json",
+                        type: "get",
+                        contentType: "application/json;charset=utf-8",
+                        async: true,
+                        processData: false,
+                        cache: false,
+                        success: function (result) {
+                            result.forEach(function (item) {
+                                setTreeView(item, true);
+                            });
+                        },
+                        error: function (response) {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Error");
+                            dia.open();
+                        }
+                    });
+
+                } else if (typeId === '2') {
+
+                    $.ajax({
+                        url: "/Security/FinGetUserRightsDetails/" + id,
+                        dataType: "json",
+                        type: "get",
+                        contentType: "application/json;charset=utf-8",
+                        async: true,
+                        processData: false,
+                        cache: false,
+                        success: function (result) {
+                            result.forEach(function (item) {
+                                setTreeView(item, true);
+                            });
+                        },
+                        error: function (response) {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Error");
+                            dia.open();
+                        }
+                    });
+                }
+            }
+        }
+
+        function clearTree() {
+            //$("#formList .k-checkbox input").prop("checked", false).trigger("change");
+            $("#formList .k-checkbox-wrapper input").prop("checked", false).trigger("change");
+        }
+
+        function setTreeView(formId, status) {
+            var treeview = $("#formList").data("kendoTreeView");
+            var getitem = treeview.dataSource.get(formId);
+            if (getitem) {
+                getitem.set("checked", status);
+                // getitem.set("enabled", status);
+            }
+        }
+
+        $('#SaveRights').click(function () {
+
+            var rNodes = getCheckedItems();
+            var vList = '-1';
+
+            for (i = 0; i < rNodes.length; i++) {
+                vList = rNodes[i].id + ',' + vList;
+            }
+            var gid = $('#LoginID').val();
+            var typeId = $('#RightsType').val();
+
+
+            var postData = { values: vList, Id: gid, TypeId: typeId };
+
+            $.ajax({
+                type: "POST",
+                url: "/Security/FinSaveRights/",
+                data: postData,
+                success: function (data) {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Result");
+                    dia.content(data);
+                    dia.open();
+                },
+                dataType: "text",
+                traditional: true
+            });
+
+        });
+
+        function filterUserGroup() {
+            return {
+                Id: $('#RightsType').val()
+            }
+        }
+
+        function change() {
+            clearTree();
+            var value = $("#rightsType").val();
+        };
+
+        setTimeout(function () { expandNextLevel(); }, 1000);
+        function expandNextLevel() {
+            setTimeout(function () {
+                var treeview = $("#formList").data("kendoTreeView");
+                var b = $('.k-item .k-i-expand').length;
+                treeview.expand(".k-item");
+                treeview.trigger('dataBound');
+                if (b > 0) {
+                    expandNextLevel();
+                }
+            },
+                1000);
+        }
+
+    </script>
+
+}

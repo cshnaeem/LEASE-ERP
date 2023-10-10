@@ -1,0 +1,551 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "GRN";
+}
+<style>
+    .k-upload-action {
+        background-color: red;
+    }
+</style>
+<div class="card mainfr">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">GRN Mobile</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">GRN Mobile</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-md-12 col-sm-12 col-lg-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                    @Html.Label("Receiving Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("locChange").DataBound("locChange"))
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("PO No")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("POId")
+                    .Placeholder("Select PO")
+                    .DataValueField("POId")
+                    .DataTextField("PONo")
+                    //.SelectedIndex(0)
+                    //.Suggest(true)
+                    //.CascadeFrom("LocId")
+                    .Events(e => e.Change("GetPODetail"))
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("PONo").Width("150px");
+                        columns.Add().Field("SuppName").Width("250px").Title("Supplier");
+                    })
+                    .FilterFields(new string[] { "PONo", "SuppName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("POMobileForGRNList", "Purchase").Data("filterLocation"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("SuppId")
+                    .OptionLabel("Select Supplier")
+                    .SelectedIndex(0)
+                    .DataValueField("SuppId")
+                    .DataTextField("SuppName")
+                    //.Suggest(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("SupplierList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;", @readonly = true })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Manual Invoice No")
+                    @Html.Kendo().TextBox().Name("InvNo").HtmlAttributes(new { @style = "width:100%", @maxlength = 15 })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                    @Html.Label("Manual Invoice Date")
+                    @Html.Kendo().DatePicker().Name("InvDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Supplier DO No")
+                    @Html.Kendo().TextBox().Name("DONo").HtmlAttributes(new { @style = "width:100%;", @maxlength=15 })
+                </div>
+                <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                    @Html.Label("Supplier DO Date")
+                    @Html.Kendo().DatePicker().Name("DODate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Remarks")
+                    @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Documents")<span style="color:red"> (pdf files only)</span>
+                    @(Html.Kendo().Upload()
+                        .Name("files")
+                        .Multiple(true)
+                        .Validation(f => f.AllowedExtensions(new string[] { ".pdf" })).ShowFileList(false)
+                        .Async(a => a
+                            .Save("UploadDocBulk", "Document", new { refobjid = 4 })
+                            .Remove("DocumentRemove", "Document")
+                            .SaveField("files")
+                            .AutoUpload(false)
+                            .Concurrent(true)
+                            .Batch(true)
+                        ).Events(e => e
+                        .Success("onDocUp")
+                        .Remove("onUploadRemove")
+                        //.Remove("OnRemove")
+                        )
+                        )
+                </div>
+
+                <div class="col-md-3 col-sm-3 ImgDiv">
+                    <img id="SkuImg" class="responsive-img" style="max-height:150px;" />
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Total")
+                    @Html.Kendo().TextBox().Name("Total").Enable(false).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Received")
+                    @Html.Kendo().TextBox().Name("Received").Enable(false).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="col-sm-12 col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-content">
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Barcode")
+                    @Html.Kendo().TextBox().Name("Barcode").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("IMEI")
+                    @Html.Kendo().TextBox().Name("IMEI").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        @*@Html.Label("GRN")*@
+                        @(Html.Kendo()
+                    .Grid<PurchaseDetailVM>()
+                    .Name("gridPurchaseDetail")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.RowId).Hidden();
+                        columns.Bound(c => c.TransId).Hidden();
+                        columns.Bound(c => c.ModelId).Hidden();
+                        columns.ForeignKey(c => c.SKUId, (System.Collections.IEnumerable)ViewData["SKUVD"], "SKUId", "SKUName").Title("SKU").EditorTemplateName("_SKUListForGRN").Filterable(false).Width(250);
+                        columns.Bound(c => c.Product).Filterable(f => f.Multi(true));
+                        columns.Bound(c => c.Model).Filterable(f => f.Multi(true));
+                        //columns.Bound(c => c.SKU).Filterable(f => f.Multi(true));
+                        //columns.Bound(c => c.Discription).Filterable(false);
+                        columns.Bound(c => c.Remarks).Filterable(false);
+                        //columns.Bound(c => c.CSrNo).Filterable(false);
+                        columns.Bound(c => c.SrNo).Filterable(false).Editable("function(){return;}");
+                    })
+
+                    //.Pageable()
+                    .Sortable()
+                    .Scrollable()
+                    .AutoBind(false)
+                    .Filterable()
+                    //.Selectable()
+                    //.Navigatable()
+                    .ToolBar(t => t.Save())
+                    .Editable(e => e.Mode(GridEditMode.InCell))
+                    .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+                    .Events(e => e.DataBound("onDataBound").SaveChanges("onsaveChanges").Edit("onEdit"))
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Batch(true)
+                    .ServerOperation(false)
+                    .Events(e => e.Change("OnSrNoChange").Error("error_handler"))
+                    .Model(model =>
+                    {
+                        model.Id(m => m.RowId);
+                        model.Field(m => m.TransId).Editable(false);
+                        model.Field(m => m.SKUId);
+                        model.Field(m => m.Product).Editable(false);
+                        model.Field(m => m.Type).Editable(false);
+                        model.Field(m => m.Model).Editable(false);
+                        model.Field(m => m.Discription).Editable(false);
+                        model.Field(m => m.SKU).Editable(false);
+                        model.Field(m => m.Qty).Editable(false);
+                        model.Field(m => m.SrNo);
+                    })
+                    .Read(read => read.Action("GRN_Read", "Purchase").Data("filterOrderDetail"))
+                    .Create(read => read.Action("GRN_Create", "Purchase").Data("MasterPurchase"))
+                    .Update(read => read.Action("GRN_Read", "Purchase").Data("filterOrderDetail"))
+                    ))
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+@Html.Partial("~/Views/Report/_Report.cshtml")
+
+<script>
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_12000000').addClass('active');
+        //$('#d_12000000').css("display", "block");
+        //$('#m_12080000').addClass('active');
+        //$('#a_12080000').addClass('active');
+    });
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - $('.mainfr').innerHeight()-100;
+        if (height < 500) {
+            height = 500;
+        }
+        else if (height > 1000) {
+            height = 1000;
+        }
+        console.log(height);
+        $("#gridPurchaseDetail").css("height", height);
+        $("#gridPurchaseDetail").data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    function onsaveChanges(e) {
+        var mas = MasterPurchase();
+        var supp = $('#SuppId').data('kendoDropDownList').dataItem();
+        if (supp == null) {
+            kendo.alert("Please Select Supplier");
+            e.preventDefault();
+            return;
+        }
+        if (mas.DONo == "" && supp.CategoryId != 4) {
+            kendo.alert("Please Add DO No");
+            e.preventDefault();
+            return;
+        }
+        if (mas.files.length == 0) {
+            kendo.alert("Please Attach Document");
+            e.preventDefault();
+            return;
+        }
+        var recv = $('#Received').val();
+        if (recv > 0) {
+            kendo.ui.progress($('.card'), true);
+        }
+        else {
+            kendo.alert("No Item Received");
+            e.preventDefault();
+            return;
+        }
+        //
+    }
+    var Files = [];
+    //function OnRemove(e) {
+    //    console.log(e);
+    //}
+    //function onDocUp(e) {
+
+    //    //if (e.response) {
+    //    //    files.push(e.response);
+    //    //}
+
+    //    console.log(e);
+    //}
+    function onDocUp(e) {
+        for (i = 0; i < e.response.length; i++) {
+            e.files[i].id = e.response[i];
+        }
+    }
+    function onUploadRemove(e) {
+        var files = e.files;
+        var docid = 0;
+        for (i = 0; i < files.length; i++) {
+            //replace the name with the id added to the object
+            docid = files[i].id;
+        }
+
+        return {
+            DocId: docid
+        }
+    }
+
+
+    function onDataBound() {
+        var data = $("#gridPurchaseDetail").data("kendoGrid").dataSource.data();
+        var recv = 0;
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].SrNo != "") {
+                recv++;
+            }
+        }
+        $('#Total').val(data.length);
+        $('#Received').val(recv);
+    }
+    function MasterPurchase() {
+
+        var upload = $("#files").data("kendoUpload"),files = upload.getFiles();
+        var fl = [];
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].id > 0) {
+                fl.push(files[i].id);
+            }
+        }
+        return {
+            LocId: $('#LocId').val(),
+            POId: $('#POId').val(),
+            SuppId: $('#SuppId').val(),
+            InvNo: $('#InvNo').val(),
+            InvDate: $('#InvDate').val(),
+            DONo: $('#DONo').val(),
+            DODate: $('#DODate').val(),
+            files: fl
+        }
+    }
+    function ClearAll() {
+        $('#POId').val("");
+        $('#SuppId').val("");
+        $('#InvNo').val("");
+        $('#InvDate').val("");
+        $('#DONo').val("");
+        $('#DODate').val("");
+        $('#Remarks').val("");
+        $("#gridPurchaseDetail").data("kendoGrid").dataSource.data([]);
+    }
+    function filterLocation() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+    var transId = 0;
+    function onEdit(e) {
+        //debugger;
+        var field = e.container.find("input")[0].name;
+        if (field === "SKUId") {
+            transId = e.model.TransId;
+        $("#SKUId").data('kendoDropDownList').dataSource.read();
+        }
+    }
+    function filterSKU() {
+        //debugger;
+        return {
+            TransId: transId
+        }
+    }
+
+    function filterOrderDetail() {
+        return {
+            OrderNo: $('#POId').val(),
+            LocId: $('#LocId').val()
+        }
+    }
+    function GetPODetail() {
+        var ord = $('#POId').data('kendoMultiColumnComboBox').dataItem();
+        if (ord != null) {
+            //$.getJSON("/Purchase/GetOrder?OrderNo=" + ord, function (data) {
+            //    if (data != null) {
+            //        $('#SuppId').data('kendoDropDownList').value(data.SuppId);
+            //        console.log(data.SuppId);
+            //    }
+            //});
+            $('#SuppId').data('kendoDropDownList').value(ord.SuppId);
+            $("#gridPurchaseDetail").data("kendoGrid").dataSource.read();
+        }
+        else {
+            $('#SuppId').data('kendoDropDownList').select(0);
+            $("#gridPurchaseDetail").data("kendoGrid").dataSource.data([]);
+        }
+    }
+    function OnSrNoChange(e) {
+        if (e.action === "itemchange" && e.field === "SrNo") {
+            var model = e.items[0];
+            if (model.SrNo != "") {
+                model.SrNo = $.trim(model.SrNo);
+                //var regex = new RegExp("^[a-zA-Z0-9]+$");
+                //if (regex.test(model.SrNo) == false) {
+                //    kendo.alert('Invalid SerialNo only Alpha Numeric characters allowed');
+                //    model.set("SrNo", "");
+                //}
+                //else
+                if (model.SrNo.length < 4 || model.SrNo.length > 100) {
+                    kendo.alert('Invalid Serial No');
+                    model.set("SrNo", "");
+                }
+                else {
+                    //var proData = $("#gridPurchaseDetail").data("kendoGrid").dataSource.data();
+                    //for (var i = 0; i < proData.length; i++) {
+                    //    proData[i].SrNo;
+                    //}
+                    $.getJSON("/Purchase/IsSrNoExist?SrNo=" + model.SrNo + "&SKUId=" + model.SKUId, function (data) {
+                        //if (data != false) {
+                        //    kendo.alert('SrNo already exist');
+                        //    model.set("SrNo", "");
+                        //}
+                        //else {
+                            if (model.SKUId > 0) {
+                                $(".ImgDiv").show();
+                                $("#SkuImg").attr("src", "../../Content/SKUImg/" + model.SKUId + ".jpg");
+
+                            }
+                            else {
+                                $(".ImgDiv").hide();
+                            }
+                            var grid = $("#gridPurchaseDetail").data("kendoGrid");
+                            var curCell = $("#gridPurchaseDetail").find(".k-edit-cell");
+                            var cellToEdit = curCell.parent().next().find('td:eq(9)');
+                            grid.editCell(cellToEdit);
+                        //}
+
+                    });
+                }
+            }
+            onDataBound();
+        }
+    }
+    $('#Barcode').keyup(function (e) {
+        if (e.keyCode == 13) {
+            $('#IMEI').focus();
+        }
+    });
+    $('#IMEI').keyup(function (e) {
+        if (e.keyCode == 13) {
+            var barcode = $('#Barcode').val();
+            var serial = $('#IMEI').val();
+            barcode = $.trim(barcode);
+            serial = $.trim(serial);
+
+            if (barcode.length < 4 || barcode.length > 100) {
+                kendo.alert('Invalid Barcode');
+                return;
+            }
+            if (serial.length < 4 || serial.length > 100) {
+                kendo.alert('Invalid Serial No');
+                return;
+            }
+            $.getJSON("/Purchase/SKUByBarcode?Barcode="+barcode, function (data) {
+                if (data == 0) {
+                    kendo.alert('Barcode not found');
+                    $(".ImgDiv").hide();
+                }
+                else {
+                        $(".ImgDiv").show();
+                    $("#SkuImg").attr("src", "../../Content/SKUImg/" + data + ".jpg");
+                    var dat = $("#gridPurchaseDetail").data("kendoGrid").dataSource.data();
+                    for (var i = 0; i < dat.length; i++) {
+                        if (dat[i].SrNo == serial) {
+                            kendo.alert('Serial already exist');
+                            return;
+                        }
+                    }
+                    var found = false;
+                    var grid = $("#gridPurchaseDetail").data("kendoGrid");
+                    var rows = grid.items();
+                    $(rows).each(function () {
+                        var row = this;
+                        var dataItem = grid.dataItem(row);
+                        if (dataItem.SKUId == data && dataItem.SrNo == "") {
+                            dataItem.set("SrNo", serial);
+
+                            $('#Barcode').val('');
+                            $('#IMEI').val('');
+                            $('#Barcode').focus();
+                            found = true;
+                        }
+                    });
+                    if (found == false) {
+                        kendo.alert('SKU not in PO');
+                    }
+                    
+                }
+
+            });
+            
+        }
+    });
+    function locChange()
+    {
+        $('#POId').val("");
+        $('#POId').data('kendoMultiColumnComboBox').dataSource.read();
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            kendo.ui.progress($('.card'), false);
+            if (message > 0) {
+                $.confirm({
+                    title: 'Saved Successfully!',
+                    content: 'Do you want to print?',
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-check',
+                    buttons: {
+                        Print: function () {
+                            $("#rpt").val("GRN");
+                            $("#TransId").val(message);
+                            $("#rptForm").submit();
+                        },
+                        Cancel: function () {
+                        }
+                    }
+                });
+                $("#gridPurchaseDetail").data("kendoGrid").dataSource.data([]);
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+</script>

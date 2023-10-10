@@ -1,0 +1,375 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "VoucherEditing";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">@ViewBag.Title</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Account</a></li>
+                    <li class="breadcrumb-item active">@ViewBag.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            @Html.Hidden("VrId", (long)ViewBag.VrId)
+            @*<div class="col-md-3 col-sm-4">
+            @Html.Label("VrNo")
+            @(Html.Kendo()
+            .MultiColumnComboBox()
+            .Name("VrId")
+            .Placeholder("Select VrNo")
+            //.SelectedIndex(0)
+            .DataValueField("VrId")
+            .DataTextField("VrNo")
+            .Columns(columns =>
+            {
+            columns.Add().Field("VrNo").Width("150px");
+            columns.Add().Field("VrTypeId").Width("100px").Title("Type");
+            columns.Add().Field("VrDate").Width("150px").Title("Date");
+            columns.Add().Field("Amount").Width("100px");
+            })
+            //.Suggest(true)
+            .Filter(FilterType.Contains)
+            .FilterFields(new string[] { "VrNo", "VrTypeId", "VrDate", "Amount" })
+            //.MinLength(3)
+            .Events(e => e.Change("vrChange"))
+            .AutoBind(true)
+            //.BindTo(ViewBag.COA4)
+            .DataSource(ds =>
+            {
+            ds.Read(read => read.Action("VoucherList", "Account"));
+            })
+            .HtmlAttributes(new { @style = "width:100%" })
+            )
+        </div>*@
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("VrNo")
+                @(Html.Kendo().TextBox().Name("VrNo").Enable(false).Value(ViewBag.VrNo)
+                .HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("VrDate")
+                @(Html.Kendo().DatePicker()
+                .Name("VrDate")
+                .Value(DateTime.Now.Date)
+                .Enable(false)
+                .HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Year")
+                @(Html.Kendo().TextBox().Name("CYear").Enable(false).Value(ViewBag.CYear)
+    .HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Period")
+                @(Html.Kendo().TextBox().Name("CPeriod").Enable(false).Value(ViewBag.CPeriod)
+    .HtmlAttributes(new { @style = "width:100%" }))
+            </div>
+        </div>
+        <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("RefDocNo")
+                    @(Html.Kendo().TextBox().Name("RefDocNo").Value((string)ViewBag.RefDocNo)
+        .Enable(false)
+    .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("RefDocDate")
+                    @(Html.Kendo().DatePicker()
+                    .Name("RefDocDate")
+                    .Value((DateTime)ViewBag.RefDocDate)
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+                @*<div class="col-md-2 col-sm-4">
+                    @Html.Label("Paid To")
+                    @(Html.Kendo().TextBox().Name("PaidTo"))
+                </div>*@
+            </div>
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-content">
+        <div class="card-body">
+            @*<div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("A/C")
+                        @(Html.Kendo()
+                        .MultiColumnComboBox()
+                        .Name("Code")
+                        .Placeholder("Select COA ...")
+                        //.SelectedIndex(0)
+                        .DataValueField("Code")
+                        .DataTextField("Name")
+                        .Columns(columns =>
+                        {
+                        columns.Add().Field("Code").Width("200px");
+                        columns.Add().Field("Name").Width("200px");
+                        })
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .FilterFields(new string[] { "Code", "Name" })
+                        .MinLength(3)
+                        //.Events(e => e.Change("loadGrid"))
+                        .AutoBind(true)
+                        .BindTo((System.Collections.IEnumerable)ViewData["COA"])
+                        //.DataSource(ds =>
+                        //{
+                        // ds.Read(read => read.Action("Code4List", "Account"));
+                        // //.ServerFiltering(true);
+                        // })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Subsidiary A/C")
+                        @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("SubId")
+                    .Placeholder("Select COA ...")
+                    //.SelectedIndex(0)
+                    .DataValueField("Id")
+                    .DataTextField("Name")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("Code").Width("200px");
+                        columns.Add().Field("Name").Width("200px");
+                    })
+                    //.Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "Code", "Name" })
+                    .MinLength(3)
+                    .CascadeFrom("Code")
+                    //.Events(e => e.Change("loadGrid"))
+                    .AutoBind(false)
+                    //.BindTo(ViewBag.COA4)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("SubsidaryCodeList", "Account").Data("filterSubsidaryCode"))
+                        .ServerFiltering(true);
+                    })
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                    </div>
+                    <div class="col-md-5 col-sm-4">
+                        @Html.Label("Particulars")
+                        @(Html.Kendo()
+                        .TextBox()
+                        .Name("Particulars")
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        @Html.Label("Dr")
+                        @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("Dr")
+                        .Value(0)
+                        .Min(0)
+                        //.Max(18)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        @Html.Label("Cr")
+                        @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("Cr")
+                        .Value(0)
+                        .Min(0)
+                        //.Max(18)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Profit Center")
+                        @(Html.Kendo()
+                        .DropDownList()
+                        .Name("PCCode")
+                        .OptionLabel("NA")
+                        .SelectedIndex(0)
+                        .DataValueField("PCCode")
+                        .DataTextField("PCDesc")
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                        ds.Read(read => read.Action("ProfitCentersList", "Account"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Cost Center")
+                        @(Html.Kendo()
+                        .DropDownList()
+                        .Name("CCCode")
+                        .SelectedIndex(0)
+                        .DataValueField("CCCode")
+                        .DataTextField("CCDesc")
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("CostCentersList", "Account"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        @Html.Label("ChequeNo")
+                        @(Html.Kendo().NumericTextBox().Name("ChequeNo").Format("##").HtmlAttributes(new { @style = "width:100%" }))
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <br />
+                        <button class="k-button margin-10" type="button" onclick="addToGrid()">
+                            <i class="fas fa-plus"></i>&nbsp; Add
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-3">
+                    </div>
+                    <div class="col-md-2 col-sm-3">
+                        @Html.Label("Debit")
+                        @(Html.Kendo().TextBox().Name("Debit").Value("0").Enable(false))
+                    </div>
+                    <div class="col-md-2 col-sm-3">
+                        @Html.Label("Credit")
+                        @(Html.Kendo().TextBox().Name("Credit").Value("0").Enable(false))
+                    </div>
+                    <div class="col-md-2 col-sm-3">
+                        @Html.Label("Balance")
+                        @(Html.Kendo().TextBox().Name("Balance").Value("0").Enable(false))
+                    </div>
+                </div>*@
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <h4 id="PCode" class="card-title" style="text-align:center"></h4>
+                </div>
+                <div class="col-md-12 col-sm-12">
+                    @(Html.Kendo()
+                    .Grid<VoucherDetailVM>()
+                    .Name("gridVoucher")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.VrDtlId).Hidden();
+                        //columns.Bound(c => c.VrId).Hidden();
+                        //columns.Bound(c => c.AccId).Hidden();
+                        columns.Bound(c => c.SubCode).Width(150);
+                        columns.Bound(c => c.SubCodeDesc)/*.EditorTemplateName("_SubsidiaryCode")*/;
+                        columns.Bound(c => c.SubsidaryDesc);
+                        //columns.Bound(c => c.SubId).EditorTemplateName("_SubsidiaryCode");
+                        //columns.ForeignKey(c => c.PCCode, (System.Collections.IEnumerable)ViewData["PCVD"], "PCCode", "PCDesc").Title("Profit Center").Width(110);
+                        //columns.ForeignKey(c => c.CCCode, (System.Collections.IEnumerable)ViewData["CCVD"], "CCCode", "CCDesc").Title("Cost Center").Width(100);
+
+
+                        //columns.ForeignKey(c => c.SubCode, (System.Collections.IEnumerable)ViewData["COA"], "Code", "Name").Title("SubCodeDesc").Width(200);
+                        //columns.Bound(c => c.ChequeNo).Width(120);
+                        columns.Bound(c => c.Particulars);
+                        columns.Bound(c => c.Dr).Width(100);
+                        columns.Bound(c => c.Cr).Width(100);
+                        columns.Command(c => c.Edit());
+                        //columns.Command(c => c.Destroy().Visible("checkNew")).Width(100);
+                    })
+                    //.Pageable()
+                    //.Sortable()
+                    .Scrollable()
+                    .AutoBind(true)
+                    //.Filterable(ftb => ftb.Mode(GridFilterMode.Row).Extra(false)
+                    // .Operators(operators => operators
+                    // .ForString(str => str.Clear()
+                    // .Contains("Contains"))))
+                    //.ToolBar(t => { t.Save(); })
+                    .Editable(e => e.Mode(GridEditMode.PopUp).CreateAt(GridInsertRowPosition.Bottom).TemplateName("_Voucher"))
+                    .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    //.PageSize(20)
+                    .Batch(false)
+                    .Events(e => e.Error("error_handler")/*.Change("calculateBalance")*/)
+                    .Model(model =>
+                    {
+                        model.Id(m => m.VrDtlId);
+                        model.Field(m => m.AccId).Editable(false);
+                        model.Field(m => m.CCCode).Editable(false);
+                        model.Field(m => m.ChequeNo).Editable(false);
+                        model.Field(m => m.Cr).Editable(false);
+                        model.Field(m => m.Dr).Editable(false);
+                        model.Field(m => m.PCCode).Editable(false);
+                        model.Field(m => m.RefId).Editable(false);
+                        model.Field(m => m.SubCode).Editable(false);
+                        model.Field(m => m.SubCodeDesc).Editable(false);
+                        model.Field(m => m.VrDtlId).Editable(false);
+                        model.Field(m => m.VrId).Editable(false);
+                    })
+                    .Read(read => read.Action("Voucher_Read", "Account").Data("masData"))
+                    .Create(create => create.Action("Voucher_Update", "Account"))
+                    .Update(update => update.Action("Voucher_Update", "Account"))
+                    //.Destroy(update => update.Action("COA_Destroy", "Account"))
+                    ))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        var gridElement = $("#gridVoucher");
+        $(document).ready(function () {
+            resizeGrid();
+        });
+
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridVoucher").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+        function masData() {
+            return {
+                VrId: $('#VrId').val() || 0
+            }
+        }
+        function filterSubsidaryCode() {
+            return {
+                PId: $('#AccId').data("kendoMultiColumnComboBox").value(),
+                str: $('#SubId').data("kendoMultiColumnComboBox").input.val() || ""
+            }
+        }
+    </script>
+}

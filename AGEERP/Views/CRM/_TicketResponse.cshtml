@@ -1,0 +1,191 @@
+﻿
+<div class="card card-prirary cardutline direct-chat direct-chat-danger">
+    <div class="card-header">
+        <h3 class="card-title">Response</h3>
+
+        <div class="card-tools">
+            <span data-toggle="tooltip" title="3 New Messages"  id="msgcount" class="badge bg-danger">0</span>
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-tool" id="btnClosePopup" data-card-widget="remove">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body" >
+
+
+        <div class="direct-chat-messages" id="TicketsList"  style="height:400px;">
+            @*<div class="col-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-danger">2</span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Messages</span>
+                        <span class="info-box-number">1,410</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="direct-chat-msg">
+                <div class="direct-chat-infos clearfix">
+                    <span class="direct-chat-name float-left">Alexander Pierce</span>
+                    <span class="direct-chat-timestamp float-right">23 Jan 2:00 pm</span>
+                </div>
+                <img class="direct-chat-img" src="/app-assets/images/avatar/user.png" alt="Message User Image">
+                <div class="direct-chat-text">
+                    Is this template really for free? That's unbelievable! gdgdf frgdfg bedrgfdfgs sefsdf sdgsd sdfsd sd
+                </div>
+            </div>
+            <div class="direct-chat-msg right">
+                <div class="direct-chat-infos clearfix">
+                    <span class="direct-chat-name float-right">Sarah Bullock</span>
+                    <span class="direct-chat-timestamp float-left">23 Jan 2:05 pm</span>
+                </div>
+                <img class="direct-chat-img" src="/app-assets/images/avatar/user.png" alt="Message User Image">
+                <div class="direct-chat-text">
+                    You better believe it!
+                </div>
+            </div>*@
+
+        </div>
+
+
+    </div>
+    <div class="card-footer">
+        <div class="input-group">
+            <input type="text" name="Response" id="Response" placeholder="Type Message ..." class="form-control">
+            <input type="hidden" name="TicketId" id="TicketId" value="@ViewBag.TicketId">
+            <span class="input-group-append">
+                <button type="button" onclick="AddResponse()" class="btn btn-danger">Send</button>
+            </span>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(function () {
+        $("#btnClosePopup").click(function () {
+            $("#ticketmodal").modal("hide");
+        });
+    });
+
+
+
+    function AddResponse() {
+
+        var TicketId = $('#TicketId').val() || 0;
+        var Response = $('#Response').val() || "";
+
+        if (Response != "") {
+            $.getJSON("/CRM/AddResponse", { TicketId: TicketId, Response: Response })
+                .done(function (data) {
+                    if (data == "Success") {
+                        $("#ticketmodal").modal("hide");
+                    } else {
+                        kendo.alert(data);
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    kendo.alert(error);
+                });
+        }
+    }
+
+
+    $(document).ready(function () {
+        GetResponse();
+    });
+    var TicketsList;
+    function GetResponse() {
+        $("#TicketsList").empty();
+        var TicketId = $('#TicketId').val() || 0;
+
+
+        $.getJSON("/CRM/GetTicketsList", { TicketId: TicketId })
+            .done(function (data) {
+                TicketsList = data;
+                ShowResponse(data);
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                //  kendo.alert(error);
+            });
+    }
+
+    function ShowResponse() {
+        $("#TicketsList").empty();
+        var TicketId = $('#TicketId').val() || 0;
+
+
+        $.getJSON("/CRM/GetResponseList", { TicketId: TicketId })
+            .done(function (ResponseData) {
+                $('#msgcount').text(ResponseData.length);
+
+                var trHTML = '';
+
+                for (i = 0; i < TicketsList.length; i++) {
+
+                    var date = new Date(parseInt(TicketsList[i].TransDate.substr(6)));
+                    var formatted = date.getFullYear() + "-" +
+                        ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                        ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                        date.getMinutes();
+
+                    trHTML += '<div class="col-12">' +
+                        '<div class="info-box">' +
+                        '<span class="info-box-icon bg-danger" style="width:auto;">' + TicketsList[i].TicketId + '</span>' +
+                        '<div class="info-box-content">' +
+                        '<span class="info-box-text"><b>Category :</b> ' + TicketsList[i].Category + '<span class="info-box-number float-right"> <b>Branch :</b>' + TicketsList[i].LocCode + '</span ></span >' +
+                        '<span class="info-box-text"><b>Contact Person:</b> ' + TicketsList[i].ContactPerson + '<span class="info-box-number float-right"> <b>Contact No :</b>' + TicketsList[i].ContactNo + '</span ></span >' +
+                        '<span class="info-box-number"><b>Complain :</b>' + TicketsList[i].Complain + '</span>' +
+
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+                       @*'<div class="direct-chat-msg">' +
+                        '<div class="direct-chat-infos clearfix">' +
+                        '<span class="direct-chat-name float-left">' + TicketsList[i].UserId + '</span>' +
+                        '<span class="direct-chat-timestamp float-right">' + formatted + '</span>' +
+                        '</div>' +
+                        '<img class="direct-chat-img" src="/app-assets/images/avatar/user.png" alt="Message User Image">' +
+                        '<div class="direct-chat-text">' +
+                        TicketsList[i].Complain +
+                        '</div>' +
+                        '</div>';*@
+
+                }
+                for (i = 0; i < ResponseData.length; i++) {
+
+                    var date = new Date(parseInt(ResponseData[i].TransDate.substr(6)));
+                    var formatted = date.getFullYear() + "-" +
+                        ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                        ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                        date.getMinutes();
+
+                    trHTML += '<div class="direct-chat-msg right">' +
+                        '<div class="direct-chat-infos clearfix">' +
+                        '<span class="direct-chat-name float-right">' + ResponseData[i].UserId + '</span>' +
+                        '<span class="direct-chat-timestamp float-left">' + formatted + '</span>' +
+                        '</div>' +
+                        '<img class="direct-chat-img" onerror="' +showimg()+'"   src="../Content/EmpImg/' + ResponseData[i].UserId + '.jpg">' +
+                        '<div class="direct-chat-text">' +
+                        ResponseData[i].Response +
+                        '</div>' +
+                        '</div>';
+                }
+
+                function showimg() {
+                   return "this.src = '../app-assets/images/avatar/user.png'";
+                    };
+               
+                $('#TicketsList').append(trHTML);
+
+
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                //  kendo.alert(error);
+            });
+    }
+
+</script>

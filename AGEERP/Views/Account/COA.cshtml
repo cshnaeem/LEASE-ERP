@@ -1,0 +1,255 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Chart of Accounts";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Chart of Accounts</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">Chart of Accounts</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Account Class")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("COA1")
+                //.Placeholder("Select COA ...")
+                .SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .Events(e => e.Change("loadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("COAList", "Account").Data("filterCOA1"))
+                .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-4 col-sm-4">
+                @Html.Label("Account Group")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("COA2")
+                .OptionLabel("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .CascadeFrom("COA1")
+                .Events(e => e.Change("loadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("COAList", "Account").Data("filterCOA2"))
+                .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+            <div class="col-md-5 col-sm-5">
+                @Html.Label("Account Control")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("COA3")
+                .OptionLabel("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .CascadeFrom("COA2")
+                .Events(e => e.Change("loadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("COAList", "Account").Data("filterCOA3"))
+                .ServerFiltering(true);
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <h4 id="PCode" class="card-title" style="text-align:center"></h4>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                @(Html.Kendo()
+                .Grid<COAVM>()
+                .Name("gridCOA")
+                .Columns(columns =>
+                {
+                columns.Bound(c => c.Code);
+                columns.Bound(c => c.Name).Title("Title");
+                columns.Bound(c => c.IsLocked).Hidden();
+                columns.Bound(c => c.Remarks).Hidden();
+                //columns.ForeignKey(c => c.PId, (System.Collections.IEnumerable)ViewData["TypeVD"], "TypeId", "Name").Title("Type");
+                columns.Command(c => { c.Edit(); }).Width(250);
+                })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                //.AutoBind(false)
+                .Filterable(ftb => ftb.Mode(GridFilterMode.Row).Extra(false)
+                .Operators(operators => operators
+                .ForString(str => str.Clear()
+                .Contains("Contains"))))
+                .ToolBar(t => t.Create())
+                .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_COA"))
+                .HtmlAttributes(new { style = "height:400px;" })
+                .Events(e => e.Edit("onEdit"))
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(20)
+                .Events(e => e.Error("error_handler"))
+                .Model(model =>
+                {
+                model.Id(m => m.Code);
+                //model.Field(m => m.PId);
+                })
+                .Read(read => read.Action("COA_Read", "Account").Data("filterPId"))
+                .Create(create => create.Action("COA_Create", "Account").Data("filterPId"))
+                .Update(update => update.Action("COA_Update", "Account").Data("filterPId"))
+                //.Destroy(update => update.Action("COA_Destroy", "Account"))
+                ))
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script Model="text/javascript">
+        var gridElement = $("#gridCOA");
+        $(document).ready(function () {
+            resizeGrid();
+            //$('#m_15000000').addClass('active');
+            //$('#d_15000000').css("display", "block");
+            //$('#m_15050000').addClass('active');
+            //$('#a_15050000').addClass('active');
+        });
+
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridCOA").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+        function loadGrid() {
+            $('#gridCOA').data('kendoGrid').dataSource.read();
+            var dat = filterPId();
+            var grid = $("#gridCOA").data("kendoGrid");
+            if (dat.Level == 4) {
+                grid.showColumn(2);
+                grid.showColumn(3);
+            }
+            else {
+                grid.hideColumn(2);
+                grid.hideColumn(3);
+            }
+        }
+        function filterCOA1() {
+            return {
+                ParentId: 0,
+                Level: 1
+            }
+        }
+        function filterCOA2() {
+            return {
+                ParentId: $('#COA1').val(),
+                Level: 2
+            }
+        }
+        function filterCOA3() {
+            return {
+                ParentId: $('#COA2').val(),
+                Level: 3
+            }
+        }
+        function onEdit(e) {
+            var dat = filterPId();
+            //check if record is new
+            if (e.model.isNew()) {
+                $.getJSON("/Account/NewCode?PCode=" + dat.ParentId, function (data) {
+                    $('#Code').val(data);
+                });
+            }
+            if (dat.Level == 4) {
+                $('#c4').show();
+            }
+            else {
+                $('#c4').hide();
+            }
+        }
+        function filterPId() {
+            var PId = "";
+            var Level = 1;
+            var coa3 = $('#COA3').data('kendoDropDownList').value() || 0;
+            var coa2 = $('#COA2').data('kendoDropDownList').value() || 0;
+            var coa1 = $('#COA1').data('kendoDropDownList').value() || 0;
+            if (coa3 != "") {
+                PId = coa3;
+                Level = 4;
+                $('#PCode').text($('#COA3').data('kendoDropDownList').text());
+            }
+            else if (coa2 != "") {
+                PId = coa2;
+                Level = 3;
+                $('#PCode').text($('#COA2').data('kendoDropDownList').text());
+            }
+            else if (coa1 != "") {
+                PId = coa1;
+                Level = 2;
+                $('#PCode').text($('#COA1').data('kendoDropDownList').text());
+            }
+            else {
+                $('#PCode').text("COA");
+            }
+
+            return {
+                ParentId: PId,
+                Level: Level
+            }
+        }
+    </script>
+}

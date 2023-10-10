@@ -1,0 +1,40 @@
+﻿@using AGEERP.Models
+@model COAVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("Code")
+        @(Html.Kendo().TextBoxFor(x => x.Code).HtmlAttributes(new { @style = "width:100%"}))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Title")
+        @(Html.Kendo().TextBoxFor(x => x.Name).HtmlAttributes(new { @style = "width:100%"}))
+    </div>
+</div>
+<div id="c4" class="row">
+    <div class="col-md-4">
+        @Html.Label("Subidary Division")
+        @(Html.Kendo().DropDownListFor(x => x.SubDivId).BindTo(SelectListVM.SubDivSL))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("IsLocked")
+        @(Html.Kendo().CheckBoxFor(x => x.IsLocked).Label("IsLocked"))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Remarks")
+        @(Html.Kendo().TextBoxFor(x => x.Remarks).HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+</div>
+}

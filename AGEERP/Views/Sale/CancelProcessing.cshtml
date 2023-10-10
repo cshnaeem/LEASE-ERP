@@ -1,0 +1,602 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Cancel Processing";
+}
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Cancel Processing</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Lease</a></li>
+                    <li class="breadcrumb-item active">Cancel Processing</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12 ihead">
+            @using (Ajax.BeginForm("CancelProcessing", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+            {
+                <div id="frmM">
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Location")
+                        @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("LocId")
+                .Placeholder("Select Locations ...")
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                .SelectedIndex(0)
+                .Columns(columns =>
+                {
+                    columns.Add().Field("LocCode").Width("100px");
+                    columns.Add().Field("LocName").Width("200px");
+                })
+                .FilterFields(new string[] { "LocCode", "LocName" })
+                .Filter(FilterType.Contains)
+                .Events(e => e.Change("locChange").DataBound("locChange"))
+                .Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                        @Html.ValidationMessage("LocId")
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("AccNo")
+                        @(Html.Kendo()
+            .MultiColumnComboBox()
+            .Name("AcccNo")
+            .DataTextField("AccNo")
+            .DataValueField("AccNo")
+            .Events(e => e.Change("AccNoChange"))
+            .Columns(columns =>
+            {
+                columns.Add().Field("AccNo").Width("100px");
+                columns.Add().Field("CustName").Width("200px");
+                columns.Add().Field("ProcessDate").Width("150px");
+            })
+                .Suggest(true)
+                .Filter(FilterType.Contains)
+                //.CascadeFrom("LocId")
+                //.MinLength(3)
+                .FilterFields(new string[] { "AccNo", "CustName", "ProcessDate" })
+                .AutoBind(false)
+                .DataSource(dataSource =>
+                {
+                    dataSource.Read(read => read.Action("LseProcessingList", "Sale").Data("filterAcc"));
+                })
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                )
+                    </div>
+                    @*<div class="col-md-3 col-sm-4">
+                    @Html.Label("AccNo")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("AcccNo")
+                    .Format("##,###")
+                    .Min(0)
+                    .Max(9999999999)
+                    .Events(e => e.Change("AccNoChange"))
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>*@
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Customer Name")
+                        @(Html.Kendo()
+                .TextBox()
+                .Name("CustName")
+                .Enable(false)
+                .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("S/O")
+                        @(Html.Kendo()
+                .TextBox()
+                .Name("FName")
+                .Enable(false)
+                .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-4">
+                        @Html.Label("Remarks")
+                        @(Html.Kendo()
+                .TextBox()
+                .Name("Remarks")
+                .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Documents")
+                        @(Html.Kendo().Upload()
+                        .Name("files")
+                        .Multiple(true)
+                        .Async(a => a
+                            .Save("UploadDocBulk", "Document", new { refobjid = 3 })
+                            .Remove("DocumentRemove", "Document")
+                            .SaveField("files")
+                            .AutoUpload(false)
+                            //.Concurrent(true)
+                            .Batch(true)
+                        ).Events(e => e
+                        .Success("onDocUp")
+                        .Remove("onUploadRemove")
+                        //.Remove("OnRemove")
+                        )
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        <input type="hidden" name="UploadedFiles" id="UploadedFiles" />
+                        <br />
+                        <button class="k-button margin-10" type="button" onclick="SaveDoc()">
+                            <i class="fas fa-save"></i>&nbsp; Cancel Processing
+                        </button>
+                    </div>
+                </div>
+                    </div>
+            }
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Marketing")
+                    @Html.Hidden("MktOfficerId")
+                    <span id="MktOfficerName" style="color:red;"></span>
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("MktOfficerNIC")
+                    .Mask("00000-0000000-0")
+                    .Enable(false)
+                    //.Events(e => e.Change("MktOfficerNICChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @class = "nocopy" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Inquiry Officer")
+                    <span id="InqOfficerName" style="color:red;"></span>
+                    @Html.Hidden("InqOfficerId")
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("InqOfficerNIC")
+                    .Mask("00000-0000000-0")
+                    .Enable(false)
+                    //.Events(e => e.Change("InqOfficerNICChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @class = "nocopy" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Manager")
+                    @Html.Hidden("ManagerId")
+                    <span id="ManagerName" style="color:red;"></span>
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("ManagerNIC")
+                    .Mask("00000-0000000-0")
+                    .Enable(false)
+                    //.Events(e => e.Change("ManagerNICChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @class = "nocopy" }))
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Second Manager")
+                    @Html.Hidden("SManagerId")
+                    <span id="SManagerName" style="color:red;"></span>
+                    @(Html.Kendo()
+                    .MaskedTextBox()
+                    .Name("SManagerNIC")
+                    .Mask("00000-0000000-0")
+                    .Enable(false)
+                    //.Events(e => e.Change("SManagerNICChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @class = "nocopy" }))
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("RM")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("RM")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("SRM")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("SRM")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("CRC")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("CRC")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("BDM")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("BDM")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%"})
+                    )
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Category")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CategoryId")
+                    .SelectedIndex(0)
+                    .DataValueField("CategoryId")
+                    .DataTextField("Category")
+                    //.Events(e => e.Change("changeCategory"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("CategoryList", "Sale").Data("filterAcc"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true", @readonly = true })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Duration")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("Duration")
+                    .Format("###")
+                    .Enable(false)
+                    //.Events(e => e.Change("durChange"))
+                    .Min(2)
+                    .Value(12)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                    )
+                </div>
+            </div>
+
+
+            <hr />
+            <div class="row">
+                <div class="col-md-9 col-sm-12">
+                    @Html.Label("Sale")
+                    @(Html.Kendo()
+                    .Grid<LseDetailVM>()
+                    .Name("gridLseDetail")
+                    .Columns(columns =>
+                    {
+                        //columns.Bound(c => c.DtlId).Hidden();
+                        ////columns.Bound(c => c.AccNo).Hidden();
+                        //columns.Bound(c => c.SKUId).Hidden();
+                        columns.Bound(c => c.SKUName);
+                        columns.Bound(c => c.InstPrice).Title("Price");
+                        //columns.Bound(c => c.ItemId).Hidden();
+                        //columns.Bound(c => c.SerialNo);
+                        //columns.Bound(c => c.CSerialNo).Width(200).Title("SrNo(Company)").Editable("noEdit");
+                        //columns.Command(c => c.Destroy());
+                    })
+                    //.Pageable()
+                    //.Sortable()
+                    .Scrollable()
+                    .AutoBind(false)
+
+                    //.Selectable()
+                    .Navigatable()
+                    //.ToolBar(t => { t.Save(); })
+                    //.Editable(e => e.Mode(GridEditMode.InCell).CreateAt(GridInsertRowPosition.Bottom))
+                    .HtmlAttributes(new { style = "height:200px;font-size:12px;" })
+                    .Events(e => e.DataBound("gridDataBound")/*.SaveChanges("SaveDoc")*/)
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    //.Batch(true)
+                    //.Events(e => e.Error("error_handler").Change("OnSrNoChange"))
+                    .Model(model =>
+                    {
+                        model.Id(m => m.TransId);
+                        model.Field(m => m.InstPrice).Editable(false);
+                        model.Field(m => m.TPrice).Editable(false);
+                        model.Field(m => m.Discount).Editable(false);
+                        model.Field(m => m.SKUId).Editable(false);
+                        model.Field(m => m.SKUName).Editable(false);
+                        model.Field(m => m.InstPlanId).Editable(false);
+                        model.Field(m => m.PlanType).Editable(false);
+                    })
+                    .Read(read => read.Action("Advance_Read", "Sale").Data("CustData"))
+                    //.Create(read => read.Action("Advance_Create", "Sale").Data("MasterData"))
+                    //.Update(read => read.Action("Sale_Read", "Sale"))
+                    ))
+                </div>
+                <div class="col-md-3" style="bottom:20px;right:0px;">
+                    <br />
+                    @*<div class="col-md-12 col-sm-4">
+                    @Html.Label("Process Fee")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("ProcessFee")
+                    .Format("##,###")
+                    .Value(0)
+                    .Min(0)
+                    .Max(9999999999)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>*@
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("Installment Price")
+                        @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("InstPrice")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        //.Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("Actual Advance")
+                        @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("ActualAdvance")
+                        //.Enable(false)
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+                    @*<div class="col-md-12 col-sm-4">
+                    @Html.Label("Order Advance")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("OrderAdvance")
+                    .Format("##,###")
+                    .Value(0)
+                    .Min(0)
+                    .Max(9999999999)
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+                </div>*@
+                    @*<div class="col-md-12 col-sm-4">
+                    @Html.Label("TotalAdvance")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("Advance")
+                    .Format("##,###")
+                    .Min(0)
+                    .Max(9999999999)
+                    //.Events(e => e.Change("advChange"))
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>*@
+
+                    <div class="col-md-12 col-sm-4">
+                        @Html.Label("MonthlyInstallment")
+                        @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("MonthlyInstallment")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        //.Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+                    @*<div class="col-md-12 col-sm-4">
+                    @Html.Label("Balance")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("Balance")
+                    .Format("##,###")
+                    .Value(0)
+                    .Min(0)
+                    //.Enable(false)
+                    //.Max(9999999999)
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+                </div>*@
+                    @*<div class="col-md-3 col-sm-4">
+                @Html.Label("ProcessFee")
+                @(Html.Kendo()
+                .NumericTextBox()
+                .Name("ProcessFee")
+                .Format("##,###")
+                .Min(0)
+                .Max(9999999999)
+                .Enable(false)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                </div>*@
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+    });
+
+    var validatorM = $("#frmM").kendoValidator().data("kendoValidator");
+    function locChange() {
+        $('#AcccNo').data('kendoMultiColumnComboBox').dataSource.read();
+        var LocId = $('#LocId').val();
+        $.getJSON("/Sale/GetLocManagers", { LocId: LocId })
+            .done(function (data) {
+                if (data != null) {
+                    $('#RM').val(data.RM);
+                    $('#SRM').val(data.SRM);
+                    $('#CRC').val(data.CRC);
+                    $('#BDM').val(data.BDM);
+                }
+            });
+    }
+    function onDocUp(e) {
+        for (var i = 0; i < e.response.length; i++) {
+            e.files[i].id = e.response[i];
+            //console.log(e);
+        }
+    }
+    function onUploadRemove(e) {
+        var files = e.files;
+        var docid = 0;
+        for (i = 0; i < files.length; i++) {
+            docid = files[i].id;
+        }
+
+        return {
+            DocId: docid
+        }
+    }
+    function filterAcc() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+
+    function CustData() {
+        return {
+            AcccNo: $('#AcccNo').data('kendoMultiColumnComboBox').value()
+        }
+    }
+
+    var IsNew = false;
+    function AccNoChange() {
+        var AccNo = $('#AcccNo').data('kendoMultiColumnComboBox').value();
+        var LocId = $('#LocId').val();
+        if (AccNo > 0) {
+            $.getJSON("/Sale/LseProcessingByNo", { AccNo: AccNo, LocId: LocId })
+                .done(function (data) {
+                    console.log(data);
+                    if (data != null) {
+                        $('#CustName').val(data.CustName);
+                        $('#FName').val(data.FName);
+                        $('#MktOfficerId').val(data.MktOfficerId);
+                        $('#InqOfficerId').val(data.InqOfficerId);
+                        $('#ManagerId').val(data.ManagerId);
+                        $('#SManagerId').val(data.SManagerId);
+                        //$('#RM').val(data.RM);
+                        //$('#SRM').val(data.SRM);
+                        //$('#CRC').val(data.CRC);
+                        //$('#BDM').val(data.CRC);
+
+                        $('#MktOfficerNIC').data('kendoMaskedTextBox').value(data.MktOfficerCNIC);
+                        $('#InqOfficerNIC').data('kendoMaskedTextBox').value(data.InqOfficerCNIC);
+                        $('#ManagerNIC').data('kendoMaskedTextBox').value(data.ManagerCNIC);
+                        $('#SManagerNIC').data('kendoMaskedTextBox').value(data.SManagerCNIC);
+
+                        $('#MktOfficerName').text(data.MktOfficerName);
+                        $('#InqOfficerName').text(data.InqOfficerName);
+                        $('#ManagerName').text(data.ManagerName);
+                        $('#SManagerName').text(data.SManagerName);
+
+                        $('#CategoryId').data('kendoDropDownList').value(data.CategoryId);
+                        $('#MonthlyInstallment').data('kendoNumericTextBox').value(data.MonthlyInst);
+                        $('#ActualAdvance').data('kendoNumericTextBox').value(data.Advance);
+                        //$('#Advance').data('kendoNumericTextBox').min(data.Advance);
+                        //$('#Advance').data('kendoNumericTextBox').value(0);
+                        $('#Duration').data('kendoNumericTextBox').value(data.Duration);
+                        $('#InstPrice').data('kendoNumericTextBox').value(data.InstPrice);
+                        IsNew = true;
+                        $('#gridLseDetail').data('kendoGrid').dataSource.read();
+                    }
+                    else {
+                        kendo.alert('Customer does not exist');
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    kendo.alert('Customer does not exist');
+                });
+        }
+    }
+
+    var modelData = [];
+
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+        console.log(result);
+        if (result == "Ok") {
+            var upload = $("#files").data("kendoUpload");
+            upload.clearAllFiles();
+            dia.title("Success");
+            dia.content("Save Successfully");
+            dia.open();
+        }
+        else {
+            dia.title("Error");
+            dia.content("Not Save Successfully");
+            dia.open();
+        }
+    }
+    function IsValid() {
+        var dia = $("#msgBox").data("kendoDialog");
+        dia.title("Validation");
+        var data = $('#gridLseDetail').data('kendoGrid').dataSource.data();
+        if (data.length == 0) {
+            dia.content("No Data Found");
+            dia.open();
+            return false;
+        }
+        if ($('#AcccNo').data('kendoMultiColumnComboBox').value() == 0) {
+            dia.content("Please select Account No");
+            dia.open();
+            return false;
+        }
+        var upload = $("#files").data("kendoUpload");
+        var files = upload.getFiles();
+        var fl = [];
+        for (var i = 0; i < files.length; i++) {
+            fl.push(files[i].id);
+        }
+        $('#UploadedFiles').val(fl);
+        if ($('#UploadedFiles').val() == "") {
+            dia.content("Please Upload Attachment");
+            dia.open();
+            return false;
+        }
+        return true;
+    }
+    function SaveDoc() {
+        if (!validatorM.validate()) {
+            return;
+        }
+        if (IsValid() == true) {
+            if (confirm("Do you want to save?")) {
+                kendo.ui.progress($('.card'), true);
+                $('#frm').submit();
+            }
+        }
+    }
+    function gridDataBound() {
+        if (IsNew == false) {
+            var tot = 0;
+            var adv = 0;
+            var inst = 0;
+            var dur = $('#Duration').data("kendoNumericTextBox").value();
+            var data = $('#gridLseDetail').data('kendoGrid').dataSource.data();
+            for (var i = 0; i < data.length; i++) {
+                tot += data[i].TPrice;
+                adv += data[i].dAdvance;
+                inst += data[i].dInst;
+            }
+            $('#ActualAdvance').data("kendoNumericTextBox").value(adv);
+            $('#MonthlyInstallment').data("kendoNumericTextBox").value(inst);
+            $("#InstPrice").data("kendoNumericTextBox").value(tot);
+        }
+        IsNew = false;
+    }
+    function ClearAll() {
+        $('#AcccNo').data('kendoMultiColumnComboBox').value(null);
+        $("#gridLseDetail").data("kendoGrid").dataSource.data([]);
+    }
+</script>

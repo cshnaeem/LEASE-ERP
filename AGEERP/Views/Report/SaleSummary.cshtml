@@ -1,0 +1,301 @@
+﻿
+@{
+    ViewBag.Title = "Sale";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Sale Purchase Summary Report</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                    <li class="breadcrumb-item active">Sale Purchase Summary Report</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("SaleSummary", "Report", FormMethod.Post, new { target = "_blank",id="frm" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.Hidden("Criteria")
+        <div class="row">
+            <div class="col-3 dt">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-3 dt">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-3 ag">
+                @Html.Label("Aging Days")
+                @Html.Kendo().NumericTextBox().Name("AgingDays").Min(0).Value(180).Format("###").HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-3">
+                @Html.Label("Category")
+                @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CatId")
+                    .OptionLabel("All")
+                    .DataValueField("CategoryId")
+                    .DataTextField("CategoryTitle")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("SuppliersCatList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            <div class="col-3">
+
+                @Html.Label("Supplier")
+                @(Html.Kendo()
+                    .DropDownList()
+                    .Name("SuppId")
+                    .OptionLabel("All")
+                    .DataValueField("SuppId")
+                    .DataTextField("SuppName")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("SupplierList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;" })
+                    )
+            </div>
+
+        </div>
+            <div class="row">
+                <div class="col-3">
+                    @Html.Label("City")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CityId")
+                    //.Placeholder("Select City ...")
+                    //.SelectedIndex(0)
+                    .OptionLabel("All")
+                    .DataValueField("CityId")
+                    .DataTextField("City")
+                    .Filter(FilterType.Contains)
+                    //.Suggest(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CityList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-3">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .CascadeFrom("CityId")
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationByCityList", "Setup").Data("filterCity")).ServerFiltering(true);
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+
+                </div>
+                <div class="col-3">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ComId")
+                    //.Placeholder("Select Company ...")
+                    //.SelectedIndex(0)
+                    .OptionLabel("All")
+                    .DataValueField("ComId")
+                    .DataTextField("ComName")
+                    .Filter(FilterType.Contains)
+                    //.Suggest(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CompanyList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+
+                </div>
+                <div class="col-3">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ProductId")
+                    //.Placeholder("Select Product ...")
+                    //.SelectedIndex(0)
+                    .OptionLabel("All")
+                    .DataValueField("ProductId")
+                    .DataTextField("Name")
+                    .Filter(FilterType.Contains)
+                    //.Suggest(true)
+                    //.CascadeFrom("TypeId")
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("ProductList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                
+                <div class="col-3">
+                    @Html.Label("Type")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("TypeId")
+                    //.Placeholder("Select Type ...")
+                    //.SelectedIndex(0)
+                    .OptionLabel("All")
+                    .DataValueField("TypeId")
+                    .DataTextField("Name")
+                    .Filter(FilterType.Contains)
+                    //.Suggest(true)
+                    //.CascadeFrom("ComId")
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("TypesList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-3">
+                    @Html.Label("Model")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ModelId")
+                    //.Placeholder("Select Model ...")
+                    //.SelectedIndex(0)
+                    .OptionLabel("All")
+                    .DataValueField("ModelId")
+                    .DataTextField("Model")
+                    .Filter(FilterType.Contains)
+                    //.Suggest(true)
+                    .CascadeFrom("TypeId")
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("ModelByTypeList", "Setup").Data("filterModel"))
+                    .ServerFiltering(true);
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-3">
+                    <h5> Sale</h5>
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Company Wise Product Report").Value("1").Checked(true)<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Product Wise Report").Value("2")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Company Wise Report").Value("3")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Product Wise Company Report").Value("4")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Product Company Model Report").Value("5")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Company Product Model Report").Value("6")
+                </div>
+                <div class="col-3">
+                    <h5>
+                        Purchase
+                    </h5>
+                        @Html.Kendo().RadioButton().Name("rpt").Label("Company Wise Product Report").Value("11")<br />
+                        @Html.Kendo().RadioButton().Name("rpt").Label("Product Wise Report").Value("12")<br />
+                        @Html.Kendo().RadioButton().Name("rpt").Label("Company Wise Report").Value("13")<br />
+                        @Html.Kendo().RadioButton().Name("rpt").Label("Product Wise Company Report").Value("14")<br />
+                        @Html.Kendo().RadioButton().Name("rpt").Label("City Product Company Report").Value("15")<br />
+                        @Html.Kendo().RadioButton().Name("rpt").Label("City Company Product Report").Value("16")
+</div>
+                <div class="col-4">
+                    <h5>
+                        Stock
+                    </h5>
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Company Product Wise Report").Value("21")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Product Company Wise Report").Value("22")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Company Product Model Wise Report").Value("23")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Product Company Model Wise Report").Value("24")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Product Type Wise Report").Value("27")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Company Product Wise Aging Report").Value("25")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Company Product Wise Aging Qty Report").Value("28")<br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Product Company Wise Aging Report").Value("26")<br />
+                </div>
+                <div class="col-2">
+                    <br />
+                    <button class="k-button k-primary" onclick="ShowReport()" type="button">
+                        <i class="fas fa-print"></i>&nbsp; Print
+                    </button>
+                </div>
+            </div>
+
+        }
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(".dt").css("display", "block");
+        $(".ag").css("display", "none");
+        $('input[type=radio][name=rpt]').change(function () {
+            var val = parseInt(this.value);
+            if (val > 20) {
+                $(".dt").css("display", "none");
+                //$(".ag").css("display", "block");
+            }
+            else {
+                $(".dt").css("display", "block");
+                //$(".ag").css("display", "none");
+            }
+            if ((val > 24 && val < 27) || (val == 28) ) {
+                //$(".dt").css("display", "none");
+                $(".ag").css("display", "block");
+            }
+            else {
+                //$(".dt").css("display", "block");
+                $(".ag").css("display", "none");
+            }
+            
+        });
+    });
+    function ShowReport() {
+        var criteria =  'City:'+ $('#CityId').data('kendoDropDownList').text()+
+            ' Location:' + ($('#LocId').data('kendoMultiColumnComboBox').text() == "" ? "All" : $('#LocId').data('kendoMultiColumnComboBox').text())+
+            ' Category:' + $('#CatId').data('kendoDropDownList').text() +
+            ' Supplier:' + $('#SuppId').data('kendoDropDownList').text() +
+            ' Company:' + $('#ComId').data('kendoDropDownList').text() +
+            ' Type:' +$('#TypeId').data('kendoDropDownList').text()+
+            ' Product:' +$('#ProductId').data('kendoDropDownList').text()+
+            ' Model:' + $('#ModelId').data('kendoDropDownList').text();
+        $('#Criteria').val(criteria);
+        $('#frm').submit();
+    }
+    //function filterType() {
+    //    return {
+    //        ComId: $('#ComId').val() || 0
+    //    }
+    //}
+    //function filterProduct() {
+    //    return {
+    //        TypeId: $('#TypeId').val() || 0
+    //    }
+    //}
+    function filterCity() {
+        return {
+            CityId: $('#CityId').val() || 0
+        }
+    }
+    function filterModel() {
+        return {
+            TypeId: $('#TypeId').val() || 0
+        }
+    }
+</script>

@@ -1,0 +1,332 @@
+﻿@{
+    ViewBag.Title = "Sale Stock Comparison";
+}
+<style>
+    .margin-15 {
+        margin-top: 15px;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Sale Stock Comparison</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                    <li class="breadcrumb-item active">Sale Stock Comparison</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    @using (Html.BeginForm("StockComparison", "Report", FormMethod.Post, new { target = "_blank", id = "frm" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("City")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CityId")
+                    .OptionLabel("All")
+                    .DataValueField("CityId")
+                    .DataTextField("City")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CityList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .CascadeFrom("CityId")
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationByCityList", "Setup").Data("filterCity"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("SuppId")
+                .OptionLabel("Select Supplier")
+                .DataValueField("SuppId")
+                .DataTextField("SuppName")
+                //.Events(e => e.Change("LoadCompany"))
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("SupplierList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                      .DropDownList()
+                      .Name("ComId")
+                      .OptionLabel("Select Company")
+                      .DataValueField("ComId")
+                      .DataTextField("ComName")
+                      .Filter(FilterType.Contains)
+                      //.Events(e => e.Change("LoadProduct"))
+                      .DataSource(ds =>
+                      {
+                          ds.Read(read => read.Action("CompanyList", "Setup"));
+
+                      })
+                      .HtmlAttributes(new { @style = "width:100%" }))
+
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ProductId")
+                    .OptionLabel("Select Product")
+                    .DataValueField("ProductId")
+                    .DataTextField("Name")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        //ds.Read(read => read.Action("ProductByCompList", "Setup").Data("filterProduct"));
+                        ds.Read(read => read.Action("ProductList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Type")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("TypeId")
+                    .OptionLabel("Select Type")
+                    .DataValueField("TypeId")
+                    .DataTextField("Name")
+                    //.CascadeFrom("ProductId")
+                    .Events(e => e.Change("LoadModel"))
+                    .DataSource(ds =>
+                    {
+                        //ds.Read(read => read.Action("TypeList", "Setup").Data("filterComProduct"))
+                        ds.Read(read => read.Action("TypesList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Model")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ModelId")
+                    .OptionLabel("Select Model")
+                    .DataValueField("ModelId")
+                    .DataTextField("Model")
+                     .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("ModelByComProList", "Setup").Data("filterModel"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("SKU")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("SKUId")
+                    .DataValueField("SKUId")
+                    .DataTextField("SKUName")
+                    .OptionLabel("Select Model")
+                    .CascadeFrom("ModelId")
+                    //.SelectedIndex(0)
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("SKUByModelList", "Setup").Data("filterSKU"))
+                        .ServerFiltering(true);
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Column")
+                    @Html.DropDownList("Column", new List<SelectListItem>{
+                    new SelectListItem() {
+                                  Text = "SKU",
+                                  Value = "SKU"
+                              },
+                              new SelectListItem() {
+                                  Text = "Model",
+                                  Value = "Model"
+                              },
+                              new SelectListItem() {
+                                  Text = "Type",
+                                  Value = "Type"
+                              },
+                              new SelectListItem() {
+                                  Text = "Product",
+                                  Value = "Product"
+                              },
+                                new SelectListItem() {
+                                  Text = "Company",
+                                  Value = "Company"
+                              },new SelectListItem() {
+                                  Text = "Supplier",
+                                  Value = "Supplier"
+                              },new SelectListItem() {
+                                  Text = "City",
+                                  Value = "City"
+                              },new SelectListItem() {
+                                  Text = "Location",
+                                  Value = "Location"
+                              }
+               },
+                    "Select Column", new { @class = "form-control row-column" })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Row")
+                    @Html.DropDownList("Row", new List<SelectListItem>{
+                    new SelectListItem() {
+                                  Text = "SKU",
+                                  Value = "SKU"
+                              },
+                              new SelectListItem() {
+                                  Text = "Model",
+                                  Value = "Model"
+                              },
+                              new SelectListItem() {
+                                  Text = "Type",
+                                  Value = "Type"
+                              },new SelectListItem() {
+                                  Text = "Product",
+                                  Value = "Product"
+                              },
+                                new SelectListItem() {
+                                  Text = "Company",
+                                  Value = "Company"
+                              },new SelectListItem() {
+                                  Text = "Supplier",
+                                  Value = "Supplier"
+                              },new SelectListItem() {
+                                  Text = "City",
+                                  Value = "City"
+                              },new SelectListItem() {
+                                  Text = "Location",
+                                  Value = "Location"
+                              }
+               },
+                    "Select Row", new { @class = "form-control row-column" })
+                </div>
+                <div class="col-md-3 col-sm-3 tDive">
+                    @Html.Label("Sale Type")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("SaleType")
+                    .SelectedIndex(0)
+                    .BindTo(new List<SelectListItem>()
+                    {
+                        new SelectListItem{Text = "All",Value = "B"},
+                        new SelectListItem{Text = "Cash",Value = "C"},
+                        new SelectListItem{Text = "Installment",Value = "I"},
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                @*<div class="col-md-3">
+            @Html.Label("Aging Days")
+            @Html.Kendo().NumericTextBox().Min(1).Format("0").Name("Days").Value(1).HtmlAttributes(new { @style = "width:100%" })
+        </div>*@
+                <div class="col-md-6">
+                    <br />
+                    @(Html.Kendo().CheckBox().Name("isSale").Checked(false).Label("Is Sale"))
+                    <br />
+                    @(Html.Kendo().CheckBox().Name("isStock").Checked(false).Label("Is Stock"))
+                    <br />
+                    @(Html.Kendo().CheckBox().Name("isPurchase").Checked(false).Label("Is Purchase"))
+                </div>
+                <div class="col-md-3">
+                    <button class="k-button margin-15" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<script>
+    $("select.row-column").change(function () {
+        $("select.row-column option[value='" + $(this).data('index') + "']").prop('disabled', false);
+        $(this).data('index', this.value);
+        $("select.row-column option[value='" + this.value + "']:not([value=''])").prop('disabled', true);
+        $(this).find("option[value='" + this.value + "']:not([value=''])").prop('disabled', false);
+    });
+    function LoadCompany() {
+        $('#ComId').data('kendoDropDownList').dataSource.read();
+    }
+    function LoadProduct() {
+        $('#ProductId').data('kendoDropDownList').dataSource.read();
+    }
+    function filterCompany() {
+        return {
+            SuppId: $('#SuppId').val()
+        }
+    }
+    function filterProduct() {
+        return {
+            ComId: $('#ComId').val()
+        }
+    }
+    function LoadModel() {
+        $('#ModelId').data('kendoDropDownList').dataSource.read();
+    }
+    function filterModel() {
+        return {
+            ComId: $('#ComId').val() || 0,
+            ProductId: $('#ProductId').val() || 0
+        }
+    }
+    function filterSKU() {
+        return {
+            ModelId: $('#ModelId').val()
+        }
+    }
+    function filterComProduct() {
+        return {
+            ComId: $('#ComId').val(),
+            ProductId: $('#ProductId').val()
+        }
+    }
+    function filterCity() {
+        return {
+            CityId: $('#CityId').val() || 0
+        }
+    }
+</script>

@@ -1,0 +1,379 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Cash Payment";
+}
+<style>
+    .k-upload-files {
+        height: 70px !important;
+    }
+</style>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Cash Payment</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Cash</a></li>
+                    <li class="breadcrumb-item active">Cash Payment</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12 ihead">
+            @using (Ajax.BeginForm("CashPayment", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+            {
+                @Html.ValidationSummary()
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Cash Collection Center")
+                        @(Html.Kendo().DropDownList()
+                .Name("LocId")
+                //.OptionLabel("All")
+                .SelectedIndex(0)
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                .Events(e => e.DataBound("LocChange"))
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CashCollectionCenterList", "Cash"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                    </div>
+                    @*<div class="col-md-3 col-sm-4">
+                            @Html.Label("Location")
+                            @(Html.Kendo()
+                            .MultiColumnComboBox()
+                            .Name("LocId")
+                            .Placeholder("Select Locations ...")
+                            .DataValueField("LocId")
+                            .DataTextField("LocName")
+                            .SelectedIndex(0)
+                            .Columns(columns =>
+                            {
+                                columns.Add().Field("LocCode").Width("100px");
+                                columns.Add().Field("LocName").Width("200px");
+                            })
+                            .FilterFields(new string[] { "LocCode", "LocName" })
+                            .Filter(FilterType.Contains)
+                            .Events(e => e.DataBound("LocChange"))
+                            .DataSource(ds =>
+                            {
+                                ds.Read(read => read.Action("LocationList", "Setup"));
+                            })
+                            .HtmlAttributes(new { @style = "width:100%"})
+                                )
+                        </div>*@
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("WorkingDate")
+                        @Html.Kendo().DatePicker().Name("WorkingDate").Value(ViewBag.WorkingDate).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Payment Head")
+                        @(Html.Kendo()
+                        .DropDownList()
+                        .Name("Head")
+                        //.OptionLabel("NA")
+                        .SelectedIndex(0)
+                        .DataValueField("Code")
+                        .DataTextField("Name")
+                        .Events(e => e.Change("headChange"))
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("PaymentHeadList", "Cash"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%", required = true })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Cost Center")
+                        @(Html.Kendo()
+                .DropDownList()
+                .Name("CCCode")
+                .SelectedIndex(0)
+                .DataValueField("CCCode")
+                .DataTextField("CCDesc")
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("CostCentersList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", required = true })
+                )
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-6 col-sm-6">
+                        @Html.Label("Payment Head")
+                        @(Html.Kendo()
+                        .DropDownList()
+                        .Name("AccId")
+                        //.OptionLabel("NA")
+                        .SelectedIndex(0)
+                        .DataValueField("Id")
+                        .DataTextField("Name")
+                        .Events(e => e.Change("accChange"))
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("PaymentSubCodeList", "Cash").Data("filterHead"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%", required = true })
+                        )
+                    </div>
+                    <div class="col-md-6 col-sm-6" id="subDiv" style="display:none;">
+                        @Html.Label("Subsidiary A/C")
+                        @(Html.Kendo()
+                .MultiColumnComboBox()
+                .Name("SubId")
+                .Placeholder("Select COA ...")
+                //.SelectedIndex(0)
+                .DataValueField("Id")
+                .DataTextField("Name")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("100px");
+                    columns.Add().Field("Name").Width("300px");
+                })
+                //.Suggest(true)
+                .Filter(FilterType.Contains)
+                .FilterFields(new string[] { "Code", "Name" })
+                //.MinLength(3)
+                .CascadeFrom("AccId")
+                //.Events(e => e.Change("loadGrid"))
+                .AutoBind(false)
+                //.BindTo(ViewBag.COA4)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SubsidaryCodeList", "Account").Data("filterSubsidaryCode"))
+                    .ServerFiltering(true);
+                })
+                .IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                    </div>
+
+                    <div class="col-md-6 col-sm-6">
+                        @Html.Label("Description")
+                        @(Html.Kendo().TextBox().Name("Description")
+                        .HtmlAttributes(new { @style = "width:100%", required = true }))
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Amount")
+                        @(Html.Kendo().NumericTextBox().Name("Amount").Format("##,###")
+                        .HtmlAttributes(new { @style = "width:100%", required = true }))
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Documents")
+                        @(Html.Kendo().Upload()
+                        .Name("files")
+                        .Multiple(true)
+                        .Async(a => a
+                            .Save("UploadDocBulk", "Document", new { refobjid = 11 })
+                            .Remove("DocumentRemove", "Document")
+                            .SaveField("files")
+                            .AutoUpload(false)
+                            //.Concurrent(true)
+                            .Batch(true)
+                        ).Events(e => e
+                        .Success("onDocUp")
+                        .Remove("onUploadRemove")
+                        //.Remove("OnRemove")
+                        )
+                        )
+                    </div>
+                    <input type="hidden" name="UploadedFiles" id="UploadedFiles" />
+                    <div class="col-md-3 col-sm-4" id="savebtn">
+                        <br />
+                        <button class="k-button margin-10" type="button" id="btnSave" onclick="SaveDoc()">
+                            <i class="fas fa-plus"></i>&nbsp; Save
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<script>
+    var validator = $("#frm").kendoValidator().data("kendoValidator");
+    $(document).ready(function () {
+        //$('#m_19000000').addClass('active');
+        //$('#d_19000000').css("display", "block");
+        //$('#m_19050000').addClass('active');
+        //$('#a_19050000').addClass('active');
+
+        headChange();
+    });
+    function headChange() {
+        $('#AccId').data('kendoDropDownList').dataSource.read();
+
+    }
+    function accChange() {
+        var AccId = $('#AccId').data('kendoDropDownList').dataItem();
+        if (AccId.IsLocked == true) {
+            $('#subDiv').css('display', 'block');
+            $('#SubId').data('kendoMultiColumnComboBox').dataSource.read();
+        }
+        else {
+            $('#subDiv').css('display', 'none');
+        }
+
+    }
+    function filterHead() {
+        return {
+            head: $('#Head').val()
+        }
+    }
+    function filterSubsidaryCode() {
+        return {
+            PId: $('#AccId').data("kendoDropDownList").value(),
+            str: $('#SubId').data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+    var flarr = [];
+    function onDocUp(e) {
+        for (var i = 0; i < e.response.length; i++) {
+            e.files[i].id = e.response[i];
+            //console.log(e);
+        }
+    }
+    function onUploadRemove(e) {
+        var files = e.files;
+        var docid = 0;
+        for (i = 0; i < files.length; i++) {
+            docid = files[i].id;
+        }
+
+        return {
+            DocId: docid
+        }
+    }
+    function LocChange() {
+        var locId = $('#LocId').val() || 0;
+        if (locId > 0) {
+            $.ajax({
+                dataType: "json",
+                url: '/Sale/GetWorkingDate?LocId=' + locId,
+                success: (function (data) {
+                    $('#WorkingDate').data('kendoDatePicker').value(data.WorkingDate);
+                })
+            });
+        }
+    }
+    function ExpChange(e) {
+        var data = $('#ExpHeadId').data('kendoDropDownList').dataItem();
+
+        //$('#Amount').data('kendoNumericTextBox').max(data.MaxLimit);
+    }
+    //function IsValid() {
+    //    var dia = $("#msgBox").data("kendoDialog");
+    //    dia.title("Validation");
+    //    if ($('#CustName').val().length > 3) {
+    //        return true;
+    //    } else {
+    //        dia.content("Please Enter Customer Name");
+    //    }
+    //    dia.open();
+    //    return false;
+    //}
+    function IsValid() {
+        var dia = $("#msgBox").data("kendoDialog");
+        dia.title("Validation");
+        var sub = $('#SubId').data("kendoMultiColumnComboBox").value() || 0;
+        $('#SubId').data("kendoMultiColumnComboBox").value(sub);
+        var Amt = $('#Amount').val();
+        var AccId = $('#AccId').data('kendoDropDownList').dataItem();
+        if (AccId.IsLocked == true) {
+            if (sub > 0) {
+
+            }
+            else {
+                dia.content("Please Select Subsidary");
+                dia.open();
+                return false;
+            }
+        }
+        if (Amt == 0) {
+            dia.content("Please Enter Amount");
+            dia.open();
+            return false;
+        }
+        return true;
+    }
+    function SaveDoc(e) {
+        if (!validator.validate()) {
+            e.preventDefault();
+            return;
+        }
+        if (IsValid() == true) {
+            var upload = $("#files").data("kendoUpload");
+            var files = upload.getFiles();
+            var fl = [];
+            console.log(files);
+            for (var i = 0; i < files.length; i++) {
+                fl.push(files[i].id);
+            }
+            $('#UploadedFiles').val(fl);
+            debugger;
+            $.confirm({
+                title: 'Confirmation',
+                content: 'Are you sure that you want to proceed?',
+                buttons: {
+                    confirm: function () {
+                        kendo.ui.progress($('.card'), true);
+                        $('#frm').submit();
+                        $('#savebtn').css('display', 'none');
+                    },
+                    cancel: function () {
+                    }
+                }
+            });
+        }
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+
+        if (result.TransId > 0) {
+            dia.title("Msg");
+            dia.content("Save Successfully");
+            dia.open();
+            $('#Amount').data('kendoNumericTextBox').value(0);
+            $('#Description').val("");
+            $.confirm({
+                title: 'Saved Successfully!',
+                content: 'Do you want to print?',
+                type: 'red',
+                typeAnimated: true,
+                icon: 'fas fa-check',
+                buttons: {
+                    Print: function () {
+                        $("#rpt").val("CashPaymentSlip");
+                        $("#TransId").val(result.TransId);
+                        $("#rptForm").submit();
+                    },
+                    Cancel: function () {
+                    }
+                }
+            });
+            var upload = $("#files").data("kendoUpload");
+            upload.clearAllFiles();
+            $('#savebtn').css('display', 'block');
+        }
+        else {
+            dia.title("Error");
+            dia.content("Not Save Successfully");
+            dia.open();
+
+        }
+        $('#savebtn').css('display', 'block');
+    }
+</script>

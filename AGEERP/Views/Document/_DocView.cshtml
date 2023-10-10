@@ -1,0 +1,7 @@
+﻿@using (Html.BeginForm("EDocumentView", "Document", FormMethod.Post,
+    new { @Id = "frmDoc", @target = "print_popup", @hidden = "hidden", @onsubmit = "window.open('about:blank','print_popup','width=600,height=500,fullscreen=1,location=0');" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("DocId")
+    @Html.Hidden("RefObjId")
+}

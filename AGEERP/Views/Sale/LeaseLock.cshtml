@@ -1,0 +1,270 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Lease Lock";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+
+            <div style="float:right">
+                <br />
+                <br />
+                <span id="status" style="font-size:14px;"></span>
+            </div>
+            <div style="float:left">
+                <div class="form-group" style="float:left;margin-top:2px;">
+                    <label for="exampleInputPassword1">SEARCH ACC NO</label>
+                    @(Html.Kendo()
+                               .TextBox()
+                               .Name("AccNo")
+                               //.Events(e => e.Change("NICChange"))
+                               .HtmlAttributes(new { @style = "width:100%", required = "required" })
+                    )
+                </div>
+                <div class="form-group" style="float:left;">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                        <i class="fas fa-search"></i>&nbsp; Search
+                    </button>
+                </div>
+                <div class="form-group" style="float:right;display:none;" id="lockdiv">
+                    <br />
+                    <a class="k-button margin-10" onclick="LockAcount()">
+                        <i class="fas fa-lock"></i>&nbsp; Lock Account
+                    </a>
+                </div>
+
+                @*<div class="form-group" style="float:right;display:none;" id="unlockdiv">
+                    <br />
+                    <a class="k-button margin-10" onclick="UnLockAccount()">
+                        <i class="fas fa-lock-open"></i>&nbsp; Unlock Account
+                    </a>
+                </div>*@
+            </div>
+        </div>
+    </div>
+    <!-- /.card-header -->
+    <!-- form start -->
+    <form role="form">
+        <div class="card-body">
+            <section class="content">
+                <div class="container-fluid">
+                    <div id="CLosVouc">
+                        <h4>Locked Accounts</h4>
+                        <div class="col-sm-12">
+                            @(Html.Kendo()
+                            .Grid<InstallmentVM>()
+                            .Name("gridexistInstallmentLock")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.InstId).Hidden();
+                                columns.Bound(c => c.AccNo).Width(100);
+                                //columns.Bound(c => c.InstCharges).Width(100);
+                                columns.Command(c => c.Custom("Unlock").Click("UnLockAccount")).Width(50);
+                                columns.Command(c => c.Custom("Print").Click("PrintSlip")).Width(50);
+                            })
+                            .Sortable()
+                            .Scrollable()
+                              .ToolBar(t => {  t.Search(); })
+                              .Search(s => { s.Field(a => a.AccNo); })
+                            .Pageable()
+                            .AutoBind(false)
+                            .Navigatable()
+                            .HtmlAttributes(new { style = "font-size:12px;height:300px;" })
+                            .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .ServerOperation(false)
+                            .Model(model =>
+                            {
+                                model.Id(m => m.InstId);
+                                model.Field(m => m.InstId);
+                                model.Field(m => m.AccNo);
+                                model.Field(m => m.InstCharges);
+                                model.Field(m => m.IsLock);
+                            })
+                            .Read(read => read.Action("GetLockedAccounts", "Sale"))
+                            ))
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+            <br />
+            <section class="content">
+                <div class="container-fluid">
+                    <div id="CLosVouc">
+                        <h4>Installments</h4>
+                        <div class="col-sm-12">
+                            @(Html.Kendo()
+                            .Grid<InstallmentVM>()
+                            .Name("gridInstallmentLock")
+                            .Columns(columns =>
+                            {
+
+                                columns.Bound(c => c.InstId).Hidden();
+                                 columns.Bound(c => c.AccNo).Width(100);
+                                columns.Bound(c => c.InstCharges).Width(100);
+                                 columns.Bound(c => c.InstDate).Format("{0:dd/MM/yyyy}").Width(100);
+                                 columns.Command(c => { c.Custom("Lock").Click("LockInst").Visible("LockVisible"); c.Custom("Unlock").Click("UnlockInst").Visible("UnlockVisible"); }).Width(50);
+                                
+
+                            })
+                            .Sortable()
+                            .Scrollable()
+                            .Pageable()
+                            .AutoBind(false)
+                            .Navigatable()
+                            .HtmlAttributes(new { style = "font-size:12px;height:300px;" })
+                          
+                            .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Model(model =>
+                            {
+                                model.Id(m => m.InstId);
+                                model.Field(m => m.InstId);
+                                model.Field(m => m.AccNo);
+                                model.Field(m => m.InstCharges);
+                                    model.Field(m => m.IsLock);
+                                    model.Field(m => m.InstDate);
+                            })
+                            .Read(read => read.Action("GetInstallmentLog", "Sale").Data("filterAccountSearch"))
+                            ))
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </form>
+</div>
+
+@Html.Partial("~/Views/Report/_CReport.cshtml")
+@section scripts {
+
+    <script>
+        $(document).ready(function () {
+            $("#gridexistInstallmentLock").data("kendoGrid").dataSource.read();
+
+        });
+        function LockVisible(dataItem) {
+            if (dataItem.IsLock == true) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function UnlockVisible(dataItem) {
+            if (!dataItem.IsLock) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+
+        function LockInst(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/Sale/Installment_Lock?accno=" + dataItem.InstId,
+                success: function (msg) {
+                    $("#gridInstallmentLock").data("kendoGrid").dataSource.read();
+                    $("#gridexistInstallmentLock").data("kendoGrid").dataSource.read();
+                }
+            });
+        }
+        function PrintSlip(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            $("#rptC").val("CustomerL");
+            $("#TransIdC").val(dataItem.AccNo);
+            $("#rptCForm").submit();
+        }
+
+
+        function UnlockInst(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            $.ajax({
+                type: "POST",
+                url: "/Sale/Installment_UnLock?accno=" + dataItem.InstId,
+                success: function (msg) {
+                    $("#gridInstallmentLock").data("kendoGrid").dataSource.read();
+                    $("#gridexistInstallmentLock").data("kendoGrid").dataSource.read();
+                }
+            });
+        }
+
+
+
+        function LockAcount(e) {
+            var accno = $('#AccNo').val();
+            $.ajax({
+                type: "POST",
+                url: "/Sale/AccLock?accno=" + accno,
+                success: function (msg) {
+                    loadGrid();
+                }
+            });
+        }
+
+        function UnLockAccount(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            $.ajax({
+                type: "POST",
+                url: "/Sale/AccUnLock?accno=" + dataItem.AccNo,
+                success: function (msg) {
+                    loadGrid();
+                }
+            });
+        }
+
+        function loadGrid() {
+            var AccNo = $('#AccNo').val();
+
+            $.ajax({
+                type: "POST",
+                url: "/Sale/GetAccNo?accno=" + AccNo,
+                success: function (msg) {
+                    debugger;
+                    if (msg.IsLocked == false) {
+                        $('#status').html('Not Locked');
+                        $('#lockdiv').css('display', 'block');
+                    }
+                    else {
+                         $('#status').html('Locked');
+                        $('#lockdiv').css('display', 'none');
+                    }
+                }
+            });
+            $("#gridInstallmentLock").data("kendoGrid").dataSource.read();
+            $("#gridexistInstallmentLock").data("kendoGrid").dataSource.read();
+        }
+
+        $('body').addClass('sidebar-collapse');
+
+        function filterAccountSearch() {
+            return {
+
+                AccNo: $('#AccNo').val()
+            }
+        }
+
+
+    </script>
+}

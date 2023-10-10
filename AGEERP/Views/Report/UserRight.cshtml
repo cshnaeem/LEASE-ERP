@@ -1,0 +1,102 @@
+﻿@model AGEERP.Models.UserVM
+
+@{
+    ViewBag.Title = "UserRight";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">User Right Report</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                    <li class="breadcrumb-item active">User Right Report</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("UserRight", "Report", FormMethod.Post, new { target = "_blank" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-3">
+                    @Html.Label("Group")
+                    @(Html.Kendo().DropDownListFor(x => x.GroupId)
+                            .OptionLabel("Select Group")
+                              .Name("GroupId")
+                            .DataValueField("GroupId")
+                            .DataTextField("GroupName")
+                            .DataSource(ds =>
+                            {
+                                ds.Read(read => read.Action("GetGroups", "Security"));
+                            })
+                            .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+                <div class="col-3">
+                    @Html.Label("EmployeeId")
+                    @(Html.Kendo().MultiColumnComboBoxFor(x => x.EmployeeId)
+        .Name("EmployeeId")
+        //.AutoBind(false)
+        .Placeholder("Select Employee")
+        .DataTextField("EmpName")
+        .DataValueField("EmpId")
+        .Columns(columns =>
+        {
+        columns.Add().Field("EmpId").Width("100px");
+        columns.Add().Field("EmpName").Width("200px");
+        columns.Add().Field("DeptName").Width("200px");
+        columns.Add().Field("DesgName").Width("200px");
+        })
+        .Events(e => e.Change("EmpChange"))
+        .Filter(FilterType.Contains)
+        .FilterFields(new string[] { "EmpName", "DepName", "EmpId", "DesgName" })
+        //.MinLength(3)
+        .DataSource(dataSource =>
+        {
+        dataSource.Read(read => read.Action("EmpList", "Employee").Data("filterEmp")).ServerFiltering(true);
+        })
+        .IgnoreCase(true)
+        .HtmlAttributes(new { @style = "width:100%" })
+        )
+                </div>
+
+            </div>
+            <div class="row ">
+
+                <div class="col-md-3" style="margin-top:6px;">
+                    <br />
+                    <button class="k-button k-primary" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Print
+                    </button>
+                </div>
+            </div>
+
+        }
+    </div>
+</div>
+<script>
+    function filterEmp() {
+        return {
+            //DeptId: $('#DeptId').val(),
+            str: $('#EmployeeId').data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+    function EmpChange() {
+        var dat = $('#EmployeeId').data('kendoMultiColumnComboBox').dataItem();
+        $('#Username').val(dat.EmpId);
+        $('#FullName').val(dat.EmpName);
+        $('#Username').change();
+        $('#FullName').change();
+    }
+</script>
+
+
+
+
+
+
+
+
+

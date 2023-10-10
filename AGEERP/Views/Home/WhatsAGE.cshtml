@@ -1,0 +1,241 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Whats AGE";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .photo {
+        width: 140px;
+    }
+
+    .details {
+        width: 400px;
+    }
+
+    .name {
+        display: block;
+        font-size: 1.6em;
+    }
+
+    .online {
+        color: green;
+        font: bold;
+    }
+
+    .title {
+        display: block;
+        padding-top: 1.6em;
+    }
+</style>
+<div id="stteepp" class="card">
+    <div>
+        @*<div class="content-header">
+
+                <div class="card-header">
+                    <h3 class="card-title">City</h3>
+                    <div class="card-tools">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item active">City</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>*@
+        <h4>Chats</h4>
+        <section>
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-xs-12">
+                    @(Html.Kendo()
+   .Grid<ChatVM>()
+   .Name("gridCity")
+   .Columns(columns =>
+   {
+       columns.Template(e => { }).ClientTemplate(" ").Title("").Width(90);
+       columns.Template(e => { }).ClientTemplate(" ").Title("");
+       columns.Template(e => { }).ClientTemplate(" ").Title("").Width(90);
+   })
+   .ClientRowTemplate(
+            "<tr data-uid='#: uid #'><td>" +
+            "<img src='" + Url.Content("~/Content/EmpImg/") + "#:data.UserName#.jpg' alt='#: data.UserName #'  class='img-size-50 mr-3 img-circle' />" +
+                            "</td>" +
+                            "<td>" +
+
+                            "<a href='/Home/Chat/#:data.UserName#'>" +
+                        " <h3 class='dropdown-item-title'>" +
+                        "#:Name#    " +
+
+                        "#:Branch#" +
+                        //" <span class='float-right text-sm text-default closenotifi'><i class='fas fa-times' onclick='MarkSeen(" + totalNotif[i].Id + ")'></i></span>" +
+                        " </h3>" +
+                        //"<p class='text-sm'>" + users[i].Name + "</p>" +
+                        "<p class='text-sm'>#:LastMsg#</p>" +
+                        "<a/>"+
+
+                        //"<p class='text-sm text-muted'><i class='far fa-clock mr-1'></i>" + totalNotif[i].RelativeNotificationDate + "</p>" +
+                        "</td>" +
+                            "<td>" +
+
+                                "# if(IsOnline == true) {#" +
+                                "<span class='online'>" +
+                                "Online" +
+                                "</span>" +
+                                "#}#" +
+                                "# if(NoOfMsg > 0) {#" +
+                                "<span class='badge-notification badge-warning'>" +
+                                "#=NoOfMsg#" +
+                                "</span>" +
+                                "#}#" +
+                                "<span class='title'>#:LastMsgTime#</span>" +
+                            "</td>" +
+                        "</tr>"
+
+
+    //"<tr data-uid='#: uid #'>" +
+    //    "<td class='photo'>" +
+    //       "<img src='" + Url.Content("~/Content/EmpImg/") + "#:data.UserName#.jpg' alt='#: data.UserName #' />" +
+    //    "</td>" +
+    //    "<td class='details'>" +
+    //        "<span class='title'>#: UserName #</span>" +
+    //        "<span class='description'>Name : #: Name# </span>" +
+    //        "<span class='description'>Message : #: LastMsg# </span>" +
+    //    "</td>" +
+    // "</tr>"
+    )
+   .Pageable()
+   .Sortable()
+   .Scrollable()
+   .ToolBar(t => {  t.Search(); })
+   .Search(s => { s.Field(a => a.Name); s.Field(a => a.LastMsg); })
+   .HtmlAttributes(new { style = "height:400px;font-size:12px;" })
+   .DataSource(dataSource => dataSource
+   .Ajax()
+   .Model(model =>
+   {
+       model.Id(m => m.UserId);
+   })
+   .Read(read => read.Action("ChatUsers_Read", "Setup"))
+   ))
+                </div>
+            </div>
+        </section>
+        <h4>Contacts</h4>
+        <section>
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-xs-12">
+                    <span style="color:green;float:right;" id="onlinec"></span>
+                </div>
+                <div class="col-lg-12 col-md-12 col-xs-12">
+                    @(Html.Kendo()
+   .Grid<ChatVM>()
+   .Name("gridUser")
+   .Columns(columns =>
+   {
+       columns.Template(e => { }).ClientTemplate(" ").Title("").Width(90);
+       columns.Template(e => { }).ClientTemplate(" ").Title("");
+       columns.Template(e => { }).ClientTemplate(" ").Title("").Width(90);
+   })
+   .ClientRowTemplate(
+            "<tr data-uid='#: uid #'><td>" +
+            "<img src='" + Url.Content("~/Content/EmpImg/") + "#:data.UserName#.jpg' alt='#: data.UserName #'  class='img-size-50 mr-3 img-circle' />" +
+                            "</td>" +
+                            "<td>" +
+                            "<a href='/Home/Chat/#:data.UserName#'>" +
+                        " <h3 class='dropdown-item-title'>" +
+                        "#:Name#" +
+                        //" <span class='float-right text-sm text-default closenotifi'><i class='fas fa-times' onclick='MarkSeen(" + totalNotif[i].Id + ")'></i></span>" +
+                        " </h3>" +
+                        "<p class='text-sm'>#=Branch#</p>" +
+                        "<a/>" +
+                        //"<p class='text-sm text-muted'><i class='far fa-clock mr-1'></i>" + totalNotif[i].RelativeNotificationDate + "</p>" +
+                        "</td>" +
+                            "<td>" +
+                                "# if(IsOnline == true) {#" +
+                                "<span class='online'>" +
+                                "Online" +
+                                "</span>" +
+                                "#}#" +
+                            "</td>" +
+                        "</tr>"
+
+
+
+    )
+   .Pageable()
+   .Sortable()
+   .Scrollable()
+   .ToolBar(t => {  t.Search(); })
+   .Search(s => { s.Field(a => a.Name); s.Field(a => a.UserName);s.Field(a => a.Branch); })
+   .HtmlAttributes(new { style = "height:400px;font-size:12px;" })
+   .Events(e => e.DataBound("DataB"))
+   .DataSource(dataSource => dataSource
+   .Ajax()
+   .ServerOperation(false)
+   .Model(model =>
+   {
+       model.Id(m => m.UserId);
+       model.Field(m => m.IsOnline);
+   })
+   .Read(read => read.Action("AllUsers_Read", "Setup"))
+   ))
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+
+
+
+<script type="text/javascript">
+    var gridElement = $("#gridCity");
+    var gridElement1 = $("#gridUser");
+    var form = $("#stteepp");
+    $(document).ready(function () {
+        window.chatHub = $.connection.notificationHub;
+        chatHub.client.updateChatList = function () {
+            $("#gridCity").data('kendoGrid').dataSource.read();
+        };
+        resizeGrid();
+        var mySteps = form.children("div").steps({
+            headerTag: "h4",
+            bodyTag: "section",
+            transitionEffect: "slideLeft",
+            autoFocus: true,
+            titleTemplate: '#title#',
+            enablePagination: false,
+            enableAllSteps: true
+        });
+        steps_api = mySteps.data('plugin_Steps');
+
+    });
+    var onlinecounter = 0;
+    function DataB() {
+        var data = $('#gridUser').data('kendoGrid').dataSource.data();
+        onlinecounter = 0;
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].IsOnline == true) {
+                onlinecounter++;
+            }
+        }
+        $('#onlinec').text('Online (' + onlinecounter + ')');
+    }
+
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 220;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridCity").css("height", height);
+        gridElement.data("kendoGrid").resize();
+
+        $("#gridUser").css("height", height);
+        gridElement1.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+</script>

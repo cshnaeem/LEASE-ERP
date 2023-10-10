@@ -1,0 +1,38 @@
+﻿@{
+    ViewBag.Title = "PostingPendancy";
+}
+@using (Html.BeginForm("PostingPendancy", "Report", FormMethod.Post, new { target = "_blank", id = "frm" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Posting Pendancy</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Report</a></li>
+                        <li class="breadcrumb-item active">Posting Pendancy</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    <br />
+                    <button class="k-button k-primary" type="submit">
+                        <i class="fas fa-print"></i> Show
+                    </button>
+                </div>
+            </div>
+            </div>
+    </div>
+}

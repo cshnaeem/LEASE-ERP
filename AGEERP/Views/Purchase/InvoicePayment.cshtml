@@ -1,0 +1,339 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Invoice Payment Knocking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Invoice Payment Knocking</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">Invoice Payment Knocking</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row ">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Supplier Category")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("SuppCatId")
+                //.Placeholder("All Supplier Category...")
+                .SelectedIndex(0)
+                .DataValueField("CategoryId")
+                .DataTextField("CategoryTitle")
+                .Events(e => e.Change("suppCatChange"))
+                //.DataBound("suppCatChange")
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SupplierCatList", "Setup"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Supplier")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("SuppId")
+                //.OptionLabel("All Supplier ...")
+                .SelectedIndex(0)
+                .DataValueField("SuppId")
+                .DataTextField("SuppName")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SupplierByCatList", "Setup").Data("filterSupplier"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date.AddMonths(-2)).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            @*<div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("All Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    //.SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>*@
+            @*<div class="col-md-3 col-sm-3">
+                @Html.Label("Status")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("Status")
+                .SelectedIndex(0)
+                .BindTo(SelectListVM.GRNStatusSL)
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+            </div>*@
+            
+            
+        </div>
+        <div class="row">
+            <div class="col-md-2 col-sm-3">
+                @Html.Label("Balance")
+                @Html.Kendo().NumericTextBox().Name("Balance").Spinners(false).Value(0).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+            </div>
+            <div class="col-md-2 col-sm-3">
+                @Html.Label("Total Amount Paid")
+                @Html.Kendo().NumericTextBox().Name("AmountPaid").Spinners(false).Value(0).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-2 col-sm-3">
+                @Html.Label("Invoice Amount")
+                @Html.Kendo().NumericTextBox().Name("InvAmount").Spinners(false).Value(0).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+            </div>
+            <div class="col-md-2 col-sm-3">
+                @Html.Label("Remaining")
+                @Html.Kendo().NumericTextBox().Name("Remaining").Spinners(false).Value(0).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+            </div>
+            <div class="col-md-2 col-sm-3">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+            <div class="col-md-2 col-sm-3">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="autoMark()">
+                    <i class="fas fa-magic"></i>&nbsp; Auto Mark
+                </button>
+            </div>
+        </div>
+
+        <div class="row">
+
+            @Html.Label("Invoice Payments")
+            @(Html.Kendo()
+            .Grid<InvForPaymentVM>()
+            .Name("gridOrderSearch")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.PInvId).Hidden();
+                columns.Bound(c => c.InvNo);
+                columns.Bound(c => c.InvDate).Format("{0: dd/MM/yyyy}").Width(100);
+                columns.Bound(c => c.DueDate).Format("{0: dd/MM/yyyy}").Width(100);
+                columns.Bound(c => c.Rate).Width(80).Title("TP");
+                columns.Bound(c => c.Discount).Width(70).Title("Disc");
+                columns.Bound(c => c.WHT).Width(70);
+                columns.Bound(c => c.STax).Width(70).Title("GST");
+                //columns.Bound(c => c.NetPrice).Width(80);
+                columns.Bound(c => c.Qty).Width(60);
+                columns.Bound(c => c.NetPrice).Width(70).Title("Total");
+                columns.Bound(c => c.PartialPaidAmount).Width(70).Title("Paid");
+                columns.Bound(c => c.Amount).Width(80).ClientFooterTemplate("#=sum#").Title("Remaining");
+
+
+                //columns.Bound(c => c.PaymentStatus).Width(80);
+
+                columns.Bound(c => c.PaidAmount).Width(80).Title("Partial").Editable("notEdit");
+                //columns.Bound(c => c.PaidStatus).ClientTemplate("<#= PaidStatus ? 'Paid':'Pending' # />");
+                columns.Select().Width(50);
+                //columns.Command(c => c.Custom("Detail").Click("OrderDetail").Visible("IsVisible"));
+                //columns.Command(c => c.Custom("Print"));
+            })
+            //.Pageable()
+            .Sortable()
+
+            .Scrollable()
+            .AutoBind(false)
+            .Navigatable()
+            .ToolBar(t => { t.Save(); t.Search(); })
+            .Editable(e => e.Mode(GridEditMode.InCell))
+            .Search(s => { s.Field(a => a.PONo); s.Field(a => a.DONo); })
+
+            .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+            //.Groupable(g => g.Enabled(true))
+            .Events(e => e.Change("SelectTheRows"))
+            //.Events(e => e.DataBound("SelectTheRows"))
+            .PersistSelection(true)
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            //.StringifyDates(false)
+            .Events(e => e.Error("error_handler"))
+            .ServerOperation(false)
+            .Aggregates(aggregates =>
+            {
+                aggregates.Add(p => p.Amount).Sum();
+            })
+            .Batch(true)
+            .Model(model =>
+            {
+                model.Id(m => m.PInvId);
+                model.Field(m => m.InvNo).Editable(false);
+                model.Field(m => m.InvDate).Editable(false);
+                model.Field(m => m.DueDate).Editable(false);
+                model.Field(m => m.Rate).Editable(false);
+                model.Field(m => m.Discount).Editable(false);
+                model.Field(m => m.STax).Editable(false);
+                model.Field(m => m.NetPrice).Editable(false);
+                model.Field(m => m.Qty).Editable(false);
+                model.Field(m => m.Amount).Editable(false);
+                model.Field(m => m.WHT).Editable(false);
+                model.Field(m => m.PartialPaidAmount).Editable(false);
+            })
+            .Read(read => read.Action("InvoicePayment_Read", "Purchase").Data("filterOrderSearch"))
+            .Create(create => create.Action("InvoicePayment_Create", "Purchase").Data("MasterData"))
+            .Update(update => update.Action("InvoicePayment_Create", "Purchase").Data("MasterData"))
+            ))
+            @*</div>*@
+        </div>
+    </div>
+</div>
+
+<script>
+    function MasterData() {
+        return {
+            SuppId: $('#SuppId').val()
+        }
+    }
+    function notEdit() {
+        return false;
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message == "Save Successfully") {
+                kendo.alert("Save Successfully");
+                $("#gridOrderSearch").data("kendoGrid").dataSource.data([]);
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+
+    function autoMark() {
+        var paid = $('#AmountPaid').val();
+        var grid = $("#gridOrderSearch").data("kendoGrid");
+        var rows = grid.items();
+        grid.clearSelection();
+        $(rows).each(function (e) {
+
+            var row = this;
+            var dataItem = grid.dataItem(row);
+            if (paid > dataItem.Amount) {
+                paid = paid - dataItem.Amount;
+                dataItem.PaidAmount = dataItem.Amount;
+                grid.select(row);
+                dataItem.dirty = true;
+                //dataItem.set("dirtyFields", { PaidAmount: true });
+            }
+            else if (paid > 0) {
+                dataItem.PaidAmount = 0;
+            }
+            else {
+                dataItem.PaidAmount = 0;
+            }
+        });
+        grid.refresh();
+    }
+
+    function SelectTheRows() {
+        var grid = $("#gridOrderSearch").data("kendoGrid");
+        var rows = grid.items();
+        var sel = grid.selectedKeyNames();
+        var amt = 0;
+        $(rows).each(function (e) {
+            var row = this;
+            var dataItem = grid.dataItem(row);
+            var Pid = (dataItem.PInvId).toString();
+            var a = sel.indexOf(Pid);
+            if (a > -1) {
+                if (dataItem.PaidAmount != dataItem.Amount) {
+                    dataItem.set("PaidAmount",dataItem.Amount);
+                }
+            }
+            else {
+                if (dataItem.PaidAmount != 0) {
+                    dataItem.set("PaidAmount", 0);
+                }
+            }
+            amt = amt + dataItem.PaidAmount;
+        });
+        $('#InvAmount').data('kendoNumericTextBox').value(amt);
+        var paid = $('#AmountPaid').val();
+        $('#Remaining').data('kendoNumericTextBox').value(paid - amt);
+    }
+    function filterOrderSearch() {
+        return {
+            SuppId: $('#SuppId').val(),
+            fDate: $('#FromDate').val(),
+            tDate: $('#ToDate').val(),
+            SuppCatId: $('#SuppCatId').val(),
+            LocId:  0,
+            Status: ''
+        }
+    }
+    function suppCatChange() {
+        $("#SuppId").data("kendoDropDownList").dataSource.read();
+    }
+    function loadGrid() {
+        $("#gridOrderSearch").data("kendoGrid").dataSource.read();
+        var accId = $('#SuppCatId').data("kendoDropDownList").dataItem().GLCode;
+        var suppId = $("#SuppId").val();
+        $.getJSON("/Purchase/GetSuppBalance?AccId=" + accId + "&SuppId=" + suppId, function (data) {
+            if (data != null) {
+                $('#Balance').data('kendoNumericTextBox').value(data);
+            }
+        });
+    }
+    function filterSupplier() {
+        return {
+            CategoryId: $('#SuppCatId').val()
+        }
+    }
+</script>

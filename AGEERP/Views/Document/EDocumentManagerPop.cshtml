@@ -1,0 +1,443 @@
+﻿@using AGEERP.Models
+@model DocumentManagerVM
+@{
+    ViewBag.Title = "Employee Documents";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AGE ERP | @ViewBag.Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="~/Content/Resources/Favicon3232.jpg">
+    <link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+    <link href="~/Content/ionicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/Content/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="~/Content/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <link rel="stylesheet" href="~/Content/plugins/jqvmap/jqvmap.min.css">
+    <link href="~/Content/adminlte.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/Content/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+    <link rel="stylesheet" href="~/Content/plugins/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css">
+    <link href="~/Content/fonts/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <link href="@Url.Content("~/Content/kendo/2020.1.114/kendo.bootstrap-v4.min.css")" rel="stylesheet" type="text/css" />
+    <link href="~/Content/plugins/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <link href="~/Content/jquery-confirm.css" rel="stylesheet" />
+    <link href="~/Content/animate.css" rel="stylesheet" />
+    <link href="~/Content/Custom.css" rel="stylesheet" />
+    @*<link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" type="text/css" />*@
+    @*<link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />*@
+    <script src="@Url.Content("~/Scripts/kendo/2020.1.114/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2020.1.114/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2020.1.114/kendo.all.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2020.1.114/kendo.aspnetmvc.min.js")"></script>
+    <style>
+        .k-grid-toolbar {
+            padding: 0.575rem;
+        }
+
+        .k-header.k-grid-toolbar-doc {
+            border-color: #fff;
+        }
+
+        .k-window-titlebar {
+            background-color: #dc3545 !important;
+            color: white;
+        }
+
+        .k-i-window-maximize {
+            color: white !important;
+            font-size: 20px;
+        }
+
+        #docviewer .k-icon {
+            color: white !important;
+            font-size: 20px !important;
+        }
+
+        .k-button span {
+            font-size: 20px;
+        }
+
+        .k-filemanager-navigation {
+            display: none;
+        }
+
+        .k-filemanager .k-splitbar {
+            display: none;
+        }
+
+        #docviewer .k-toolbar {
+            background-color: #444 !important;
+        }
+
+
+        #docviewer .k-button {
+            background-color: #e04d52;
+            border-color: #e04d52;
+            color: white;
+            color: black !important;
+        }
+
+        #docviewer .k-list-container {
+            background-color: rgb(68, 68, 68);
+        }
+
+        #docviewer .k-select {
+            border-color: #e4e7eb;
+            color: #212529;
+            background-color: #444;
+        }
+
+        #docviewer .k-pager-input {
+            color: white;
+        }
+
+        .k-filemanager-navigation {
+            display: none;
+        }
+
+        .k-filemanager-splitbar-navigation {
+            display: none;
+        }
+    </style>
+    <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
+</head>
+<body>
+    <div id="filemanager"></div>
+    <input type="hidden" id="id" value="@Model.id" />
+    <input type="hidden" id="refobj" value="@Model.RefObjId" />
+
+    @(Html.Kendo().FileManager().Name("filemanager")
+                .DataSource(ds =>
+                {
+                    ds.Read(operation => operation
+                        .Type(HttpVerbs.Get)
+                        .Action("Document_Read", "Document").Data("GetDocumentType")
+                        );
+
+                        ds.Update(operation => operation
+                    .Type(HttpVerbs.Post)
+                    .Action("Document_Update", "Document").Data("FormatData")
+                    );
+
+                        ds.Destroy(operation => operation
+                .Type(HttpVerbs.Post)
+                .Action("Document_Destroy", "Document").Data("FormatData")
+                );
+                    })
+                    .UploadUrl("UploadDoc", "Document" +
+                    "", new { id = Model.id, refobjid = Model.RefObjId })
+
+
+                    .Draggable(false)
+                    .InitialView("list")
+
+                                                                .Toolbar(tb => tb.Items(items =>
+                                                                {
+                                                                    items.Add("upload");
+                                                                    items.Add("spacer");
+                                                                    items.Add("details");
+                                                                    items.Add("search");
+                                                                }))
+                                                                .PreviewPane(p => p.SingleFileTemplateId("preview-template"))
+
+                                                            .ContextMenu(context => context.Items(items =>
+                                                            {
+                                                                items.Add("upload");
+                                                                items.Add("spacer");
+                                                                items.Add("view").Command("ViewCommand").Text("View").SpriteCssClass("k-icon k-i-files");
+            items.Add("download").Command("DownloadCommand").Text("Download").SpriteCssClass("k-icon k-i-download");
+                         items.Add("remarks").Command("RemarksCommand").Text("Remarks").SpriteCssClass("k-icon k-i-track-changes");
+            items.Add("rename");
+            items.Add("delete");
+        })))
+    @(Html.Kendo().Window()
+    .Name("window")
+    .Title("AGE Document Viewer")
+    .Content(@<text>
+            <div id="docviewer">
+            </div>
+    </text>)
+.Draggable()
+.Resizable()
+.HtmlAttributes(new { @style = "display:none" })
+.Width(600)
+.Actions(actions => actions.Pin().Minimize().Maximize().Close())
+    )
+
+    <script id="preview-template" type="text/kendo-ui-template">
+        <div class="#=styles.fileInfo#">
+            <div class="#=styles.filePreviewWrapper#">
+                <span class="k-icon k-i-#=kendo.getFileGroup('.pdf', true)#"></span>
+            </div>
+            <div class="#=styles.fileTitleWrapper#">
+                <span class="#=styles.fileTitle#">#=selection[0].name#</span>
+            </div>
+            <dl class="#=styles.fileMetaWrapper#">
+                <dt class="#=styles.metaLabel#">Remarks</dt>
+                <dd class="#=styles.metaValue# #=styles[field]#">
+                    #=selection[0].Remarks#
+                </dd>
+                <dd class="line-break"></dd>
+            </dl>
+            #if(metaFields){#
+            <dl class="#=styles.fileMetaWrapper#">
+                #for(var i = 0; i < metaFields.length; i+=1){#
+                #var field = metaFields[i]#
+                <dt class="#=styles.metaLabel#">#=messages[field]#: </dt>
+                <dd class="#=styles.metaValue# #=styles[field]#">
+                    #if(field == "size"){#
+                    #=kendo.getFileSizeMessage(selection[0][field])#
+                    #} else if(selection[0][field] instanceof Date) {#
+                    #=kendo.toString(selection[0][field], "G")#
+                    #} else if(field == "extension") {#
+                    #=kendo.getFileGroup(selection[0].extension)#
+                    #} else {#
+                    #=selection[0][field]#
+                    #}#
+                </dd>
+                <dd class="line-break"></dd>
+                # } #
+            </dl>
+            #}#
+        </div>
+    </script>
+
+    <div class="modal" tabindex="-1" role="dialog" id="RemarksModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Document Remarks</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <input type="hidden" id="FileId" />
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="FName" id="FName" class="k-textbox form-control disabled" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label>Employee</label>
+                        <input type="text" name="Employee" id="Employee" class="k-textbox form-control disabled" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label>Remarks</label>
+                        <input type="text" name="Remarks" id="Remarks" class="k-textbox form-control" />
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="UpdateRemarks()">Update</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../../Scripts/pdf.js"></script>
+    <script>
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = '../../Scripts/pdf.worker.js';
+    </script>
+    <script>
+        $('.k-switch').removeClass('k-switch-on');
+        $('.k-switch').addClass('k-switch-on');
+        var filepth = [];
+        $(document).ready(function () {
+            var filemanager = $("#filemanager").getKendoFileManager();
+
+            filemanager.executeCommand({ command: "TogglePaneCommand", options: { type: "preview" } });
+            filemanager.toolbar.fileManagerDetailsToggle.switchInstance.toggle();
+        })
+        var kendo = window.kendo, extend = $.extend, Class = kendo.Class;
+        var Command = Class.extend({
+            init: function (options) {
+                this.options = options;
+                this.filemanager = options.filemanager;
+            }
+        });
+        var DownloadCommand = Command.extend({
+            init: function (options) {
+                Command.fn.init.call(this, options);
+            },
+            exec: function () {
+                /* This logic is heavily inspired by the RenameCommand  */
+                var that = this, target = that.options.target, filemanager = that.filemanager,
+                    item = filemanager._view.widgetComponent.dataItem(target); if (!item) {
+                        // target is in tree view pane
+                        var uid = target.data('uid');
+                        item = that.filemanager.treeView.widgetComponent.dataSource.getByUid(uid);
+                    }
+                DownloadFile(item.Id);
+
+            }
+        });
+        var ViewCommand = Command.extend({
+            init: function (options) {
+                Command.fn.init.call(this, options);
+            },
+            exec: function () {
+                /* This logic is heavily inspired by the RenameCommand  */
+                var that = this, target = that.options.target, filemanager = that.filemanager,
+                    item = filemanager._view.widgetComponent.dataItem(target); if (!item) {
+                        // target is in tree view pane
+                        var uid = target.data('uid');
+                        item = that.filemanager.treeView.widgetComponent.dataSource.getByUid(uid);
+                    }
+                ViewFile(item.Id);
+
+            }
+        });
+        var RemarksCommand = Command.extend({
+            init: function (options) {
+                Command.fn.init.call(this, options);
+            },
+            exec: function () {
+                /* This logic is heavily inspired by the RenameCommand  */
+                var that = this, target = that.options.target, filemanager = that.filemanager,
+                    item = filemanager._view.widgetComponent.dataItem(target); if (!item) {
+                        // target is in tree view pane
+                        var uid = target.data('uid');
+                        item = that.filemanager.treeView.widgetComponent.dataSource.getByUid(uid);
+                    }
+
+                ShowRemarks(item.Id, item.Remarks, item.name, item.documentowner);
+            }
+        });
+        extend(kendo.ui.filemanager.commands, { DownloadCommand: DownloadCommand, ViewCommand: ViewCommand, RemarksCommand: RemarksCommand });
+
+        function DownloadFile(e) {
+            let a = document.createElement('a');
+            a.target = '_blank';
+            a.href = "/Document/Download/" + e;
+            a.click();
+        }
+        function GetDocumentType(e) {
+
+            return {
+                id: $('#id').val(),
+                refobjid: $('#refobj').val(),
+            }
+        }
+        function ViewFile(e) {
+            var pdfViewer = $("#docviewer").data("kendoPDFViewer");
+            if (!pdfViewer) {
+                pdfViewer = $("#docviewer").kendoPDFViewer({
+                    pdfjsProcessing: {
+                        file: ""
+                    },
+                    toolbar: {
+                        items: [
+                            "pager", "spacer", "zoom", "toggleSelection", "spacer", "search", "print", {
+                                type: "button", icon: "rotate", showIcon: "toolbar", click: function () {
+                                    rotatePdf();
+                                }
+                            }
+                        ]
+                    },
+                    page: 1,
+                    width: "100%",
+                    height: 700
+                }).data("kendoPDFViewer");
+            }
+            var pdfHandlerUrl = "/Document/Download/" + e;
+            pdfViewer.fromFile(pdfHandlerUrl);
+            pdfViewer.activatePage(1);
+            var dialog = $("#window").data("kendoWindow");
+            dialog.maximize();
+            dialog.open();
+        }
+        function UpdateRemarks() {
+            var fileid = $('#FileId').val();
+            var Remarks = $('#Remarks').val();
+
+            $.ajax({
+                type: "POST",
+                url: "/Document/UpdateRemarks",
+                data: { remarks: Remarks, DocId: fileid },
+                cache: false,
+                success: function (data) {
+                    $("#filemanager").data("kendoFileManager").dataSource.read();
+                    $('#RemarksModal').modal('hide');
+                }
+            });
+        }
+
+        function FormatData(e) {
+            return {
+                DocId: e.Id
+            }
+        }
+
+        function ShowRemarks(id, remarks, filename, employee) {
+            $('#FileId').val(id);
+            $('#Remarks').val(remarks);
+            $('#FName').val(filename);
+            $('#Employee').val(employee);
+            $('#RemarksModal').modal('show');
+        }
+        //function onEdit(e) {
+        //    if (e.model.DocId == 0) {
+        //        $('#AddDocumentDV').css('display', 'block');
+        //        $('#EditDocumentDV').css('display', 'none');
+        //    }
+        //    else {
+        //        $('#DocName').val(e.model.DocName);
+        //        $("textarea#Remarks").val(e.model.Remarks);
+        //        $('#DocTypeId').val(e.model.DocTypeId);
+        //        $('#DocId').val(e.model.DocId);
+        //        $('#EditDocumentDV').css('display', 'block');
+        //        $('#AddDocumentDV').css('display', 'none');
+        //    }
+        //    $('.discard').click(function () {
+        //        $("#gridDocuments").data("kendoListView").dataSource.read();
+
+        //    });
+        //}
+        function DeleteDocData(e) {
+            var grid = $("#gridDocuments").data("kendoListView");
+            var item = grid.dataItem($(e.target).closest("tr"));
+            debugger;
+            return {
+                docid: item.DocId
+            }
+        }
+
+        function error_handler_doc_grid(e) {
+            $("#gridDocuments").data("kendoListView").dataSource.read();
+        }
+        var rotation = 0;
+        function rotatePdf() {
+            rotation += 90;
+            $(".k-canvas").css("transform", "rotate(" + rotation + "deg)");
+        }
+    </script>
+
+    <script src="~/Content/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/Content/plugins/chart.js/Chart.min.js"></script>
+    <script src="~/Content/plugins/sparklines/sparkline.js"></script>
+    <script src="~/Content/plugins/jqvmap/jquery.vmap.min.js"></script>
+    <script src="~/Content/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+    <script src="~/Content/plugins/jquery-knob/jquery.knob.min.js"></script>
+    <script src="~/Content/plugins/moment/moment.min.js"></script>
+    <script src="~/Content/plugins/daterangepicker/daterangepicker.js"></script>
+    <script src="~/Content/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+    <script src="~/Content/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+    <script src="~/Scripts/adminlte.min.js"></script>
+    <script src="~/Scripts/jquery-confirm.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.steps.min.js"></script>
+    <script src="~/Scripts/jquery.counterup.min.js"></script>
+    <script src="~/Scripts/waypoints.min.js"></script>
+    <script src="~/Content/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+</body>
+</html>

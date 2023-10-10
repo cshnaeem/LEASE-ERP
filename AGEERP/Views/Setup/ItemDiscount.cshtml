@@ -1,0 +1,385 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Item Discount";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Item Discount</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Item Discount</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="frmD">
+            <div id="frmM" class="row">
+                <div class="col-md-3" style="margin-top:-6px">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ComId")
+                    .OptionLabel("Select Company ...")
+                    .DataValueField("ComId")
+                    .DataTextField("ComName")
+                    .Events(e => e.Change("CompChange"))
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CompanyList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", required = true })
+                    )
+                    <span class="k-invalid-msg" data-for="ComId"></span>
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .OptionLabel("Select Supplier ...")
+                    .Name("SuppId")
+                    .DataValueField("SuppId")
+                    .DataTextField("SuppName")
+                    .AutoBind(false)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("SupplierByComList", "Setup").Data("filterProduct"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;", required = true })
+                    )
+                    <span class="k-invalid-msg" data-for="SuppId"></span>
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-xs-12">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ProductId")
+                    .OptionLabel("Select Product ...")
+                    .DataValueField("ProductId")
+                    .DataTextField("Name")
+                    .CascadeFrom("ComId")
+                    //.Events(e => e.Change("gridLoad"))
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("ProductByCompList", "Setup").Data("filterProduct"))
+                    .ServerFiltering(true);
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", required = true })
+                    )
+                    <span class="k-invalid-msg" data-for="ProductId"></span>
+                </div>
+                <div class="col-md-3" style="margin-top:-6px">
+                    @Html.Label("Discount Type")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("PDiscTypeId")
+                    .OptionLabel("Select Discount Type ...")
+                    .DataValueField("PDiscTypeId")
+                    .DataTextField("DiscType")
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("DiscTypes", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", required = true })
+                    )
+                    <span class="k-invalid-msg" data-for="PDiscTypeId"></span>
+                </div>
+                <div class="col-md-3 col-xs-12">
+                    @Html.Label("Amount")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("Amount")
+                    .Min(0)
+                    .Max(99999999)
+                    .HtmlAttributes(new { @style = "width:100%", required = true })
+                    )
+                    <span class="k-invalid-msg" data-for="Amount"></span>
+                </div>
+                <div class="col-md-3 col-xs-12" style="margin-top:5px">
+                    <br />
+                    <button class="k-button" type="button" onclick="addToGrid()">
+                        <i class="fas fa-plus"></i>&nbsp; Add to Table
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        @Html.Label("Define Item Discounts")
+        @(Html.Kendo()
+        .Grid<ItmDiscVM>()
+        .Name("gridItemDiscount")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.RowId).Hidden();
+            columns.Bound(c => c.SuppId).Hidden();
+            columns.Bound(c => c.PDiscTypeId).Hidden();
+            columns.Bound(c => c.Supplier);
+            columns.Bound(c => c.ProductName);
+            columns.Bound(c => c.DiscType);
+            columns.Bound(c => c.FromDate);
+            columns.Bound(c => c.ToDate);
+            columns.Bound(c => c.Amount);
+            columns.Command(c => c.Destroy());
+        })
+        .Sortable()
+        .Scrollable()
+        .AutoBind(false)
+        .Navigatable()
+            .ToolBar(t =>
+            {
+                t.Save();
+            })
+        .Editable(e => e.Mode(GridEditMode.InCell).CreateAt(GridInsertRowPosition.Top))
+        .HtmlAttributes(new { style = "height:300px;font-size:12px;" })
+        .Events(e => e.SaveChanges("onSaveChanges"))
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .Events(e => e.Error("error_handler").RequestEnd("onRequestEnd"))
+        .Model(model =>
+        {
+            model.Id(m => m.RowId);
+            model.Field(m => m.SuppId).Editable(false);
+            model.Field(m => m.Supplier).Editable(false);
+            model.Field(m => m.PDiscTypeId).Editable(false);
+            model.Field(m => m.ProductId).Editable(false);
+            model.Field(m => m.ProductName).Editable(false);
+            model.Field(m => m.Amount).Editable(false);
+            model.Field(m => m.DiscType).Editable(false);
+            model.Field(m => m.FromDate).Editable(false);
+            model.Field(m => m.ToDate).Editable(false);
+        })
+        //.Read(read => read.Action("ItemPPrice_Read", "Setup").Data("filterGrid"))
+        .Create(read => read.Action("ItemDiscount_Create", "Setup"))
+        .Update(read => read.Action("ItemDiscount_Create", "Setup"))
+        .Destroy(read => read.Action("ItemDiscount_Destroy", "Setup"))
+        ))
+    </div>
+</div>
+@section scripts
+{
+    <script type="text/javascript" src="~/scripts/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="~/scripts/jszip.js"></script>
+    <script type="text/javascript">
+        var gridElement = $("#gridItemDiscount");
+        var validatorM = $("#frmM").kendoValidator().data("kendoValidator");
+        var validatorD = $("#frmD").kendoValidator().data("kendoValidator");
+        $(".btnLoadFile").click(function () {
+            var fileUpload = $(".importfile")[0];
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+            if (regex.test(fileUpload.value.toLowerCase())) {
+                if (typeof (FileReader) != "undefined") {
+                    var reader = new FileReader();
+                    if (reader.readAsBinaryString) {
+                        reader.onload = function (e) {
+                            ProcessExcel(e.target.result);
+                        };
+                        reader.readAsBinaryString(fileUpload.files[0]);
+                    } else {
+                        reader.onload = function (e) {
+                            var data = "";
+                            var bytes = new Uint8Array(e.target.result);
+                            for (var i = 0; i < bytes.byteLength; i++) {
+                                data += String.fromCharCode(bytes[i]);
+                            }
+                            ProcessExcel(data);
+                        };
+                        reader.readAsArrayBuffer(fileUpload.files[0]);
+                    }
+                } else {
+                    $(".btnLoadFile").html("LOAD FILE");
+                    alert('This browser does not support HTML5.');
+                }
+            } else {
+                $(".btnLoadFile").html("LOAD FILE");
+                alert('Please upload a valid Excel file.');
+            }
+        });
+        function ProcessExcel(data) {
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+            var firstSheet = workbook.SheetNames[0];
+            var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+            var lst = [];
+            for (var i = 0; i < excelRows.length; i++) {
+                var SKUId = typeof excelRows[i]["SKU Id"] === 'undefined' ? "" : excelRows[i]["SKU Id"];
+                var SKU = typeof excelRows[i]["SKU"] === 'undefined' ? "" : excelRows[i]["SKU"];
+                var TP = typeof excelRows[i]["TP"] === 'undefined' ? "" : excelRows[i]["TP"];
+                var MRP = typeof excelRows[i]["MRP"] === 'undefined' ? "" : excelRows[i]["MRP"];
+                var Discount = typeof excelRows[i]["Discount"] === 'undefined' ? "" : excelRows[i]["Discount"];
+                lst.push({
+                    RowId: 0,
+                    SKUId: SKUId,
+                    SKU: SKU,
+                    TP: TP,
+                    Discount: Discount,
+                    MRP: MRP,
+                    Supplier: ""
+                });
+            }
+            $("#gridItemDiscount").data('kendoGrid').dataSource.data(lst);
+        }
+        $(document).ready(function () {
+            $('#DateRange span').eq(2).remove();
+            resizeGrid();
+        });
+        function gridLoad() {
+            gridElement.data('kendoGrid').dataSource.read();
+        }
+        function filterProduct() {
+            return {
+                ComId: $('#ComId').val() || 0
+            }
+        }
+        function filterModel() {
+            return {
+                ComId: $('#ComId').val() || 0,
+                ProductId: $('#ProductId').val() || 0
+            }
+        }
+        function filterSKU() {
+            return {
+                ModelId: $('#ModelId').val() || 0
+            }
+        }
+        function CompChange() {
+            $('#SuppId').data('kendoDropDownList').dataSource.read();
+        }
+        function IsValid() {
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Validation");
+            var data = PPriceMaster();
+            console.log(data);
+            if (data.FromDate == null) {
+                dia.content("Please Select Start Date");
+                dia.open();
+                return false;
+            }
+            else if (data.ToDate == null) {
+                dia.content("Please Select End Date");
+                dia.open();
+                return false;
+            }
+            else if ($('#gridItemDiscount').data('kendoGrid').dataSource.data().length == 0) {
+                dia.content("Nothing to Save");
+                dia.open();
+                return false;
+            }
+            return true;
+        }
+        function onSaveChanges(e) {
+            if ($('#gridItemDiscount').data('kendoGrid').dataSource.data().length == 0) {
+                dia.content("Nothing to Save");
+                dia.open();
+                e.preventDefault();
+            }
+            else if (!confirm("Are you sure that you want to proceed?")) {
+                e.preventDefault();
+            }
+        }
+        function filterGrid() {
+            var range = $('#DateRange').data('kendoDateRangePicker').range();
+            return {
+                FromDate: range.start,
+                ToDate: range.end,
+                SuppId: $('#SuppId').val(),
+                ComId: $('#ComId').val(),
+                ProductId: $('#ProductId').val()
+            }
+        }
+        function PPriceMaster() {
+            var range = $('#DateRange').data('kendoDateRangePicker').range();
+            return {
+                FromDate: range.start,
+                ToDate: range.end,
+                Supplier: $('#SuppId').val(),
+            }
+        }
+        function addToGrid() {
+            var data = $('#gridItemDiscount').data('kendoGrid').dataSource.data();
+            var dat = {
+                SuppId: $('#SuppId').val() || 0,
+                FromDate: $('#FromDate').val(),
+                Amount: $('#Amount').val(),
+                ToDate: $('#ToDate').val(),
+                Supplier: $('#SuppId').data("kendoDropDownList").text(),
+                ProductId: $('#ProductId').data("kendoDropDownList").value() || 0,
+                ProductName: $('#ProductId').data("kendoDropDownList").text(),
+                DiscType: $('#PDiscTypeId').data("kendoDropDownList").text(),
+                PDiscTypeId: $('#PDiscTypeId').data("kendoDropDownList").value() || 0
+            };
+            //var IsExist = false;
+            //for (var i = 0; i < data.length; i++) {
+            //    if (data[i].ProductId == dat.ProductId) {
+            //        IsExist = true;
+            //        break;
+            //    }
+            //}
+            //var dia = $("#msgBox").data("kendoDialog");
+            //dia.title("Validation");
+
+            //if (IsExist) {
+            //    dia.content("Product Already Exists in Table");
+            //    dia.open();
+            //}
+            //else
+                if (validatorD.validate()) {
+                $('#gridItemDiscount').data('kendoGrid').dataSource.add(dat);
+                //document.getElementById("frmM").reset();
+            }
+        }
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridItemDiscount").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+        function onRequestEnd(e) {
+            if (e.type == "create" && !e.response.Errors) {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Success");
+                dia.content("Save Successfully");
+                dia.open();
+                $('#gridItemDiscount').data('kendoGrid').dataSource.data([]);
+            }
+        }
+    </script>
+}

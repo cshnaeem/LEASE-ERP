@@ -1,0 +1,266 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "PO Invoice";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">PO Invoice</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">PO Invoice</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-md-12 col-sm-12 col-lg-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("SuppId")
+                    .OptionLabel("Select Supplier ...")
+                    .DataValueField("SuppId")
+                    .DataTextField("SuppName")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("SupplierList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("PO No")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("POId")
+                    .OptionLabel("Select PO ...")
+                    .DataValueField("POId")
+                    .DataTextField("PONo")
+                    .CascadeFrom("SuppId")
+                    .Events(e => e.Change("GetPODetail"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("POBySupp", "Purchase").Data("filterSupplier")).ServerFiltering(true);
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Ref Inv No")
+                    @Html.Kendo().TextBox().Name("RefInvNo").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                    @Html.Label("Ref Inv Date")
+                    @Html.Kendo().DatePicker().Name("RefInvDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-sm-6">
+                    @Html.Label("Remarks")
+                    @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        @(Html.Kendo()
+        .Grid<POInvoiceDetailVM>()
+        .Name("gridPurchaseDetail")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.RowId).Hidden();
+            columns.Bound(c => c.SKUId).Hidden();
+            columns.Bound(c => c.Model);
+            columns.Bound(c => c.SKU);
+            columns.Bound(c => c.OrderQty).Title("Order");
+            columns.Bound(c => c.IsGiftItem).Title("IsGiftItem");
+            columns.Bound(c => c.Qty).Title("Recv").ClientFooterTemplate("#=sum#");
+            columns.Bound(c => c.TP);
+            columns.Bound(c => c.Discount).Title("Discount");
+            columns.Bound(c => c.MRP);
+            columns.Bound(c => c.GST).Title("GST 17%");
+            columns.Bound(c => c.WHT).Title("WHT 1%");
+            columns.Bound(c => c.NetPrice);
+            columns.Bound(c => c.Amount).Title("Total Amount").ClientFooterTemplate("#=sum#");
+        })
+        //.Pageable()
+        //.Sortable()
+        .Scrollable()
+        .AutoBind(false)
+        //.Selectable()
+        //.Navigatable()
+        .ToolBar(t => t.Save())
+        .Editable(e => e.Mode(GridEditMode.InCell))
+        .HtmlAttributes(new { style = "height:300px;" })
+        //.Events(e => e.Edit("onEdit"))
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .Aggregates(aggregates =>
+        {
+            aggregates.Add(p => p.Qty).Sum();
+            aggregates.Add(p => p.Amount).Sum();
+        })
+        .Events(e => e/*.Change("OnSrNoChange")*/.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(m => m.RowId);
+            model.Field(m => m.SKUId).Editable(false);
+            model.Field(m => m.Model).Editable(false);
+            model.Field(m => m.SKU).Editable(false);
+            model.Field(m => m.Qty).Editable(false);
+            model.Field(c => c.TP);
+            model.Field(c => c.MRP);
+            model.Field(c => c.Discount);
+            model.Field(c => c.GST).Editable(false);
+            model.Field(c => c.WHT).Editable(false);
+            model.Field(c => c.NetPrice).Editable(false);
+            model.Field(c => c.Amount).Editable(false);
+        })
+        .Read(read => read.Action("POInvoice_Read", "Purchase").Data("filterOrderDetail"))
+        .Create(read => read.Action("POInvoice_Create", "Purchase").Data("MasterPurchase"))
+        .Update(read => read.Action("POInvoice_Read", "Purchase").Data("filterOrderDetail"))
+        ))
+    </div>
+</div>
+
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<script>
+    $(document).ready(function () {
+        //$('#m_12000000').addClass('active');
+        //$('#d_12000000').css("display", "block");
+        //$('#m_12100000').addClass('active');
+        //$('#a_12100000').addClass('active');
+    });
+    function MasterPurchase() {
+        return {
+            POId: $('#POId').val(),
+            SuppId: $('#SuppId').val(),
+            RefInvNo: $('#RefInvNo').val() || "",
+            RefInvDate: $('#RefInvDate').val(),
+            Remarks: $('#Remarks').val() || ""
+        }
+    }
+    function ClearAll() {
+        $('#POId').val("");
+        $('#SuppId').val("");
+        $('#RefInvNo').val("");
+        $('#RefInvDate').val("");
+        $('#Remarks').val("");
+        $("#gridPurchaseDetail").data("kendoGrid").dataSource.data([]);
+    }
+    function filterLocation() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+    function filterSupplier() {
+        return {
+            SuppId: $('#SuppId').val()
+        }
+    }
+    function filterOrderDetail() {
+        return {
+            POId: $('#POId').val()
+        }
+    }
+    function GetPODetail() {
+        var ord = $('#POId').val();
+        if (ord > 0) {
+            //$.getJSON("/Purchase/GetOrder?OrderNo=" + ord, function (data) {
+            //    if (data != null) {
+            //        $('#SuppId').data('kendoDropDownList').value(data.SuppId);
+            //    }
+            //});
+            $("#gridPurchaseDetail").data("kendoGrid").dataSource.read();
+        }
+    }
+    //function OnSrNoChange(e) {
+    //    if (e.action === "itemchange" && e.field === "SrNo") {
+    //        var model = e.items[0];
+    //        if (model.SrNo != "") {
+    //            if (model.SrNo.length < 4) {
+    //                alert('SrNo should be greater than 4 characters');
+    //                model.set("SrNo", "");
+    //            }
+    //            else {
+    //                var proData = $("#gridPurchaseDetail").data("kendoGrid").dataSource.data();
+    //                for (var i = 0; i < proData.length; i++) {
+    //                    proData[i].SrNo;
+    //                }
+    //                $.getJSON("/Purchase/IsSrNoExist?SrNo=" + model.SrNo + "&SKUId=" + model.SKUId, function (data) {
+    //                    if (data != false) {
+    //                        alert('SrNo already exist');
+    //                        model.set("SrNo", "");
+    //                    }
+    //                    else {
+    //                        if (model.SKUId > 0) {
+    //                            $(".ImgDiv").show();
+    //                            $("#SkuImg").attr("src", "../../Content/SKUImg/" + model.SKUId + ".jpg");
+    //                        }
+    //                        else {
+    //                            $(".ImgDiv").hide();
+    //                        }
+    //                        var grid = $("#gridPurchaseDetail").data("kendoGrid");
+    //                        var curCell = $("#gridPurchaseDetail").find(".k-edit-cell");
+    //                        var cellToEdit = curCell.parent().next().find('td:eq(9)');
+    //                        grid.editCell(cellToEdit);
+    //                    }
+    //                });
+    //            }
+    //        }
+    //    }
+    //}
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message > 0) {
+                $.confirm({
+                    title: 'Saved Successfully!',
+                    content: 'Do you want to print?',
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-check',
+                    buttons: {
+                        Print: function () {
+                            $("#rpt").val("POInvoice");
+                            $("#TransId").val(message);
+                            $("#rptForm").submit();
+                        },
+                        Cancel: function () {
+                        }
+                    }
+                });
+                $("#gridPurchaseDetail").data("kendoGrid").dataSource.data([]);
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+
+</script>

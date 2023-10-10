@@ -1,0 +1,445 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Serial Plan";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Serial Plan</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Serial Plan</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="frm">
+            <div class="row">
+                <div class="col-md-4 col-sm-4" style="margin-top:-6px">
+                    @Html.Label("Serial")
+                    @(Html.Kendo()
+                        .TextBox()
+                        .Name("Serial")
+                        .HtmlAttributes(new { @style = "width:100%", placeholder="Type Serial & Enter", @required = true })
+                        )
+                    <span class="k-invalid-msg" data-for="Serial"></span>
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    @Html.Label("SKU")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("SKU")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("Company")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("Product")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    @Html.Label("Status")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("Status")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Base Price")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("BasePrice")
+                    .Min(1)
+                    .Max(99999999)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                    <span class="k-invalid-msg" data-for="BasePrice"></span>
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Inst Price")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("InstPrice")
+                    .Min(1)
+                    .Max(99999999)
+                    .Events(e => e.Change("onDurationChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                    <span class="k-invalid-msg" data-for="InstPrice"></span>
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Duration")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("Duration")
+                    .Min(1)
+                    .Max(99999999)
+                    .Events(e => e.Change("onDurationChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                    <span class="k-invalid-msg" data-for="Duration"></span>
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Advance")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("Advance")
+                    .Min(1)
+                    .Max(99999999)
+                    .Events(e => e.Change("onAdvanceChange"))
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                    <span class="k-invalid-msg" data-for="Advance"></span>
+                </div>
+                <div class="col-md-3 col-sm-3" style="margin-top:6px">
+                    @Html.Label("Inst")
+                    @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("Inst")
+                    .Min(1)
+                    .Max(99999999)
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                    <span class="k-invalid-msg" data-for="Inst"></span>
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("EffectedDate")
+                    @(Html.Kendo().DatePicker()
+                    .Name("EffectedDate")
+                    .Value(DateTime.Now.Date)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true }))
+                    @Html.ValidationMessage("EffectedDate")
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Remarks")
+                    @(Html.Kendo().TextBox()
+                    .Name("Remarks")
+                    .HtmlAttributes(new { @style = "width:100%", @required = true }))
+                    @Html.ValidationMessage("Remarks")
+                </div>
+                <div class="col-md-3 col-sm-3" style="margin-top:8px">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="addToGrid()">
+                        <i class="fas fa-right"></i> Add
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <label>Select File to Import</label>
+                    <div class="input-group mb-3">
+                        <input type="file" class="form-control importfile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Select File" aria-describedby="basic-addon1">
+                        <div class="input-group-append">
+                            <button class="btn btn-info btnLoadFile k-button" type="button">LOAD FILE</button>
+                        </div>
+                    </div>
+                    <small>Select XLS, XLSX File only</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        @(Html.Kendo()
+                 .Grid<SerialPlanVM>()
+                 .Name("gridSerialPlan")
+                 .Columns(columns =>
+                 {
+                     columns.Bound(c => c.RowId).Hidden();
+                     columns.Bound(c => c.SerialNo).Title("Serial");
+                     columns.Bound(c => c.BasePrice);
+                     columns.Bound(c => c.InstPrice);
+                     columns.Bound(c => c.Duration);
+                     columns.Bound(c => c.Advance);
+                     columns.Bound(c => c.Inst);
+                     columns.Bound(c => c.EffectedDate).Format("{0: dd/MM/yyyy}");
+                     columns.Bound(c => c.Remarks);
+                     columns.Command(c => c.Destroy());
+                 })
+                 .Sortable()
+                 .Scrollable()
+                 .AutoBind(false)
+                 .Navigatable()
+                 .ToolBar(t => { t.Save();t.Excel(); })
+                 .Editable(e => e.Mode(GridEditMode.InCell))
+                 .HtmlAttributes(new { style = "height:300px;font-size:12px;" })
+                 .DataSource(dataSource => dataSource
+                 .Ajax()
+                 .Batch(true)
+                 .ServerOperation(false)
+                 .Events(e => e.Error("error_handler").RequestEnd("onRequestEnd"))
+                 .Model(model =>
+                 {
+                     model.Id(m => m.RowId);
+                     model.Field(m => m.SerialNo).Editable(false);
+                     model.Field(m => m.BasePrice).Editable(false);
+                     model.Field(m => m.InstPrice).Editable(false);
+                     model.Field(m => m.Duration).Editable(false);
+                     model.Field(m => m.Advance).Editable(false);
+                     model.Field(m => m.Inst).Editable(false);
+                     model.Field(m => m.EffectedDate).Editable(false);
+                     model.Field(m => m.Remarks).Editable(false);
+                 })
+                 .Read(read => read.Action("SerialPlan_Read", "Setup").Data("SerialData"))
+                 .Create(read => read.Action("SerialPlan_Create", "Setup"))
+                 .Update(read => read.Action("SerialPlan_Create", "Setup"))
+                 ))
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script type="text/javascript" src="~/scripts/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="~/scripts/jszip.js"></script>
+    <script type="text/javascript">
+        var itemId;
+        $('#Serial').change(function (e) {
+            //if (e.which === 13) {
+                //$(this).attr("disabled", "disabled");
+                var ser = $('#Serial').val();
+                $.getJSON("/Stock/SerialInfo", { Serial: ser })
+                    .done(function (data) {
+                        if (data != null) {
+                            if (data.MFact == 1) {
+                                itemId = data.ItemId;
+                                $("#SKU").val(data.SKUCode);
+                                $("#Company").val(data.ComName);
+                                $("#Product").val(data.ProductName);
+                                $("#Status").val(data.StatusTitle);
+                                $("#BasePrice").data('kendoNumericTextBox').value(data.PPrice);
+                                $("#gridSerialPlan").data('kendoGrid').dataSource.read();
+
+                            }
+                            else {
+                                ClearAll();
+                                kendo.alert("Serial already sold out")
+                            }
+                        }
+                    })
+                    .fail(function (jqxhr, textStatus, error) {
+                        alert('Serial No does not exist');
+                    });
+                //$(this).removeAttr("disabled")
+            //}
+        });
+
+        $(".btnLoadFile").click(function () {
+            var fileUpload = $(".importfile")[0];
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+            if (regex.test(fileUpload.value.toLowerCase())) {
+                if (typeof (FileReader) != "undefined") {
+                    var reader = new FileReader();
+                    if (reader.readAsBinaryString) {
+                        reader.onload = function (e) {
+                            ProcessExcel(e.target.result);
+                        };
+                        reader.readAsBinaryString(fileUpload.files[0]);
+                    } else {
+                        reader.onload = function (e) {
+                            var data = "";
+                            var bytes = new Uint8Array(e.target.result);
+                            for (var i = 0; i < bytes.byteLength; i++) {
+                                data += String.fromCharCode(bytes[i]);
+                            }
+                            ProcessExcel(data);
+                        };
+                        reader.readAsArrayBuffer(fileUpload.files[0]);
+                    }
+                } else {
+                    $(".btnLoadFile").html("LOAD FILE");
+                    alert('This browser does not support HTML5.');
+                }
+            } else {
+                $(".btnLoadFile").html("LOAD FILE");
+                alert('Please upload a valid Excel file.');
+            }
+        });
+
+        function ProcessExcel(data) {
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+            var firstSheet = workbook.SheetNames[0];
+            var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+            var lst = [];
+            for (var i = 0; i < excelRows.length; i++) {
+                var SerialNo = typeof excelRows[i]["Serial"] === 'undefined' ? "" : excelRows[i]["Serial"];
+                var Advance = typeof excelRows[i]["Advance"] === 'undefined' ? "" : excelRows[i]["Advance"];
+                var Inst = typeof excelRows[i]["Inst"] === 'undefined' ? "" : excelRows[i]["Inst"];
+                var Duration = typeof excelRows[i]["Duration"] === 'undefined' ? "" : excelRows[i]["Duration"];
+                var InstPrice = typeof excelRows[i]["Inst Price"] === 'undefined' ? "" : excelRows[i]["Inst Price"];
+                var BasePrice = typeof excelRows[i]["Base Price"] === 'undefined' ? "" : excelRows[i]["Base Price"];
+                var EffectedDate = typeof excelRows[i]["Effected Date"] === 'undefined' ? "" : excelRows[i]["Effected Date"];
+                var Remarks = typeof excelRows[i]["Remarks"] === 'undefined' ? "" : excelRows[i]["Remarks"];
+                lst.push({
+                    RowId: 0,
+                    SKU: "",
+                    ItemId: 0,
+                    SerialNo: SerialNo,
+                    Advance: Advance,
+                    Inst: Inst,
+                    Duration: Duration,
+                    InstPrice: InstPrice,
+                    BasePrice: BasePrice,
+                    EffectedDate: EffectedDate,
+                    Remarks: Remarks
+                });
+                //$.getJSON("/Stock/ItemInfo", { Serial: SerialNo })
+                //    .done(function (data) {
+                //        if (data != null) {
+                            
+                            
+                //        }
+                //    })
+                //    .fail(function (jqxhr, textStatus, error) {
+                //        alert('Serial No does not exist');
+                //    });
+                //var RowId = typeof excelRows[i]["Row Id"] === 'undefined' ? "" : excelRows[i]["Row Id"];
+                //var ItemId = typeof excelRows[i]["ItemId"] === 'undefined' ? "" : excelRows[i]["ItemId"];
+                //var SKU = typeof excelRows[i]["SKU"] === 'undefined' ? "" : excelRows[i]["SKU"];
+                
+                
+            }
+            $("#gridSerialPlan").data('kendoGrid').dataSource.data(lst);
+        }
+
+        var gridElement = $("#gridSerialPlan");
+        var validator = $("#frm").kendoValidator().data("kendoValidator");
+
+        function SerialData() {
+            return {
+                ItemId: itemId
+            }
+        }
+
+        function onDurationChange() {
+            var instPrice = $('#InstPrice').data('kendoNumericTextBox').value();
+            var duration = $('#Duration').data('kendoNumericTextBox').value();
+            $('#Advance').data('kendoNumericTextBox').value(duration > 0 ? (instPrice / duration) : 0);
+            $('#Inst').data('kendoNumericTextBox').value(duration > 0 ? (instPrice / duration) : 0);
+        }
+
+        function onAdvanceChange() {
+            var instPrice = $('#InstPrice').data('kendoNumericTextBox').value() - $('#Advance').data('kendoNumericTextBox').value();
+            var duration = $('#Duration').data('kendoNumericTextBox').value() - 1;
+            $('#Inst').data('kendoNumericTextBox').value(instPrice / duration);
+        }
+
+        function addToGrid() {
+            if (validator.validate()) {
+                var row = {
+                    SerialNo: $("#Serial").val(),
+                    SKU: $('#SKU').val(),
+                    ItemId: itemId || 0,
+                    Advance: $('#Advance').data('kendoNumericTextBox').value(),
+                    Inst: $('#Inst').data('kendoNumericTextBox').value(),
+                    Duration: $('#Duration').data('kendoNumericTextBox').value(),
+                    InstPrice: $('#InstPrice').data('kendoNumericTextBox').value(),
+                    BasePrice: $('#BasePrice').data('kendoNumericTextBox').value(),
+                    EffectedDate: $('#EffectedDate').data('kendoDatePicker').value(),
+                    Remarks: $('#Remarks').val()
+                };
+                var serialExists = $("#gridSerialPlan").data("kendoGrid").dataSource.data().some(
+                    function (dataItem) {
+                        return dataItem.SerialNo == row.SerialNo;
+                    });
+                if (serialExists) {
+                    $.confirm({
+                        title: 'Alert',
+                        content: "Serial # already exists in the Table",
+                        type: 'red',
+                        typeAnimated: true,
+                        icon: 'fas fa-close',
+                        buttons: {
+                            Ok: function () {
+                            }
+                        }
+                    });
+                }
+                else {
+                    $('#gridSerialPlan').data('kendoGrid').dataSource.add(row);
+                }
+            }
+        }
+        function ClearAll() {
+            $('#Serial').val("");
+            $('#SKU').val("");
+            $('#Company').val("");
+            $('#Product').val("");
+            $('#Remarks').val("");
+            $('#Advance').data('kendoNumericTextBox').value("");
+            $('#Inst').data('kendoNumericTextBox').value("");
+            $('#Duration').data('kendoNumericTextBox').value("");
+            $('#InstPrice').data('kendoNumericTextBox').value("");
+            $('#BasePrice').data('kendoNumericTextBox').value("");
+            $('#EffectedDate').data('kendoDatePicker').value(new Date());
+            $("#gridSerialPlan").data("kendoGrid").dataSource.data([]);
+        }
+        function onSaveChanges(e) {
+            if ($('#gridSerialPlan').data('kendoGrid').dataSource.data().length == 0) {
+                dia.content("Nothing to Save");
+                dia.open();
+                e.preventDefault();
+            }
+            else if (!confirm("Are you sure that you want to proceed?")) {
+                e.preventDefault();
+            }
+        }
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+        function onRequestEnd(e) {
+            if (e.type == "create" && !e.response.Errors) {
+                $.confirm({
+                    title: 'Success',
+                    content: "Serial Plan has been added",
+                    type: 'green',
+                    typeAnimated: true,
+                    icon: 'fas fa-check',
+                    buttons: {
+                        Ok: function () {
+                        }
+                    }
+                });
+                ClearAll();
+            }
+        }
+    </script>
+
+}
+
+

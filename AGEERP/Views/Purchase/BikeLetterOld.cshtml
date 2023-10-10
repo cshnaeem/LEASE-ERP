@@ -1,0 +1,103 @@
+﻿
+@{
+    ViewBag.Title = "BikeLetterOld";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Bike Letter Old</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">Bike Letter Old</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            @(Html.Kendo()
+    .Grid<BikeLetterOldVM>()
+    .Name("BikeLetterSearch")
+    .Columns(columns =>
+    {
+        columns.Command(c => c.Edit());
+        //columns.Command(c => c.Custom("OK").Click("UpdateLetterStatus").Visible("isVis")).Width(90);
+        columns.ForeignKey(c => c.LetterStatus, (System.Collections.IEnumerable)ViewData["StatusVD"], "Value", "Text");
+        //columns.Bound(c => c.LetterStatus);
+        columns.Bound(c => c.LetterNumber);
+        columns.Bound(c => c.EnvelopNo);
+        columns.Bound(c => c.SrNo);
+        columns.Bound(c => c.BillNo);
+        columns.Bound(c => c.BillDate).Format("{0: dd/MM/yyyy}");
+        columns.Bound(c => c.Model);
+        columns.Bound(c => c.CompName);
+        columns.Bound(c => c.LocName);
+        columns.Bound(c => c.DoNo);
+        columns.Bound(c => c.SuppName);
+
+    })
+    //.Pageable()
+    .Sortable()
+    .Scrollable()
+    //.AutoBind(false)
+    .Navigatable()
+    //.NoRecords()
+    .Pageable()
+    .Filterable()
+    .Editable(e => e.Mode(GridEditMode.InLine))
+    //.Groupable()
+    @*.ToolBar(toolbar =>
+    {
+
+    toolbar.Template(@<text>
+                                        <span class="k-textbox k-grid-search k-display-flex"><input autocomplete="off" class="k-input" placeholder="Search..." title="Search..." type="text"><span class="k-input-icon"><span class="k-icon k-i-search"></span></span></span>
+                                        <div class="toolbar">
+                                            <label class="category-label float-left" for="category">Total : <span id="tot"></span></label>
+                                        </div>
+                        </text>);
+})*@
+    //.Editable(e => e.Mode(GridEditMode.InCell))
+    //.Search(s => { s.Field(a => a.GRNNo); s.Field(a => a.SKUName); s.Field(a => a.SerialNo); })
+    .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+    //.Groupable(g => g.Enabled(true))
+    //.Events(e => e.DataBound("dBound"))
+
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    //.StringifyDates(false)
+    //.ServerOperation(false)
+    .PageSize(100)
+    //.Batch(true)
+
+    .Model(model =>
+    {
+        model.Id(m => m.RowId);
+        model.Field(m => m.BillDate).Editable(false);
+        model.Field(m => m.BillNo).Editable(false);
+        model.Field(m => m.CompName).Editable(false);
+        model.Field(m => m.DoNo).Editable(false);
+        model.Field(m => m.LocName).Editable(false);
+        model.Field(m => m.Model).Editable(false);
+        model.Field(m => m.SrNo).Editable(false);
+        model.Field(m => m.SuppName).Editable(false);
+    })
+    .Read(read => read.Action("BikeLetterOld_Read", "Purchase"))
+    //.Create(create => create.Action("BikeLetter_Update", "Purchase").Data("updateGridData"))
+    .Update(update => update.Action("BikeLetterOld_Update", "Purchase"))
+    ))
+            @*</div>*@
+        </div>
+    </div>
+</div>

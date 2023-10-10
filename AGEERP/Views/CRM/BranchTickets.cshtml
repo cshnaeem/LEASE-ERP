@@ -1,0 +1,235 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "BranchTickets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Tickets</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">Tickets</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row ">
+
+
+            <div class="col-md-3">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    //.Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+            </div>
+            <div class="col-3">
+                @Html.Label("Category")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("CategoryId")
+                .OptionLabel("All Category ...")
+                //.SelectedIndex(0)
+                .DataValueField("CategoryId")
+                .DataTextField("Category")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CrmCategoryList", "CRM"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;", @required = true })
+                )
+            </div>
+
+
+
+
+            <div class="col-md-3" style="margin-top:6px;">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+        </div>
+
+
+        <div class="row">
+            @(Html.Kendo()
+            .Grid<Crm_TicketVM>()
+            .Name("gridTickets")
+            .Columns(columns =>
+            {
+
+                columns.Bound(c => c.LocCode).Width(50);
+                columns.Bound(c => c.TicketId).Width(50).Title("Ticket No");
+                columns.Bound(c => c.Category).Width(150);
+                columns.Bound(c => c.Complain).Width(150);
+                columns.Bound(c => c.Response).Width(100);
+                columns.Bound(c => c.Status).Width(100);
+                columns.Command(c => { c.Custom("Doc").Click("ViewDoc"); c.Custom("Response").Click("showDetails");  c.Custom("Close").Click("CloseTicket").Visible("IsOpen"); }).Width(150);
+
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .AutoBind(false)
+            .Navigatable()
+            .ToolBar(t => t.Search())
+            .Search(s => { s.Field(a => a.TicketId); s.Field(a => a.Category); s.Field(a => a.LocCode); })
+            .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(50)
+               .Model(model =>
+               {
+                   model.Id(m => m.TicketId);
+
+               })
+            .Read(read => read.Action("BranchTicket_Read", "CRM").Data("filterTicketsSearch"))
+            ))
+
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="ticketmodal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div id="TicketSch">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalWindow">
+    <h4>Do you want to close this Ticket?</h4>
+    <button id="yes" class="k-button">Yes</button>
+    <button id="no" class="k-button">No</button>
+</div>
+<div hidden="hidden">@Html.Partial("~/Views/Document/_Doc.cshtml")</div>
+<script>
+
+
+    var wnd;
+    $(document).ready(function () {
+       // resizeGrid();
+        //$('#m_19000000').addClass('active');
+        //$('#d_19000000').css("display", "block");
+        //$('#m_19040000').addClass('active');
+        //$('#a_19040000').addClass('active');
+        wnd = $("#modalWindow").kendoWindow({
+            title: "Confirmation",
+            modal: true,
+            visible: false,
+            resizable: false,
+            width: 400
+        }).data("kendoWindow");
+
+        $("#gridTickets").data("kendoGrid").dataSource.read();
+    });
+
+    function filterTicketsSearch() {
+
+        var dat = {
+            LocId: $('#LocId').data('kendoMultiColumnComboBox').value(),
+            CategoryId: $('#CategoryId').val() || 0,
+        }
+        console.log(dat);
+        return dat;
+    }
+
+    function loadGrid() {
+        $("#gridTickets").data("kendoGrid").dataSource.read();
+    }
+
+    function loadLocation() {
+        $("#LocId").data("kendoMultiColumnComboBox").dataSource.read();
+    }
+
+
+    function showDetails(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+        if (dataItem.TicketId != null) {
+            $('#TicketSch').load('/CRM/_TicketResponse?TicketId=' + dataItem.TicketId);
+            $('#ticketmodal').modal('show');
+
+        }
+        else {
+            $('#TicketSch').load('/CRM/_TicketResponse?TicketId=' + dataItem.TicketId );
+            $('#ticketmodal').modal('show');
+        }
+    }
+
+    function CloseTicket(e) {
+        e.preventDefault();
+        var row = $(e.currentTarget).closest("tr");
+        var dataItem = this.dataItem(row);
+        wnd.center().open();
+        $("#yes").click(function () {
+            $.ajax({
+                type: "POST",
+                url: "/CRM/CloseTicket?TicketId=" + dataItem.TicketId,
+                success: function (msg) {
+                    $("#gridTickets").data("kendoGrid").dataSource.read();
+                    wnd.close();
+                }
+            });
+            
+        });
+        $("#no").click(function () {
+            wnd.close();
+        });
+        
+    }
+
+
+    function ViewDoc(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#DocId").val(dataItem.TicketId);
+        $("#RefObjId").val(17);
+        $("#frmDoc").submit();
+    }
+
+    function IsOpen(e) {
+        return (e.Status == "Open")
+    }
+</script>
+
+
+
+
+
+

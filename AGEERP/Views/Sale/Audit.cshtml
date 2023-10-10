@@ -1,0 +1,777 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Lease Customer";
+}
+    <style>
+        .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+            font-size: 12px !important;
+        }
+    </style>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Audit</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Audit</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            @if ((long)ViewBag.AccNo > 0)
+            {
+                <div class="col-md-9 col-sm-12">
+                    <div class="row">
+                        <div class="col-md-4 col-sm-4">
+                            @Html.Label("Location")
+                            @(Html.Kendo()
+                        .MultiColumnComboBox()
+                    .Name("LocId")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.DataBound("gridLocationBound"))
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            @Html.Label("AccNo")
+                            @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("AcccNo")
+                        .Format("##,###")
+                        .Value((long)ViewBag.AccNo)
+                        .Min(0)
+                        .Max(9999999999)
+                        .Events(e => e.Change("AccNoChange"))
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-sm-4">
+                            @Html.Label("Customer Name")
+                            @(Html.Kendo()
+                        .TextBox()
+                        .Name("CustName")
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            @Html.Label("FName")
+                            @(Html.Kendo()
+                        .TextBox()
+                        .Name("FName")
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            @Html.Label("Mobile1")
+                            @(Html.Kendo()
+                        .TextBox()
+                        .Name("Mobile1")
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            @Html.Label("Mobile2")
+                            @(Html.Kendo()
+                        .TextBox()
+                        .Name("Mobile2")
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            @Html.Label("NIC")
+                            @(Html.Kendo()
+                        .TextBox()
+                        .Name("NICStatus")
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+
+                        <div class="col-md-4 col-sm-4">
+                            @Html.Label("NoOfCheques")
+                            @(Html.Kendo()
+                        .TextBox()
+                        .Name("NoOfCheques")
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            @Html.Label("NoOfGuarantors")
+                            @(Html.Kendo()
+                        .TextBox()
+                        .Name("NoOfGuarantors")
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+                    </div>
+                    <div class="row">
+                        <h4 class="card-title">Audit</h4>
+                        @using (Ajax.BeginForm("Audit", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+                        {
+                            <div class="row">
+                                @Html.Hidden("AccNo", 0)
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Mobile")
+                            .Name("Mobile")
+                            .Checked(false)
+                            .HtmlAttributes(new { @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("NIC")
+                            .Name("NIC")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Affidavit")
+                            .Name("Affidavit")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Cheque")
+                            .Name("Cheque")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Guarantor1")
+                            .Name("Guarantor1")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Guarantor2")
+                            .Name("Guarantor2")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+
+
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Thumb")
+                            .Name("Thumb")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("Pic")
+                            .Name("Pic")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("BMSign")
+                            .Name("BMSign")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("RMSign")
+                            .Name("RMSign")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("VisitStatus")
+                            .Name("VisitStatus")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("ObserveState")
+                            .Name("ObserveState")
+                            .Checked(false)
+                            .HtmlAttributes(new {  @onchange = "CalcCompletion()" })
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("ObserveDate")
+                                    @(Html.Kendo()
+                            .DatePicker()
+                            .Name("ObserveDate")
+                            .Value(DateTime.Now.Date)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                                )
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("VerifyStatus")
+                            .Name("VerifyStatus")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("ApprovedBy")
+                                    @(Html.Kendo()
+                            .TextBox()
+                            .Name("ApprovedBy")
+                            .HtmlAttributes(new { @style = "width:100%", @maxlength = 50 })
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("ApprovedDate")
+                                    @(Html.Kendo()
+                            .DatePicker()
+                            .Name("ApprovedDate")
+                            .Value(DateTime.Now.Date)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                                )
+                                </div>
+
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Completion")
+                                    @(Html.Kendo()
+                            .TextBox()
+                            .Name("Completion")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%" })
+                                )
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("WrongCase")
+                            .Name("WrongCase")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("WrongProduct")
+                            .Name("WrongProduct")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("InvolvementCase")
+                            .Name("InvolvementCase")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("WrongPTO")
+                            .Name("WrongPTO")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("PTOCase")
+                            .Name("PTOCase")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("HomeFake")
+                            .Name("HomeFake")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("OfficialFake")
+                            .Name("OfficialFake")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("LoseGuarantee")
+                            .Name("LoseGuarantee")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("FakeGuarantee")
+                            .Name("FakeGuarantee")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("ManageGuarantee")
+                            .Name("ManageGuarantee")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("WithoutVerification")
+                            .Name("WithoutVerification")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("HomeRental")
+                            .Name("HomeRental")
+                            .Checked(false)
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @(Html.Kendo()
+                            .CheckBox()
+                            .Label("PhotoCHQ")
+                            .Name("PhotoCHQ")
+                            .Checked(false)
+                                )
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-9 col-sm-8">
+                                    @Html.Label("CRCRemarks")
+                                    @(Html.Kendo()
+                            .TextBox()
+                            .Name("CRCRemarks")
+                            .HtmlAttributes(new { @style = "width:100%" })
+                                )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    <br />
+                                    <button class="k-button margin-10" onclick="SaveDoc()" type="button">Save</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-4 ImgDiv">
+                    <img id="CustImg" class="responsive-img" style="max-height:200px;" />
+                </div>
+            }
+            else
+            {
+        <div class="row">
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-4">
+                        @Html.Label("Location")
+                        @(Html.Kendo()
+                        .MultiColumnComboBox()
+                    .Name("LocId")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-4">
+                        @Html.Label("From Date")
+                        @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                    </div>
+                    <div class="col-md-4">
+                        @Html.Label("To Date")
+                        @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                    </div>
+                    <div class="col-md-4">
+                        @Html.Label("Audit Status")
+                        @(Html.Kendo().DropDownList()
+                      .Name("Status")
+                      .DataTextField("Text")
+                      .DataValueField("Value")
+                      .BindTo(new List<SelectListItem>() {
+                          new SelectListItem() {
+                              Text = "All",
+                              Value = "all"
+                          },
+                          new SelectListItem() {
+                              Text = "Yes",
+                              Value = "true"
+                          },
+                          new SelectListItem() {
+                              Text = "No",
+                              Value = "false"
+                          }
+                      })
+                      .HtmlAttributes(new { style = "width: 100%" })
+                )
+                    </div>
+                    <div class="col-md-4">
+                        @Html.Label("Verify Status")
+                        @(Html.Kendo().DropDownList()
+                      .Name("VStatus")
+                      .DataTextField("Text")
+                      .DataValueField("Value")
+                      .BindTo(new List<SelectListItem>() {
+                          new SelectListItem() {
+                              Text = "All",
+                              Value = "all"
+                          },
+                          new SelectListItem() {
+                              Text = "Yes",
+                              Value = "true"
+                          },
+                          new SelectListItem() {
+                              Text = "No",
+                              Value = "false"
+                          }
+                      })
+                      .HtmlAttributes(new { style = "width: 100%" })
+                )
+                    </div>
+                    <div class="col-md-4">
+                        <br />
+                        <button class="k-button margin-10" style="margin-top:14px;" type="button" onclick="loadGrid()">Load Grid</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="col-md-12" style="margin-top: 32px;">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <label>Audit Status:</label>
+                            <span class="badge badge-danger badge-pill">0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <label>Pending Cases:</label>
+                            <span class="badge badge-info badge-pill">0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <label>Complete Case:</label>
+                            <span class="badge badge-success badge-pill">0</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    @(Html.Kendo()
+                                .Grid<LseAuditVM>()
+                                .Name("gridAuditList")
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(c => c.AccNo).Title("A/C").MinResizableWidth(100);
+                                    columns.Bound(c => c.AuditDate).Title("Date").Format("{0: dd/MM/yyyy}").MinResizableWidth(100);
+                                    columns.Bound(c => c.CustName).Title("Customer").MinResizableWidth(130);
+                                    columns.Bound(c => c.ComName).Title("Company").MinResizableWidth(100);
+                                    columns.Bound(c => c.ProductName).Title("Product").MinResizableWidth(100);
+                                    columns.Bound(c => c.Model).MinResizableWidth(100);
+                                    columns.Bound(c => c.InstPrice).Title("Price").MinResizableWidth(90);
+                                    columns.Bound(c => c.Status).ClientTemplate("#= Status ? 'Yes' : 'No' #").MinResizableWidth(100);
+                                    columns.Bound(c => c.CRCRemarks).Title("Remarks").MinResizableWidth(100);
+                                    columns.Bound(c => c.ApprovedBy).MinResizableWidth(100);
+                                    columns.Bound(c => c.VerifyStatus).ClientTemplate("#= VerifyStatus ? 'Yes' : 'No' #").MinResizableWidth(100);
+                                    columns.Command(c => c.Custom("Audit").Click("auditForm")).MinResizableWidth(100);
+                                })
+                                .ToolBar(t => { t.Search(); })
+                                .Search(s =>
+                                {
+                                    s.Field(c => c.AccNo);
+                                    s.Field(c => c.CustName);
+                                })
+                                .Events(e => e.DataBound("colorRows"))
+                                .Sortable()
+                                .Scrollable()
+                                .Pageable()
+                                .AutoBind(false)
+
+                                .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+                                .DataSource(dataSource => dataSource
+                                .Ajax()
+                                //.Aggregates(a => a.Add(x => x.AccNo).Count())
+                                .PageSize(20)
+                                .ServerOperation(false)
+                                .Model(model =>
+                                {
+                                    model.Id(m => m.AccNo);
+                                })
+                                .Read(read => read.Action("AuditList_Read", "Sale").Data("filterAuditList"))
+                                ))
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    function SaveDoc() {
+        if (confirm("Do you want to save")) {
+            $('#frm').submit();
+        }
+    }
+    function CalcCompletion() {
+        var marks = 0;
+        marks = marks + $('#Affidavit').prop('checked');
+        marks = marks + $('#BMSign').prop('checked');
+        marks = marks + $('#Cheque').prop('checked');
+        marks = marks + $('#Guarantor1').prop('checked');
+        marks = marks + $('#Guarantor2').prop('checked');
+        marks = marks + $('#Mobile').prop('checked');
+        marks = marks + $('#NIC').prop('checked');
+        marks = marks + $('#ObserveState').prop('checked');
+        marks = marks + $('#Pic').prop('checked');
+        marks = marks + $('#RMSign').prop('checked');
+        marks = marks + $('#Thumb').prop('checked');
+        marks = marks + $('#VisitStatus').prop('checked');
+        $('#Completion').val(Math.round((marks / 12) * 100) + " %");
+    }
+    
+    function gridLocationBound() {
+        var AccNo = $('#AcccNo').val();
+        if (AccNo > 0) {
+            AccNoChange();
+        }
+    }
+    function AccNoChange() {
+        var AccNo = $('#AcccNo').val();
+        var LocId = $('#LocId').val() || 0;
+        if (LocId == 0) {
+            return;
+        }
+        $('#AccNo').val(AccNo);
+        if (AccNo > 0) {
+            $.getJSON("/Sale/GetAudit", { AccNo: AccNo })
+                .done(function (data) {
+                    if (data != null) {
+                        debugger;
+                        if (data.LocId != LocId) {
+                            alert('Account does not exist on your Branch');
+                            ResetAll();
+                        }
+
+                        $('#CustName').val(data.CustName);
+                        $('#FName').val(data.FName);
+                        $('#Mobile1').val(data.Mobile1);
+                        $('#Mobile2').val(data.Mobile2);
+                        $('#NICStatus').val(data.NICStatus);
+                        $('#NoOfCheques').val(data.NoOfCheques);
+                        $('#NoOfGuarantors').val(data.NoOfGuarantors);
+                        $('#AffidavitStatus').val(data.AffidavitStatus);
+
+                        if (data.AuditId > 0) {
+                            //if (data.VerifyStatus == true) {
+                            //    alert('Audit already created');
+                            //    ClearAll();
+                            //}
+                            //else {
+                                $('#Affidavit').prop('checked', data.Affidavit);
+                                $('#BMSign').prop('checked', data.BMSign);
+                                $('#Cheque').prop('checked', data.Cheque);
+                                $('#Guarantor1').prop('checked', data.Guarantor1);
+                                $('#Guarantor2').prop('checked', data.Guarantor2);
+                                $('#Mobile').prop('checked', data.Mobile);
+                                $('#NIC').prop('checked', data.NIC);
+                                $('#ObserveState').prop('checked', data.ObserveState);
+                                $('#Pic').prop('checked', data.Pic);
+                                $('#RMSign').prop('checked', data.RMSign);
+                                $('#Thumb').prop('checked', data.Thumb);
+                                $('#VerifyStatus').prop('checked', data.VerifyStatus);
+                                $('#VisitStatus').prop('checked', data.VisitStatus);
+                                $('#ApprovedBy').val(data.ApprovedBy);
+                                $('#ApprovedDate').data('kendoDatePicker').value(data.ApprovedDate);
+                                $('#CRCRemarks').val(data.CRCRemarks);
+                                $('#ObserveDate').data('kendoDatePicker').value(data.ObserveDate);
+                            //}
+                        }
+                        else {
+                            ResetAll();
+                        }
+                    }
+                    else {
+                        alert('Account does not exist');
+                        ResetAll();
+                    }
+                    CalcCompletion();
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Account does not exist');
+                    ResetAll();
+                });
+        }
+        if (AccNo > 0) {
+            $(".ImgDiv").show();
+            $("#CustImg").attr("src", "../../Content/CustImg/" + AccNo + ".jpg");
+        }
+        else {
+            $(".ImgDiv").hide();
+        }
+
+    }
+    function ClearAll() {
+        $('#Affidavit').prop('checked', false);
+        $('#BMSign').prop('checked', false);
+        $('#Cheque').prop('checked', false);
+        $('#Guarantor1').prop('checked', false);
+        $('#Guarantor2').prop('checked', false);
+        $('#Mobile').prop('checked', false);
+        $('#NIC').prop('checked', false);
+        $('#ObserveState').prop('checked', false);
+        $('#Pic').prop('checked', false);
+        $('#RMSign').prop('checked', false);
+        $('#Thumb').prop('checked', false);
+        $('#VerifyStatus').prop('checked', false);
+        $('#VisitStatus').prop('checked', false);
+        $('#ApprovedBy').val("");
+        $('#ApprovedDate').data('kendoDatePicker').value(new Date());
+        $('#CRCRemarks').val("");
+        $('#ObserveDate').data('kendoDatePicker').value(new Date());
+        CalcCompletion();
+    }
+
+
+    /*Audit Grid List JS*/
+    function filterAuditList() {
+        return {
+            LocId: $('#LocId').val(),
+            FromDate: $('#FromDate').val(),
+            ToDate: $('#ToDate').val(),
+            Status: $('#Status').val(),
+            VStatus: $('#VStatus').val()
+        }
+    }
+    function loadGrid() {
+        $("#gridAuditList").data("kendoGrid").dataSource.read();
+    }
+    function auditForm(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        debugger;
+        if (dataItem.AccNo != null) {
+            window.open('/Sale/Audit/' + dataItem.AccNo, "_blank");
+        }
+    }
+    
+    function colorRows() {
+        var red = 0; var blue = 0; var green = 0;
+        var grid = $("#gridAuditList").data("kendoGrid");
+        var data = grid.dataSource.data();
+        $.each(data, function (i, row) {
+            var VerifyStatus = row.VerifyStatus;
+            var Status = row.Status;
+            if (Status == true && VerifyStatus == true) {
+                $('tr[data-uid="' + row.uid + '"] ').css("color", "green");
+                green = green + 1;
+                $(".badge-success").text(green);
+            }
+            else if (Status == true && VerifyStatus == false) {
+                $('tr[data-uid="' + row.uid + '"] ').css("color", "blue");
+                blue = blue + 1;
+                $(".badge-info").text(blue);
+            }
+            else if(Status == false && VerifyStatus == false) {
+                $('tr[data-uid="' + row.uid + '"] ').css("color", "red");
+                red = red + 1;
+                $(".badge-danger").text(red);
+            }
+        });
+    }
+    function OnSave(data) {
+        if (data.AuditId > 0) {
+            kendo.alert('Save Successfully');
+        }
+        else {
+            kendo.alert('Error');
+        }
+    }
+    //$(document).ready(function () {
+    //    var accnoBox = $("#AcccNo").data("kendoNumericTextBox");
+    //    if (accnoBox != null) {
+    //        accnoBox.trigger("change");
+    //    }
+        
+    //});
+</script>

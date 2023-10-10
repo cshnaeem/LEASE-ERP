@@ -1,0 +1,103 @@
+﻿@{
+    ViewBag.Title = "Trial Balance All";
+}
+@using (Html.BeginForm("TrialBalanceAllProfitCenter", "Report", FormMethod.Post, new { target = "_blank", id = "frm" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Trial Balance All Profit Centers</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Report</a></li>
+                        <li class="breadcrumb-item active">Trial Balance All</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Fiscal Year")
+                    @(Html.Kendo()
+                .DropDownList()
+                .Name("YrCode")
+                .SelectedIndex(0)
+                .DataValueField("YrCode")
+                .DataTextField("YrName")
+                //.Suggest(true)
+                //.Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("FinancialYearList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = true })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = true })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-sm-6">
+                    @Html.Label("A/C")
+                    @(Html.Kendo()
+                        .MultiColumnComboBox()
+                        .Name("Code")
+                        .Placeholder("Select COA ...")
+                        //.SelectedIndex(0)
+                        .DataValueField("Id")
+                        .DataTextField("Name")
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("Code").Width("150px");
+                            columns.Add().Field("Name").Width("350px");
+                        })
+                        //.Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .FilterFields(new string[] { "Code", "Name" })
+                        //.MinLength(3)
+                        //.Events(e => e.Change("loadGrid"))
+                        //.AutoBind(false)
+                        //.BindTo(ViewBag.COA4)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("FinSubCodeList", "Account").Data("filterSubCode"))
+                            .ServerFiltering(true);
+                        })
+                        .IgnoreCase(true)
+                        .HtmlAttributes(new { @style = "width:100%;", @required = true })
+                        )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Profit Center Wise").Value("P").Checked(true)
+                    @Html.Kendo().RadioButton().Name("rpt").Label("5th Level").Value("L")
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    <br />
+                    <button class="k-button k-primary" type="submit">
+                        <i class="fas fa-print"></i> Show
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    function filterSubCode() {
+        return {
+            str: $('#Code').data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+</script>

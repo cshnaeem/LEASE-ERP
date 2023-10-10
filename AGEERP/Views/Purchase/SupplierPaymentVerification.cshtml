@@ -1,0 +1,256 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "SupplierPayment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Supplier Payment Verification</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">Supplier Payment Verification</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @*<div class="row">
+
+            </div>*@
+        <div class="row">
+            <div class="col-md-8">
+            </div>
+            <div class="col-md-2">
+                <button class="k-button" onclick="loadGrid()">Load Payments</button>
+            </div>
+            <div class="col-md-2">
+                <button class="k-button" onclick="SaveDoc()">Post Payments</button>
+            </div>
+            @Html.Label("Invoice Payments")
+            @(Html.Kendo()
+            .Grid<SuppPaymentVM>()
+            .Name("gridOrderSearch")
+            .Columns(columns =>
+            {
+                columns.Select().Width(50);
+                columns.Bound(c => c.TransId).Hidden();
+                columns.ForeignKey(c => c.LocId, (System.Collections.IEnumerable)ViewData["LocVD"], "LocId", "LocCode").Title("Location");
+                columns.Bound(c => c.AccTitle).Title("GL");
+                columns.Bound(c => c.SuppName);
+                columns.Bound(c => c.Proposed).Format("{0:n0}");
+                columns.Bound(c => c.Payment).Format("{0:n0}");
+                columns.Bound(c => c.IsWHTPaid).ClientTemplate("#if (IsWHTPaid ===true)"
++ "{#"
++ "Paid"
++ " #}else{# "
++ "Unpaid"
++ "# }#").Title("Status");
+                columns.Bound(c => c.Remarks);
+                columns.Command(c => { c.Custom("Doc").Click("ViewDoc"); c.Edit(); c.Destroy(); });
+                //columns.Command(c => c.Edit());
+                //columns.Command(c => c.Custom("Post").Text("Post").Click("Post"));
+            })
+            //.Pageable()
+            .PersistSelection()
+            .Sortable()
+            .Scrollable()
+            .AutoBind(true)
+            .Navigatable()
+            .Events(x => x.Edit("EditPopUp"))
+            .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_SuppPayment"))
+            .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .Events(e => { e.Error("error_handler"); })
+            .Model(model =>
+            {
+                model.Id(m => m.TransId);
+                model.Field(m => m.TransId).Editable(false);
+                model.Field(m => m.SuppName).Editable(false);
+                model.Field(m => m.ClosingBalance).Editable(false);
+                model.Field(m => m.Payment).Editable(false);
+                model.Field(m => m.Proposed).Editable(false);
+                model.Field(m => m.LocId).Editable(false);
+                model.Field(m => m.IsWHTPaid).Editable(false);
+
+            })
+            .Read(read => read.Action("SupplierPaymentVerification_Read", "Purchase"))
+            .Create(create => create.Action("SupplierPaymentVerification_Create", "Purchase"))
+            .Update(update => update.Action("SupplierPaymentVerification_Update", "Purchase"))
+            .Destroy(update => update.Action("SupplierPaymentVerification_Destroy", "Purchase"))
+            ))
+            @*</div>*@
+        </div>
+    </div>
+</div>
+@*<div id="modalWindow">
+        <h4>Do you want to Post?</h4>
+        <button id="yes" class="k-button">Yes</button>
+        <button id="no" class="k-button">No</button>
+    </div>*@
+<div hidden="hidden">@Html.Partial("~/Views/Document/_Doc.cshtml")</div>
+<script>
+    function ViewDoc(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#DocId").val(dataItem.TransId);
+        $("#RefObjId").val(14);
+        $("#frmDoc").submit();
+    }
+
+    function CheckType() {
+        var type = $('#Instrument').val();
+        if (type == "Cheque") {
+            $('.CN').css('display', 'block');
+            $('.IN').css('display', 'block');
+        }
+        else if (type == "PayOrder") {
+            $('.CN').css('display', 'block');
+            $('.IN').css('display', 'block');
+        }
+        else if (type = "OnlineTransfer") {
+            $('.CN').css('display', 'none');
+            $('.IN').css('display', 'block');
+        }
+    }
+    function loadCheque() {
+        $("#ChequeNo").data("kendoDropDownList").dataSource.read();
+    }
+    function GetAcc() {
+        return {
+            AccId: $('#BankAccId').data("kendoDropDownList").value(),
+            TransId: $('#TransId').val()
+        }
+    }
+
+    function EditPopUp(e) {
+        var type = $('#Instrument').val();
+        var chequeno = e.model.ChequeNo;
+        //var ddl = $("#ChequeNo").data("kendoDropDownList");
+        //var dt = ddl.dataSource.add({ "text": chequeno, "value": chequeno });
+        ////console.log(dt);
+        ////console.log(ddl.value(chequeno));
+        //ddl.refresh();
+        //ddl.value(chequeno);
+        
+      
+        if (type == "Cheque") {
+            $('.CN').css('display', 'block');
+            $('.IN').css('display', 'block');
+        }
+        else if (type == "PayOrder") {
+            $('.CN').css('display', 'block');
+            $('.IN').css('display', 'block');
+        }
+        else if (type = "OnlineTransfer") {
+            $('.CN').css('display', 'none');
+            $('.IN').css('display', 'block');
+        }
+    }
+
+
+
+    
+    //function isVis(e) {
+    //    return e.IsWHTPaid;
+    //}
+    //var wnd;
+    //$(document).ready(function () {
+    //    wnd = $("#modalWindow").kendoWindow({
+    //        title: "Confirmation",
+    //        modal: true,
+    //        visible: false,
+    //        resizable: false,
+    //        width: 300
+    //    }).data("kendoWindow");
+    //});
+    //function Post(e) {
+    //    e.preventDefault();
+    //    var grid = this;
+    //    var row = $(e.currentTarget).closest("tr");
+    //    var data = this.dataItem(row);
+    //    wnd.center().open();
+    //    $("#yes").click(function () {
+    //        data.Status = "V";
+    //        console.log(data);
+    //        grid.dataSource.remove(data);
+    //        grid.dataSource.sync();
+    //        wnd.close();
+    //    });
+    //    $("#no").click(function () {
+    //        wnd.close();
+    //    });
+    //}
+    function loadGrid() {
+        $("#gridOrderSearch").data("kendoGrid").dataSource.read();
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Error");
+            dia.content(message);
+            dia.open();
+        }
+    }
+    function SaveDoc() {
+        if (confirm("Are you sure?")) {
+            var TransLst = $('#gridOrderSearch').data('kendoGrid').selectedKeyNames();
+            var dat = { "TransLst": TransLst };
+
+            if (TransLst.length > 0) {
+                $.ajax({
+                    url: '/Purchase/SupplierPaymentVoucherPosting',
+                    type: 'POST',
+                    data: JSON.stringify(dat),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        if (data == true) {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Success");
+                            dia.content("Save Successfully");
+                            dia.open();
+                            loadGrid();
+                        }
+                        else {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Not Save Successfully");
+                            dia.open();
+                        }
+                    },
+                    error: function () {
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content("Not Save Successfully");
+                        dia.open();
+                    }
+                });
+            }
+            else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Validation");
+                dia.content("Please select Locations");
+                dia.open();
+            }
+        }
+    }
+</script>

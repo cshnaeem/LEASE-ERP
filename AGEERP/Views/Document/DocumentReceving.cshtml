@@ -1,0 +1,175 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Document Receving";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Document Receving</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Document Receving</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FDate").Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("TDate").Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1)).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+
+            <div class="col-md-3">
+                <button class="k-button margin-10" onclick="LoadGrid()" style="margin-top: 35px;">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+        </div>
+
+        <div class="col-sm-12">
+            @(Html.Kendo()
+        .Grid<DocShareVM>()
+        .Name("gridEmployeeLeave")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.DocDetailId).Filterable(false).Hidden();
+            columns.Bound(c => c.DocTitle).Format("{0:dd/MM/yyyy}").Title("Title").Filterable(false);
+            columns.ForeignKey(c => c.LocId, (List<LocationVM>)ViewData["LocVD"], "LocId", "LocName").Title("Branch").Width(140);
+            columns.Bound(c => c.Description).Title("Description").Filterable(false);
+            columns.Bound(c => c.ReceivedBy1).Title("Salesman 1");
+            columns.Bound(c => c.ReceivedBy2).Title("Salesman 2");
+            columns.Bound(c => c.ReceivedBy3).Title("Branch Managers");
+            if (ViewBag.IsEdit)
+            {
+                columns.Command(c => { c.Edit().Text("Receive"); }).Width(100);
+            }
+            columns.Command(c => c.Custom("Doc").Click("GetDoc").Visible("CheckVisibility")).Width(100);
+
+        })
+        .Pageable()
+        .Sortable()
+        .Scrollable()
+        .ToolBar(t => { t.Search(); })
+        .Search(s => { s.Field(a => a.DocTitle); })
+         //.Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+         .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_DocumentReceving"))
+        .HtmlAttributes(new { style = "height:400px;" })
+        //.Events(e => e.Change("OnPriceChange"))
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(20)
+        .Events(e => e.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(m => m.DocDetailId);
+            model.Field(m => m.DocTitle);
+            model.Field(m => m.Description);
+            model.Field(m => m.DocId);
+            model.Field(m => m.LocId);
+            model.Field(m => m.ReceivedBy1);
+            model.Field(m => m.ReceivedBy2);
+            model.Field(m => m.ReceivedBy3);
+
+
+        })
+        .Read(read => read.Action("DocShare_Read", "Document").Data("GetDate"))
+          .Update(update => update.Action("DocShare_Update", "Document"))
+        ))
+        </div>
+    </div>
+</div>
+<div hidden="hidden">@Html.Partial("~/Views/Document/_DocView.cshtml")</div>
+
+<script type="text/javascript">
+    var gridElement = $("#gridEmployeeLeave");
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_18000000').addClass('active');
+        //$('#d_18000000').css("display", "block");
+        //$('#m_18050000').addClass('active');
+        //$('#d_18050000').css("display", "block");
+        //$('#m_18050100').addClass('active');
+        //$('#a_18050100').addClass('active');
+    });
+    function RequestDetail() {
+
+    }
+    function filterDept() {
+        return {
+            HDeptId: $('#HDeptId').val() || 0,
+            str: $('#DeptId').data("kendoComboBox").input.val() || ""
+        }
+    }
+    function GetDoc(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#DocId").val(dataItem.DocId);
+        $("#RefObjId").val(13);
+        $("#frmDoc").submit();
+    }
+    function GetDate() {
+        return {
+            StartDate: $('#FDate').val(),
+            EndDate: $('#TDate').val()
+        }
+    }
+    function onDepChange() {
+        $('#EmpId').data("kendoDropDownList").dataSource.read();
+    }
+    function filterEmp() {
+        return {
+            DeptId: $('#DeptId').val()
+            //str: $('#EmpId').data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridEmployeeLeave").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+    function LoadGrid() {
+        $("#gridEmployeeLeave").data("kendoGrid").dataSource.read();
+    }
+    $(window).resize(function () {
+        resizeGrid();
+    });
+ 
+    function CheckVisibility(e) {
+        return true;
+        //if (e.ReceivedBy1 != null && e.ReceivedBy2 != null && e.ReceivedBy3 != null) {
+        //    return true
+        //}
+        //else {
+        //    return false;
+        //}
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Msg:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Msg");
+            dia.content(message);
+            dia.open();
+        }
+    }
+
+</script>

@@ -1,0 +1,51 @@
+﻿@model AGEERP.Models.SaleDetailVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.TransId)
+
+    <div class="row">
+        <div class="col-md-3">
+            @Html.Label("Model")
+            @(Html.Kendo()
+                                                       .ComboBoxFor(m => m.ModelId)
+                                                       .Name("ModelId")
+                                                       .Placeholder("Select Model ...")
+                                                       //.SelectedIndex(0)
+                                                       .DataValueField("ModelId")
+                                                       .DataTextField("Model")
+                                                       .Suggest(true)
+                                                       .DataSource(ds =>
+                                                       {
+                                                           ds.Read(read => read.Action("ModelList", "Setup"));
+                                                       })
+                                                       .HtmlAttributes(new { @style = "width:100%" })
+            )
+
+        </div>
+        <div class="col-md-4">
+            @Html.Label("SrNo")
+            @(Html.Kendo().TextBoxFor(x => x.SrNo).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Label("Qty")
+            @(Html.Kendo().NumericTextBoxFor(x => x.Qty).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+        <div class="col-md-4">
+            @Html.Label("Rate")
+            @(Html.Kendo().NumericTextBoxFor(x => x.SPrice).HtmlAttributes(new { @style = "width:100%", @maxlength = "50" }))
+        </div>
+    </div>
+
+}

@@ -1,0 +1,138 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Installment Source Change";
+}
+
+<div class="card">
+    <div class="content-header">
+
+        <div class="card-header">
+            <h3 class="card-title">Installment Source Change</h3>
+            <div style="float:right">
+                <div class="form-group" style="float:left;">
+                    <label for="exampleInputEmail1">LOCATION</label>
+                    @(Html.Kendo()
+                           .MultiColumnComboBox()
+                           .Name("LocId")
+                           .DataValueField("LocId")
+                           .DataTextField("LocName")
+                           .Events(x => x.Change("ReadGridData"))
+                           .SelectedIndex(0)
+                           .Columns(columns =>
+                           {
+                               columns.Add().Field("LocCode").Width("100px");
+                               columns.Add().Field("LocName").Width("200px");
+                           })
+                           .FilterFields(new string[] { "LocCode", "LocName" })
+                           .Filter(FilterType.Contains)
+
+                           .DataSource(ds =>
+                           {
+                               ds.Read(read => read.Action("LocationList", "Setup"));
+                           })
+                           .HtmlAttributes(new { @style = "width:70%", @required = true })
+                    )
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            @(Html.Kendo()
+   .Grid<InstallmentVM>()
+   .Name("gridsource")
+   .Columns(columns =>
+   {
+       columns.Bound(c => c.InstId).Filterable(false).Hidden();
+       columns.Bound(c => c.AccNo);
+       columns.Bound(c => c.InstCharges);
+       columns.Bound(c => c.Remarks);
+       columns.ForeignKey(p => p.PaidBy, (System.Collections.IEnumerable)ViewData["InstallmentSource"], "Value", "Text").Title("Type").Width(150);
+       columns.Command(c => { c.Edit(); }).Width(250);
+   })
+   .Pageable()
+   .Sortable()
+   .Scrollable()
+   //.Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+   .ToolBar(t => { t.Search(); })
+   .Search(s => s.Field(a => a.AccNo))
+   .Editable(e => e.Mode(GridEditMode.InLine))
+   .HtmlAttributes(new { style = "height:400px;font-size:12px;" })
+   .DataSource(dataSource => dataSource
+   .Ajax()
+   .PageSize(20)
+   .Events(e => e.Error("error_handler"))
+   .ServerOperation(false)
+   .Model(model =>
+   {
+       model.Id(m => m.InstId);
+       model.Field(m => m.AccNo).Editable(false);
+       model.Field(m => m.InstCharges).Editable(false);
+       model.Field(m => m.Remarks);
+       model.Field(m => m.PaidBy);
+   })
+   .Read(read => read.Action("InstSource_Read", "Sale").Data("GetByLoc"))
+   .Update(update => update.Action("InstSource_Update", "Sale"))
+   ))
+        </div>
+    </div>
+
+</div>
+
+
+
+
+<script type="text/javascript">
+    var gridElement = $("#gridsource");
+    $(document).ready(function () {
+        resizeGrid();
+        //$('#m_10000000').addClass('active');
+        //$('#d_10000000').css("display", "block");
+        //$('#m_10030000').addClass('active');
+        //$('#a_10030000').addClass('active');
+    });
+    function ReadGridData() {
+        $('#gridsource').data('kendoGrid').dataSource.read();
+    }
+    function GetByLoc() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+
+
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 120;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridsource").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Error");
+            dia.content(message);
+            dia.open();
+            $("#gridsource").data("kendoGrid").dataSource.read();
+        }
+    }
+</script>

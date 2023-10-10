@@ -1,0 +1,181 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Supplier Payment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Supplier Payment</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">Supplier Payment</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-md-3 col-sm-4">
+            @Html.Label("Cash Collection Center")
+            @(Html.Kendo().DropDownList()
+                .Name("LocId")
+                .OptionLabel("Select Center ...")
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                .Events(e => e.Change("loadGrid"))
+                .DataSource(ds =>
+                {
+                ds.Read(read => read.Action("CashCollectionCenterList", "Cash"));
+                })
+                .HtmlAttributes(new { @style = "width:100%", @class = "browser-default" })
+                )
+        </div>
+    </div>
+        <div class="card-body">
+            <div class="row">
+                @Html.Label("Supplier Payment")
+                @(Html.Kendo()
+            .Grid<SuppPaymentVM>()
+            .Name("gridOrderSearch")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.TransId).Hidden();
+                columns.Bound(c => c.SuppName);
+                columns.Bound(c => c.CashAmount).Format("{0:n0}");
+                columns.Bound(c => c.BankAmount).Format("{0:n0}");
+                columns.ForeignKey(c => c.BankAccId, (System.Collections.IEnumerable)ViewData["Bank"], "Id", "Name").Title("Bank").Width(200);
+                columns.Bound(c => c.Remarks);
+                columns.Command(c => c.Custom("Doc").Click("ViewDoc"));
+                columns.Command(c => c.Edit().Text("Pay").UpdateText("Pay"));
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .AutoBind(true)
+            .Navigatable()
+            .Events(x => x.Edit("EditPopUp"))
+            .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_SuppPayment"))
+            .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .Events(e =>
+            {
+                e.RequestEnd("onRequestEnd");
+                e.Error("error_handler");
+            })
+            .Model(model =>
+            {
+                model.Id(m => m.TransId);
+                model.Field(m => m.SuppName).Editable(false);
+                model.Field(m => m.ClosingBalance).Editable(false);
+                model.Field(m => m.Payment);
+            })
+            .Read(read => read.Action("SupplierPayment_Read", "Purchase").Data("filterLoc"))
+            .Create(create => create.Action("SupplierPayment_Create", "Purchase"))
+            .Update(update => update.Action("SupplierPayment_Create", "Purchase"))
+            ))
+            </div>
+        </div>
+    </div>
+<div hidden="hidden">@Html.Partial("~/Views/Document/_Doc.cshtml")</div>
+    <script>
+
+        function ViewDoc(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            $("#DocId").val(dataItem.TransId);
+            $("#RefObjId").val(14);
+            $("#frmDoc").submit();
+        }
+        function CheckType() {
+            var type = $('#Instrument').val();
+            if (type == "Cheque") {
+                $('.CN').css('display', 'block');
+                $('.IN').css('display', 'block');
+            }
+            else if (type == "PayOrder") {
+                $('.CN').css('display', 'block');
+                $('.IN').css('display', 'block');
+            }
+            else if (type = "OnlineTransfer") {
+                $('.CN').css('display', 'none');
+                $('.IN').css('display', 'block');
+            }
+        }
+        function loadGrid() {
+            $("#gridOrderSearch").data("kendoGrid").dataSource.read();
+        }
+        function onRequestEnd(e) {
+            if ((e.type == "create" || e.type == "update") && !e.response.Errors) {
+                loadGrid();
+                kendo.alert("Paid Successfully");
+            }
+        }
+        function filterLoc() {
+            return {
+                LocId: $('#LocId').val()
+            }
+        }
+        //function FormEdit(e) {
+        //    e.model.set("Payment", e.model.CashAmount + e.model.BankAmount);
+        //}
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+        function GetAcc() {
+            return {
+                AccId: $('#BankAccId').data("kendoDropDownList").value(),
+                TransId: $('#TransId').val()
+            }
+        }
+        function loadCheque() {
+            $("#ChequeNo").data("kendoDropDownList").dataSource.read();
+        }
+        function EditPopUp(e) {
+            var type = $('#Instrument').val();
+            var chequeno = e.model.ChequeNo;
+            //var ddl = $("#ChequeNo").data("kendoDropDownList");
+            //var dt = ddl.dataSource.add({ "text": chequeno, "value": chequeno });
+            ////console.log(dt);
+            ////console.log(ddl.value(chequeno));
+            //ddl.refresh();
+            //ddl.value(chequeno);
+            e.model.set("Payment", e.model.CashAmount + e.model.BankAmount);
+
+            if (type == "Cheque") {
+                $('.CN').css('display', 'block');
+                $('.IN').css('display', 'block');
+            }
+            else if (type == "PayOrder") {
+                $('.CN').css('display', 'block');
+                $('.IN').css('display', 'block');
+            }
+            else if (type = "OnlineTransfer") {
+                $('.CN').css('display', 'none');
+                $('.IN').css('display', 'block');
+            }
+        }
+    </script>

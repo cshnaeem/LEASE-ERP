@@ -1,0 +1,101 @@
+﻿
+@using AGEERP.Models
+@{
+    ViewBag.Title = "ItemProduct";
+}
+
+<div class="card">
+    <div class="content-header">
+
+        <div class="card-header">
+            <h3 class="card-title">ItemProduct</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">ItemProduct</li>
+                </ol>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            @(Html.Kendo()
+                 .Grid<ItemProductVM>()
+                 .Name("gridItemProduct")
+                 .Columns(columns =>
+                 {
+                     columns.Bound(c => c.ItemProductId).Filterable(false).Hidden();
+                     columns.Bound(c => c.ItemProduct).Title("ItemProduct");
+                     columns.ForeignKey(c => c.ItemCategoryId, (System.Collections.IEnumerable)ViewData["CategoryVD"], "ItemCategoryId", "ItemCategory").Title("ItemCategory");
+                     columns.Command(c => { c.Edit(); c.Destroy(); }).Width(250);
+                 })
+                 .Pageable()
+                 .Sortable()
+                 .Scrollable()
+                 .ToolBar(t => { t.Create(); t.Search(); })
+                 .Search(s => { s.Field(a => a.ItemProduct); })
+                 .Navigatable()
+                 .Editable(e => e.Mode(GridEditMode.InLine))
+                 .HtmlAttributes(new { style = "height:400px;" })
+                 .DataSource(dataSource => dataSource
+                 .Ajax()
+                 .PageSize(20)
+                 .Events(e => e.Error("error_handler"))
+                 .Model(model =>
+                 {
+                     model.Id(m => m.ItemCategoryId);
+                 })
+                 .Read(read => read.Action("ItemProduct_Read", "Procurement"))
+                 .Create(create => create.Action("ItemProduct_Create", "Procurement"))
+                 .Update(update => update.Action("ItemProduct_Update", "Procurement"))
+                 .Destroy(update => update.Action("ItemProduct_Destroy", "Procurement"))
+                 ))
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        var gridElement = $("#gridItemProduct");
+        $(document).ready(function () {
+            resizeGrid();
+
+        })
+
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 120;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridItemProduct").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    </script>
+}
+
+
+

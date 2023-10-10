@@ -1,0 +1,587 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Modifications";
+}
+<style>
+    /*.wizard > .steps > ul > li {
+        width: 33%;
+    }*/
+
+    .content {
+        height: 700px;
+    }
+
+    .wizard > .content > .body {
+        width: 100%;
+        height: 100%;
+        background: white !important;
+        border: 1px solid #d8d8d8;
+    }
+
+    .margin-30 {
+        margin-top: 30px;
+    }
+
+    .label-margin {
+        margin-top: 6px;
+    }
+</style>
+<script src="~/scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Modifications</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Modifications</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row" id="formAdvance">
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("AccNo")
+                @(Html.Kendo()
+                    .NumericTextBox()
+                    .Name("AccNo")
+                    .Min(0)
+                    .Format("###")
+                    .Events(e => e.Change("AccNoChanged"))
+                    .HtmlAttributes(new { @style = "width:100%", required = "required", data_required_msg = "Enter Account Number" })
+                )
+                <span class="k-invalid-msg" data-for="AccNo"></span>
+            </div>
+            <div class="col-md-2 col-sm-4">
+                @Html.Label("Customer Name")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("CustName")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                )
+            </div>
+            <div class="col-md-2 col-sm-4">
+                @Html.Label("InstPrice")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("FName")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                )
+            </div>
+            <div class="col-md-2 col-sm-4">
+                @Html.Label("ActualAdvance")
+                @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("AActualAdvance")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                )
+            </div>
+            <div class="col-md-2 col-sm-4">
+                @Html.Label("Total Price")
+                @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("TotalPrice")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Advance")
+                @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("Advance")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .HtmlAttributes(new { @style = "width:100%", required="required", validationmessage = "Advance is Required" })
+                )
+                <span class="k-invalid-msg" data-for="Advance"></span>
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Previous Balance")
+                @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("PreviousBalance")
+                        .Format("###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Remarks")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("Remarks")
+                    .HtmlAttributes(new { @style = "width:100%", placeholder= "c/o Fla'n DO" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                <button class="k-button margin-30" type="button" onclick="updateAdvance();">
+                    <i class="fas fa-check"></i>&nbsp; UPDATE ADVANCE
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modificator">
+    <div>
+        <h4>Plan Change</h4>
+        <section>
+            <div class="row" id="formPlan">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("SKUId")
+                    <input type="number" min="0" max="999999" class="form-control" id="SKUId" disabled="disabled" name="SKUId" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("SKUName")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("SKUName")
+                    .Enable(false)
+                    .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("New InstPrice")
+                    <input type="number" min="0" max="999999" class="form-control" id="nInstPrice" name="nInstPrice" required="required" validationmessage="New InstPrice is Required" />
+                    <span class="k-invalid-msg" data-for="nInstPrice"></span>
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("New ActualAdvance")
+                    <input type="number" min="0" max="999999" class="form-control" id="nActualAdvance" name="nActualAdvance" required="required" validationmessage="New ActualAdvance is Required" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("New MonthlyInst")
+                    <input type="number" min="0" max="999999" class="form-control" id="nMonthlyInst" name="nMonthlyInst" required="required" validationmessage="New MonthlyInst is Required" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("New Advance")
+                    <input type="number" min="0" max="999999" class="form-control" id="nAdvance" name="nAdvance" required="required" validationmessage="New Advance is Required" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("dAdvance")
+                    <input type="number" min="0" max="999999" class="form-control" id="dAdvance" name="dAdvance" required="required" validationmessage="dAdvance is Required" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("dInst")
+                    <input type="number" min="0" max="999999" class="form-control" id="dInst" name="dInst" required="required" validationmessage="dInst is Required" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("InstPlanId")
+                    <input type="number" min="0" max="999999" class="form-control" id="InstPlanId" name="InstPlanId" required="required" validationmessage="New InstPlanId is Required" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Duration")
+                    <input type="number" min="1" class="form-control" id="Duration" name="Duration" required="required" validationmessage="Duration is Required" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <button class="k-button margin-30" type="button" onclick="updatePlan();">
+                        <i class="fas fa-check"></i>&nbsp; UPDATE PLAN
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    @(Html.Kendo()
+                .Grid<SKUPlanVM>()
+                .Name("gridSKUPlan")
+                .Columns(c =>
+                {
+                    c.Bound(v => v.RowId);
+                    c.Bound(v => v.EffectedDate).Format("{0: dd/MM/yyyy}");
+                    c.Bound(v => v.BasePrice);
+                    c.Bound(v => v.InstPrice);
+                    c.Bound(v => v.Advance);
+                    c.Bound(v => v.Inst);
+                    c.Bound(v => v.Duration);
+                })
+                .Scrollable()
+                .AutoBind(false)
+                .HtmlAttributes(new { style = "height:360px;font-size:12px;" })
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                .Batch(true)
+                .Model(model =>
+                {
+                    model.Id(m => m.RowId);
+                })
+                .Read(read => read.Action("SKUPlan_Read", "Setup").Data("loadPlans"))
+                ))
+                </div>
+            </div>
+
+        </section>
+        <h4>Installment Change</h4>
+        <section>
+            <div class="col-md-12 col-sm-12">
+                @(Html.Kendo()
+                        .Grid<InstDetailVM>()
+                        .Name("gridInstDetail")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.TransId);
+                            columns.Bound(c => c.InstallDate).Format("{0: dd/MM/yyyy}");
+                            columns.Bound(c => c.PreBalance);
+                            columns.Bound(c => c.InstCharges);
+                            columns.Bound(c => c.Discount);
+                            columns.Bound(c => c.Fine);
+                            columns.Bound(c => c.FineType);
+                            columns.Bound(c => c.Balance);
+                            columns.Bound(c => c.RecoveryOff);
+                            columns.Bound(c => c.Remarks);
+                            columns.Command(c => { c.Edit(); }).Width(250);
+                        })
+                        .AutoBind(false)
+                        .Scrollable()
+                        .Editable(e => e.Mode(GridEditMode.InLine))
+                        .HtmlAttributes(new { style = "height:400px;font-size:12px;" })
+                        .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Model(model =>
+                        {
+                            model.Id(m => m.TransId);
+                            model.Field(m => m.TransId).Editable(false);
+                            model.Field(m => m.InstallDate).Editable(false);
+                            model.Field(m => m.PreBalance).Editable(false);
+                            model.Field(m => m.InstCharges);
+                            model.Field(m => m.Discount);
+                            model.Field(m => m.Fine).Editable(false);
+                            model.Field(m => m.FineType).Editable(false);
+                            model.Field(m => m.Balance).Editable(false);
+                            model.Field(m => m.RecoveryOff).Editable(false);
+                            model.Field(m => m.Remarks).Editable(false);
+                        })
+                        .Read(read => read.Action("Installment_Read", "Sale").Data("loadInstallments"))
+                        .Update(read => read.Action("Installment_Update", "Setup").Data("updateInstallment"))
+                        ))
+            </div>
+        </section>
+        <h4>SKU Change</h4>
+        <section>
+            <div class="row" id="formSKU">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Serial")
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Type Serial and Enter" aria-label="Recipient's username" aria-describedby="basic-addon2" name="Serial" id="Serial">
+                        <div class="input-group-append">
+                            <button class="k-button" type="button" onclick="searchSKU();"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("SKUId")
+                    <input type="number" min="0" max="999999" class="form-control" id="SSKUId" name="SSKUId" required="required" validationmessage="SKUId is Required" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("ItemId")
+                    <input type="number" min="0" max="999999" class="form-control" id="ItemId" name="ItemId" readonly="readonly" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("SKUName")
+                    <input type="text" class="form-control" id="SSKUName" name="SSKUName" readonly="readonly" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("ModelId")
+                    <input type="number" min="0" max="999999" class="form-control" id="MModelId" name="MModelId" readonly="readonly" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("PPrice")
+                    <input type="number" min="0" max="999999" class="form-control" id="PPrice" name="PPrice" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("MRP")
+                    <input type="number" min="0" max="999999" class="form-control" id="MRP" name="MRP" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("StatusTitle")
+                    <input type="text" class="form-control" id="StatusTitle" name="StatusTitle" readonly="readonly" />
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <button class="k-button margin-30" type="button" onclick="updateSKU();">
+                        <i class="fas fa-check"></i>&nbsp; UPDATE SKU
+                    </button>
+                </div>
+            </div>
+        </section>
+        <h4>Inquiry / Marketing</h4>
+        <section>
+            <div class="row" id="formIM">
+                <div class="col-1">
+                    @Html.Kendo().RadioButton().Name("role").Label("Marketing").Value("1").Checked(true)
+                    @Html.Kendo().RadioButton().Name("role").Label("Inquiry").Value("2")
+                </div>
+                <div class="col-6">
+                    @Html.Label("Employee")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("EmpId")
+                    .Placeholder("Search Employee")
+                    .DataValueField("EmpId")
+                    .DataTextField("EmpName")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("EmpId").Width("100px");
+                        columns.Add().Field("CNIC").Width("200px");
+                        columns.Add().Field("EmpName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "CNIC", "EmpName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("EmpByRoleLoc", "Sale").Data("getEmployees"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", required= "required", validationmessage = "Please select Employee" })
+                    )
+                </div>
+                <div class="col-md-3">
+                    <button class="k-button margin-30" type="button" onclick="updateIM();">
+                        <i class="fas fa-check"></i>&nbsp; UPDATE
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<script>
+    var form = $("#modificator"); var PlanId = 0; var LocId = 0;
+    $(document).ready(function () {
+        var mySteps = form.children("div").steps({
+            headerTag: "h4",
+            bodyTag: "section",
+            transitionEffect: "slideLeft",
+            autoFocus: true,
+            titleTemplate: '#title#',
+            enablePagination: false,
+            enableAllSteps: true
+        });
+        steps_api = mySteps.data('plugin_Steps');
+    });
+    var advanceForm = $("#formAdvance").kendoValidator().data("kendoValidator");
+    function searchSKU() {
+        var Serial = $("#Serial").val();
+        $.getJSON("/Setup/SKUDetails", { Serial: Serial })
+            .done(function (res) {
+                if (res != null) {
+                    $("#SSKUId").val(res.SKUId);
+                    $("#ItemId").val(res.ItemId);
+                    $("#PPrice").val(res.PPrice);
+                    $("#MRP").val(res.MRP);
+                    $("#SSKUName").val(res.SKU);
+                    $("#MModelId").val(res.Model);
+                    $("#StatusTitle").val(res.Status);
+                }
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                alert('Serial No does not exist');
+            });
+    }
+    function updateSKU() {
+        var skuForm = $("#formSKU").kendoValidator().data("kendoValidator");
+        if (skuForm.validate()) {
+            $.ajax({
+                url: "/Setup/UpdateSKU",
+                type: 'POST',
+                data: {
+                    SKUId: $('#SSKUId').val() || 0,
+                    SerialNo: $('#Serial').val() || 0,
+                    PPrice: $('#PPrice').val(),
+                    MRP: $('#MRP').val(),
+                    ItemId: $('#ItemId').val() || 0,
+                    Remarks: $('#Remarks').val()
+                },
+                success: function (res) {
+                    if (res != null) {
+                        if (res == "ok") {
+                            alert("ok");
+                            location.reload();
+                        }
+                        else {
+                            alert(res);
+                        }
+                    }
+                }
+            });
+        }
+    }
+    function updateInstallment() {
+        return {
+            Accno: $('#AccNo').data("kendoNumericTextBox").value() || 0,
+            Remarks: $("#Remarks").val()
+        }
+    }
+    function filterInspector() {
+        return {
+            LocId: $('#LocId').val(),
+            RoleId: 1
+        }
+    }
+
+    function updateAdvance() {
+        if (advanceForm.validate()) {
+            $.ajax({
+                url: "/Setup/UpdateAdvance",
+                type: 'POST',
+                data: {
+                    Accno: $('#AccNo').data("kendoNumericTextBox").value(),
+                    Advance: $('#Advance').data("kendoNumericTextBox").value(),
+                    Remarks: $('#Remarks').val()
+                },
+                success: function (res) {
+                    if (res != null) {
+                        if (res == "ok") {
+                            alert("ok");
+                            location.reload();
+                        }
+                        else {
+                            alert(res);
+                        }
+                    }
+                }
+            });
+        }
+    }
+    function updatePlan() {
+        var planForm = $("#formPlan").kendoValidator().data("kendoValidator");
+        if (planForm.validate()) {
+            $.ajax({
+                url: "/Setup/UpdatePlan",
+                type: 'POST',
+                data: {
+                    Accno: $('#AccNo').data("kendoNumericTextBox").value(),
+                    InstPrice: $('#nInstPrice').val(),
+                    ActualAdvance: $('#nActualAdvance').val(),
+                    MonthlyInst: $('#nMonthlyInst').val(),
+                    Advance: $('#nAdvance').val(),
+                    dAdvance: $('#dAdvance').val(),
+                    dInst: $('#dInst').val(),
+                    InstPlanId: $('#InstPlanId').val(),
+                    Duration: $('#Duration').val(),
+                    Remarks: $('#Remarks').val()
+                },
+                success: function (res) {
+                    if (res != null) {
+                        if (res == "ok") {
+                            alert("ok");
+                            location.reload();
+                        }
+                        else {
+                            alert(res);
+                        }
+                    }
+                }
+            });
+        }
+    }
+    function AccNoChanged() {
+        var AccNo = $('#AccNo').data("kendoNumericTextBox").value();
+        getSKU(AccNo);
+        if (AccNo > 0) {
+            $.getJSON("/Sale/AccByNo", { AccNo: AccNo })
+                .done(function (data) {
+                    if (data.msg == "OK") {
+                        $('#TotalPrice').data("kendoNumericTextBox").value(data.InstPrice);
+                        $('#AActualAdvance').data("kendoNumericTextBox").value(data.ActualAdvance);
+                        $('#Advance').data("kendoNumericTextBox").value(data.Advance);
+                        $('#PreviousBalance').data("kendoNumericTextBox").value(data.PrevBalance);
+                        $('#Recovery').val(data.Recovery);
+                        $('#AccBranch').val(data.LocName);
+                        $('#CustName').val(data.CustName);
+                        $('#FName').val(data.InstPrice);
+                        LocId = data.LocId;
+                        $('#gridSKUPlan').data('kendoGrid').dataSource.read();
+                        $('#gridInstDetail').data('kendoGrid').dataSource.read();
+                        $('#EmpId').data('kendoMultiColumnComboBox').dataSource.read();
+                        setTimeout(function () {
+                            colorRows(PlanId);
+                        }, 1000);
+                    }
+                    else {
+                        alert(data.msg);
+                        ClearAll();
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Account does not exist');
+                    ClearAll();
+                });
+        }
+
+        
+    }
+    function colorRows(Plan) {
+        var grid = $("#gridSKUPlan").data("kendoGrid");
+        var data = grid.dataSource.data();
+        $.each(data, function (i, r) {
+            var RowId = r.RowId;
+            if (RowId == Plan ) {
+                $('tr[data-uid="' + r.uid + '"] ').css("color", "red");
+            }
+        });
+    }
+    function getSKU(AccNo) {
+        $.getJSON("/Setup/SKUByAccno", { AccNo: AccNo })
+            .done(function (data) {
+                $('#SKUId').val(data.SKUId);
+                $('#SKUName').val(data.SKUName);
+                PlanId = data.InstPlanId;
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                alert('Account does not exist');
+                ClearAll();
+            });
+    }
+    function loadPlans() {
+        return {
+            SKUID: $('#SKUId').val() || 0
+        }
+    }
+    function loadInstallments() {
+        return {
+            AccNo: $('#AccNo').data("kendoNumericTextBox").value()
+        }
+    }
+    function getEmployees() {
+        return {
+            RoleId: $('input[name="role"]:checked').val() || 0,
+            LocId: LocId,
+        }
+    }
+    function updateIM() {
+        var miForm = $("#formIM").kendoValidator().data("kendoValidator");
+        if (miForm.validate()) {
+            $.ajax({
+                url: "/Setup/UpdateMI",
+                type: 'POST',
+                data: {
+                    Accno: $('#AccNo').data("kendoNumericTextBox").value(),
+                    EmpId: $('#EmpId').val() || 0,
+                    Type: $('input[name="role"]:checked').val(),
+                    Remarks: $('#Remarks').val()
+                },
+                success: function (res) {
+                    if (res != null) {
+                        if (res == "ok") {
+                            alert("ok");
+                            location.reload();
+                        }
+                        else {
+                            alert(res);
+                        }
+                    }
+                }
+            });
+        }
+    }
+</script>

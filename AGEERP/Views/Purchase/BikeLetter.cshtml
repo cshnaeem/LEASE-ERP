@@ -1,0 +1,336 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "BikeLetter";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Bike Search</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">Bike Search</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row ">
+
+            <div class="col-3">
+                @Html.Label("Type")
+                @(Html.Kendo()
+                    .DropDownList()
+                    .Name("TypeId")
+                    .OptionLabel("All")
+                    .DataValueField("TypeId")
+                    .DataTextField("Name")
+                    .Filter(FilterType.Contains)
+
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("TypeListByProductId", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Supplier")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("SuppId")
+                .OptionLabel("All Supplier ...")
+                //.SelectedIndex(0)
+                .DataValueField("SuppId")
+                .DataTextField("SuppName")
+                .Filter(FilterType.Contains)
+                //.Suggest(true)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("SupplierByCatList", "Setup").Data("filterSupplier"));
+                })
+                .HtmlAttributes(new { @style = "width:100%;" })
+                )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("DO No")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("DONo")
+                    .HtmlAttributes(new { @style = "width:100%"})
+                    )
+            </div>
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Serial No")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("SerialNo")
+                    .HtmlAttributes(new { @style = "width:100%"})
+                    )
+            </div>
+            <div class="col-md-3 col-sm-4">
+                @Html.Label("Letter Status")
+                @(Html.Kendo().DropDownList()
+                        .Name("LetterStatus")
+                        .SelectedIndex(1)
+                        .BindTo(new List<SelectListItem>() {
+                        new SelectListItem() {
+                        Text = "All",
+                        Value = "2"
+                        },
+                        new SelectListItem() {
+                        Text = "Yes",
+                        Value = "1"
+                        }
+                        ,
+                        new SelectListItem() {
+                        Text = "None",
+                        Value = "0"
+                        }
+                        }).HtmlAttributes(new { @style = "width:100%"}))
+            </div>
+            <div class="col-md-3 col-sm-3">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            @*<div class="col-md-3 col-sm-3">
+                    @Html.Label("SKU")
+                    @(Html.Kendo()
+                        .TextBox()
+                        .Name("SKU")
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                </div>*@
+            <div class="col-md-2 col-sm-2">
+                @Html.Label("Letter Number")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("LetterNumber")
+                    .Value("0")
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            <div class="col-md-2 col-sm-2">
+                @Html.Label("Envelop No")
+                @(Html.Kendo()
+                    .TextBox()
+                    .Name("EnvelopNo")
+                    .Value("0")
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+            </div>
+            @*<div class="col-md-3 col-sm-3">
+                    @Html.Label("Scan SerialNo")
+                    @(Html.Kendo()
+                        .TextBox()
+                        .Name("Serial")
+                        .HtmlAttributes(new { @style = "width:100%", placeholder = "Type & Scan Serial No" })
+                        )
+
+                </div>*@
+            @*<div class="col-md-2 col-sm-2">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="UpdateLetterStatus()">
+                        <i class="fas fa-search"></i>&nbsp; Update
+                    </button>
+                </div>*@
+            @*<div class="col-md-3 col-sm-3">
+                    <br />
+                    <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                        <i class="fas fa-search"></i>&nbsp; Search
+                    </button>
+                </div>*@
+        </div>
+        @*<div class="row">
+
+            </div>*@
+
+        <div class="row">
+            @(Html.Kendo()
+    .Grid<BikeLetterVM>()
+    .Name("BikeLetterSearch")
+    .Columns(columns =>
+    {
+        columns.Command(c => c.Custom("OK").Click("UpdateLetterStatus").Visible("isVis")).Width(90);
+        columns.Bound(c => c.GRNId).Width(130).ClientTemplate("  <a role='button' onclick='GetDoc(#=GRNId#)' class='k-button k-button-icontext k-grid-Print'>Doc</a>");
+        columns.Bound(c => c.LetterStatus).Width(70).Title("LetterStatus").ClientTemplate("#: LetterStatus == true ? 'Yes ': 'None' #");
+        columns.Bound(c => c.GRNNo).Width(130);
+        columns.Bound(c => c.GRNDate).Format("{0: dd/MM/yyyy}").Width(100);
+        columns.Bound(c => c.SKUName).Width(160);
+        columns.Bound(c => c.SerialNo).Width(160);
+        columns.Bound(c => c.TypeName).Width(70).Title("Type Name");
+        columns.Bound(c => c.SuppName).Width(160);
+        columns.Bound(c => c.LocCode).Width(160);
+        columns.Bound(c => c.DONo).Width(70);
+        columns.Bound(c => c.DODate).Format("{0: dd/MM/yyyy}").Width(100);
+
+    })
+    //.Pageable()
+    .Sortable()
+    .Scrollable()
+    .AutoBind(false)
+    .Navigatable()
+    .NoRecords()
+    //.Groupable()
+    .ToolBar(toolbar =>
+    {
+
+    toolbar.Template(@<text>
+                                        <span class="k-textbox k-grid-search k-display-flex"><input autocomplete="off" class="k-input" placeholder="Search..." title="Search..." type="text"><span class="k-input-icon"><span class="k-icon k-i-search"></span></span></span>
+                                        <div class="toolbar">
+                                            <label class="category-label float-left" for="category">Total : <span id="tot"></span></label>
+                                        </div>
+                        </text>);
+})
+    //.Editable(e => e.Mode(GridEditMode.InCell))
+    .Search(s => { s.Field(a => a.GRNNo); s.Field(a => a.SKUName); s.Field(a => a.SerialNo); })
+    .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+    //.Groupable(g => g.Enabled(true))
+    .Events(e => e.DataBound("dBound"))
+
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    //.StringifyDates(false)
+    //.ServerOperation(false)
+    //.PageSize(50)
+    //.Batch(true)
+
+    .Model(model =>
+    {
+        model.Id(m => m.SerialNo);
+    })
+    .Read(read => read.Action("BikeLetter_Read", "Purchase").Data("filterBikeSearch"))
+    //.Create(create => create.Action("BikeLetter_Update", "Purchase").Data("updateGridData"))
+    //.Update(update => update.Action("BikeLetter_Update", "Purchase").Data("updateGridData"))
+    ))
+            @*</div>*@
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Views/Document/_DocView.cshtml")
+<script>
+    function GetDoc(grnId) {
+        //e.preventDefault();
+        //var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        //console.log(dataItem);
+        //window.open("/Document/EDocumentManager?id=" + dataItem.AccNo + "&refobjid=3");
+        $("#DocId").val(grnId);
+        $("#RefObjId").val(4);
+        $("#frmDoc").submit();
+    }
+    function isVis(e) {
+        return !e.LetterStatus;
+    }
+    function filterBikeSearch() {
+        return {
+            TypeId: $('#TypeId').val() || 0,
+            SuppId: $('#SuppId').val() || 0,
+            FromDate: $('#FromDate').val(),
+            ToDate: $('#ToDate').val(),
+            SerialNo: $('#SerialNo').val(),
+            DONo: $('#DONo').val(),
+            LetterStatus: $('#LetterStatus').val()
+        }
+    }
+    function dBound() {
+        $('#tot').text($("#BikeLetterSearch").data("kendoGrid").dataSource.data().length);
+    }
+    function suppCatChange() {
+        $("#SuppId").data("kendoDropDownList").dataSource.read();
+    }
+    function loadGrid() {
+        $("#BikeLetterSearch").data("kendoGrid").dataSource.read();
+    }
+
+
+    function filterSupplier() {
+        return {
+            //CategoryId: $('#SuppCatId').val()
+            CategoryId: 3
+        }
+    }
+
+    //function changeSerial() {
+    //    getitemId();
+    //}
+    var ItemId = 0;
+    function getitemId() {
+        //var isExist = false;
+        var ser = $('#SerialNo').val();
+        if (ser != "") {
+            //var lst = $("#BikeLetterSearch").data("kendoGrid").dataSource.data();
+            //for (var i = 0; i < lst.length; i++) {
+            //    if (ser == lst[i].SerialNo) {
+            //        isExist = true;
+            UpdateLetterStatus();
+            //        break;
+            //    }
+            //}
+            //if (isExist == false) {
+            //    kendo.alert("Serial not found");
+            //}
+        }
+    }
+
+
+    $('#SerialNo').on('keypress', function (e) {
+        if (e.which === 13) {
+
+            $(this).attr("disabled", "disabled");
+            loadGrid();
+            $(this).removeAttr("disabled");
+        }
+    });
+    //function updateGridData() {
+    //    return {
+    //        LetterNumber : $('#LetterNumber').val() || "0",
+    //        EnvelopNo : $('#EnvelopNo').val() || "0"
+    //    }
+    //}
+
+    function UpdateLetterStatus(e) {
+        var row = $(e.currentTarget).closest("tr");
+        var dat = this.dataItem(row);
+        var ser = dat.SerialNo;
+        var letno = $('#LetterNumber').val() || "0";
+        var envno = $('#EnvelopNo').val() || "0";
+        if (ser != "") {
+            $.getJSON("/Purchase/BikeLetter_Update", { SrNo: ser, LetterNumber: letno, EnvelopNo: envno })
+                .done(function (data) {
+                    if (data == "Success") {
+                        loadGrid();
+                        //kendo.alert('Success!');
+                    } else {
+                        kendo.alert(data);
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    kendo.alert(error);
+                });
+        }
+    }
+</script>

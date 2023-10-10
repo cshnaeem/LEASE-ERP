@@ -1,0 +1,100 @@
+﻿
+@{
+    ViewBag.Title = ViewBag.rptTitle;
+}
+@using (Html.BeginForm("RecoveryPerformanceDayWise", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">@ViewBag.rptTitle</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Report</a></li>
+                        <li class="breadcrumb-item active">@ViewBag.rptTitle</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="row">
+
+                <div class="col-md-3">
+                    @Html.Label("Month")
+                    @Html.Kendo().DatePicker().Name("Month").Start(CalendarView.Year).Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("LocationList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                    )
+                </div>
+                <div class="col-md-3">
+
+                    @Html.Label("Category")
+                    @(Html.Kendo().DropDownList().Name("Category")
+                    .BindTo(new List<SelectListItem>
+                    () {
+
+                    new SelectListItem() {
+                    Text = "All",
+                    Value = ""
+                    },
+                    new SelectListItem() {
+                    Text = "Fresh",
+                    Value = "F"
+                    },
+                    new SelectListItem() {
+                    Text = "Regular",
+                    Value = "R"
+                    }
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+}
+<script>
+
+    $(document).ready(function () {
+        //$('#m_17000000').addClass('active');
+        //$('#d_17000000').css("display", "block");
+        //$('#m_17040000').addClass('active');
+        //$('#d_17040000').css("display", "block");
+        //$('#m_17040100').addClass('active');
+        //$('#a_17040100').addClass('active');
+    });
+</script>
+

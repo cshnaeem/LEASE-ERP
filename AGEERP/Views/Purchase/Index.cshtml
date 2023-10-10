@@ -1,0 +1,218 @@
+﻿@model IEnumerable<AGEERP.Models.UserMenuInfo>
+@{
+    ViewBag.Title = "Purchase";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var POStp = Model.Where(it => it.Menu2 == 2).OrderBy(it => it.SortOrder).ToList();
+    var POFrm = Model.Where(it => it.Menu2 == 4).OrderBy(it => it.SortOrder).ToList();
+    var PORpt = Model.Where(it => it.Menu2 == 13).OrderBy(it => it.SortOrder).ToList();
+    var grnFrm = Model.Where(it => it.Menu2 == 5).OrderBy(it => it.SortOrder).ToList();
+    var grnRpt = Model.Where(it => it.Menu2 == 12).OrderBy(it => it.SortOrder).ToList();
+    var excFrm = Model.Where(it => it.Menu2 == 6).OrderBy(it => it.SortOrder).ToList();
+    var excRpt = Model.Where(it => it.Menu2 == 14).OrderBy(it => it.SortOrder).ToList();
+}
+
+<div class="row">
+    @if (POStp.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        PO Setup
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in POStp)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (POFrm.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        PO Forms
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in POFrm)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (PORpt.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        PO Reports
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in PORpt)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (grnFrm.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Purchase Forms
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in grnFrm)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (grnRpt.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Purchase Reports
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in grnRpt)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (excFrm.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Excise Forms
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in excFrm)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (excRpt.Count > 0)
+    {
+        <div class="col-md-4" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Excise Reports
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in excRpt)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    </div>

@@ -1,0 +1,372 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Sales Posting";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">@ViewBag.Title</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">@ViewBag.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("City")
+                    @(Html.Kendo().DropDownList()
+                    .Name("CityId")
+                    //.Placeholder("Select City ...")
+                    .DataValueField("CityId")
+                    .DataTextField("City")
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("loadLoc"))
+                    //.ValuePrimitive(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CityList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    //.Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    //.SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    //.Suggest(true)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("LocationByCityAllList", "Setup").Data("filterCity"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Working Date")
+                    @Html.Kendo().DatePicker().Name("WorkingDate").Value(DateTime.Now.Date.AddDays(-1)).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Sale Type")
+                    @(Html.Kendo().DropDownList()
+                    .Name("TransactionId")
+                    //.Placeholder("Select City ...")
+                    .DataValueField("TransactionTypeId")
+                    .DataTextField("TransactionType")
+                    //.ValuePrimitive(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("SaleTypeList", "Sale"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @*    @Html.Label("Sale Type")
+                        @(Html.Kendo().DropDownList()
+                        .Name("TransactionId")
+                        //.Placeholder("Select City ...")
+                        .DataValueField("TransactionTypeId")
+                        .DataTextField("TransactionType")
+                        //.ValuePrimitive(true)
+                        .DataSource(ds =>
+                        {
+                        ds.Read(read => read.Action("SaleTypeList", "Sale"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )*@
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @*<br />
+                        <button class="k-button margin-10" onclick="loadGrid()">Load Sale Invoices</button>*@
+                </div>
+                <div class="col-md-3 col-sm-4" style="text-align:right">
+                    @*<br />*@
+                    <button class="k-button margin-10" onclick="loadGrid()">Load Vouchers</button>
+                </div>
+                <div class="col-md-3 col-sm-4" style="text-align:right">
+                    @*<br />*@
+                    <button class="k-button margin-10" onclick="SaveDoc()">Post Vouchers</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                @(Html.Kendo()
+                .Grid<SaleForVoucherPostingVM>()
+                .Name("gridSaleForVoucherPosting")
+                .Columns(columns =>
+                {
+                    columns.Select().Width(100);
+                    columns.Bound(c => c.LocId).Hidden();
+                    columns.Bound(c => c.BillNo).HtmlAttributes(new { onclick = "ViewDetail(#:TransId#)" }).ClientFooterTemplate("Total: #=count#");
+                    columns.Bound(c => c.CustName).Title("Customer");
+                    columns.Bound(c => c.CustCellNo).Title("CellNo");
+                    columns.Bound(c => c.SPrice).Title("Price").Format("{0:n0}").ClientFooterTemplate("Total: #=sum#");
+                    columns.Bound(c => c.Discount).Format("{0:n0}");
+                })
+                .Sortable()
+                .PersistSelection()
+                .Scrollable()
+                .AutoBind(false)
+                //.Navigatable()
+                //.Selectable(x => x.Mode(GridSelectionMode.Multiple).Type(GridSelectionType.Row))
+                .HtmlAttributes(new { style = "height:300px;font-size:12px;" })
+                
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                .ServerOperation(false)
+        .Aggregates(aggregates =>
+        {
+            aggregates.Add(p => p.SPrice).Sum();
+            aggregates.Add(p => p.BillNo).Count();
+        })
+                .Model(model =>
+                {
+                    model.Id(m => m.TransId);
+                })
+                .Read(read => read.Action("SalesVoucherPosting_Read", "Account").Data("filterSalesVoucherPosting"))
+                ))
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Views/Report/_Report.cshtml")
+@*<div id="salemodal" class="modal modal-lg">
+        <div class="modal-content">
+            <div id="OrdSch">
+                @(Html.Kendo()
+                    .Grid<SaleByTypeVM>()
+                    .Name("gridSaleByType")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.TransId).Hidden();
+                        columns.Bound(c => c.BillNo);
+                        columns.Bound(c => c.TransactionType).Title("Type");
+                        columns.Bound(c => c.SKUCode).Title("SKU");
+                        columns.Bound(c => c.SerialNo);
+                        columns.Bound(c => c.SPrice).Title("Amount");
+                    })
+                    .Sortable()
+                    //.PersistSelection()
+                    .Scrollable()
+                    .AutoBind(false)
+                    //.Navigatable()
+                    //.Selectable(x => x.Mode(GridSelectionMode.Multiple).Type(GridSelectionType.Row))
+                    .HtmlAttributes(new { style = "height:300px;" })
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Model(model =>
+                    {
+                        model.Id(m => m.TransId);
+                    })
+                    .Read(read => read.Action("SalesByType_Read", "Account").Data("filterSalesByType"))
+                    ))
+            </div>
+        </div>
+
+    </div>*@
+@*<form action="/Report/PrintSlip" method="post" target="_blank" id="rptForm" hidden="hidden">
+        @Html.AntiForgeryToken()
+        @Html.Hidden("rpt")
+        @Html.Hidden("CustId")
+    </form>*@
+<script>
+    $(document).ready(function () {
+        //$('#m_15000000').addClass('active');
+        //$('#d_15000000').css("display", "block");
+        //$('#m_15140000').addClass('active');
+        //$('#a_15140000').addClass('active');
+        resizeGrid();
+    });
+    function loadLoc() {
+        $('#LocId').data('kendoMultiColumnComboBox').dataSource.read();
+    }
+    function ViewDetail(billNo) {
+        //e.preventDefault();
+        //var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        
+        
+        console.log(type);
+        if (type == 1) {
+            $("#rpt").val("CashSale");
+            $("#TransId").val(billNo);
+            $("#rptForm").submit();
+        }
+        else if (type == 7) {
+            $("#rpt").val("DeliverySlip");
+            $("#TransId").val(billNo);
+            $("#rptForm").submit();
+        }
+        else if (type == 9) {
+            $("#rpt").val("Installment");
+            $("#TransId").val(billNo);
+            $("#rptForm").submit();
+        }
+    }
+    //var dat;
+    //function ViewDetailCash(LocId) {
+    //    dat = {
+    //        LocId: LocId,
+    //        WorkingDate: $('#WorkingDate').val(),
+    //        Type: 'Cash'
+    //    };
+    //    console.log(dat);
+    //    $("#gridSaleByType").data("kendoGrid").dataSource.read();
+    //    $('#salemodal').modal('open');
+    //}
+    //function ViewDetailCard(LocId) {
+    //    dat = {
+    //        LocId: LocId,
+    //        WorkingDate: $('#WorkingDate').val(),
+    //        Type: 'Card'
+    //    };
+    //    console.log(dat);
+    //    $("#gridSaleByType").data("kendoGrid").dataSource.read();
+    //    $('#salemodal').modal('open');
+    //}
+    //function ViewDetailCredit(LocId) {
+    //    dat = {
+    //        LocId: LocId,
+    //        WorkingDate: $('#WorkingDate').val(),
+    //        Type: 'Credit'
+    //    };
+    //    console.log(dat);
+    //    $("#gridSaleByType").data("kendoGrid").dataSource.read();
+    //    $('#salemodal').modal('open');
+    //}
+    //function ViewDetailInst(LocId) {
+    //    dat = {
+    //        LocId: LocId,
+    //        WorkingDate: $('#WorkingDate').val(),
+    //        Type: 'Inst'
+    //    };
+    //    console.log(dat);
+    //    $("#gridSaleByType").data("kendoGrid").dataSource.read();
+    //    $('#salemodal').modal('open');
+    //}
+    //function filterSalesByType() {
+    //    return dat;
+    //}
+    function filterSalesVoucherPosting() {
+        return {
+            LocId: $('#LocId').val(),
+            TransTypeId: $('#TransactionId').val(),
+            WorkingDate: $('#WorkingDate').val()
+        }
+    }
+    var type = 0;
+    function loadGrid() {
+        var dat = $('#LocId').val();
+        if (dat > 0) {
+            type = $('#TransactionId').val();
+            $("#gridSaleForVoucherPosting").data("kendoGrid").dataSource.read();
+        }
+    }
+    //function GetDetail() {
+
+    //}
+
+    //function PrintSlip(e) {
+    //    e.preventDefault();
+    //    var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+    //    console.log(dataItem);
+    //    $("#rpt").val("Customer");
+    //    $("#CustId").val(dataItem.CustId);
+    //    $("#rptForm").submit();
+    //}
+    var gridElement = $("#gridSaleForVoucherPosting");
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridSaleForVoucherPosting").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    //function statusChange() {
+    //    var sta = $('#Status').val();
+    //    if (sta == "I") {
+    //        $('#btnAssign').show();
+    //    }
+    //    else {
+    //        $('#btnAssign').hide();
+    //    }
+    //    loadGrid();
+    //}
+    function SaveDoc() {
+        if (confirm("Are you sure?")) {
+            var WorkingDate = $('#WorkingDate').val();
+            var LocId = $('#LocId').val();
+            var TransTypeId = $('#TransactionId').val();
+            var TransLst = $('#gridSaleForVoucherPosting').data('kendoGrid').selectedKeyNames();
+            var dat = { "TransLst": TransLst, "LocId": LocId, "TransTypeId": TransTypeId, "WorkingDate": WorkingDate };
+            if (TransLst.length > 0) {
+                $.ajax({
+                    url: '/Account/SalesVoucherPosting',
+                    type: 'POST',
+                    data: JSON.stringify(dat),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        if (data == true) {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Success");
+                            dia.content("Save Successfully");
+                            dia.open();
+                            loadGrid();
+                        }
+                        else {
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content("Not Save Successfully");
+                            dia.open();
+                        }
+                    },
+                    error: function () {
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content("Not Save Successfully");
+                        dia.open();
+                    }
+                });
+            }
+            else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Validation");
+                dia.content("Please select Locations");
+                dia.open();
+            }
+        }
+    }
+    function filterCity() {
+        return {
+            CityId: $('#CityId').val() || 0
+        }
+    }
+</script>

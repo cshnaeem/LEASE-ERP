@@ -1,0 +1,201 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Cash Transfer";
+}
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Cheque Issue</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">Cheque Issue</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Ajax.BeginForm("Cheque_Add", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+        {
+            @Html.ValidationSummary()
+            <div class="col">
+                <div class="row">
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("A/C Number")
+                        @(Html.Kendo().MultiColumnComboBox()
+                        .Name("AccId")
+                        .DataTextField("Name")
+                        .DataValueField("Id")
+                        .FilterFields(new string[] { "Code", "Name" })
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("Code").Width("200px");
+                            columns.Add().Field("Name").Width("200px");
+                        })
+                        .Suggest(true)
+                        .IgnoreCase(true)
+                        .Filter(FilterType.Contains)
+                        .DataSource(dataSource =>
+                        {
+                            dataSource.Read(read => read.Action("SubCodeBankList", "Account"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%", @required="true" })
+                        )
+                    </div>
+                    <div class="col-md-3">
+                        @Html.Label("Cheque No")
+                        @(Html.Kendo()
+                        .DropDownList()
+                        .Name("ChequeNum")
+                        //.Placeholder("Select Locations ...")
+                        .OptionLabel("Select Cheque No")
+                        .DataValueField("ChequeNo")
+                        .DataTextField("ChequeNo")
+                        //.Suggest(true)
+                        .CascadeFrom("AccId")
+                        .Filter(FilterType.Contains)
+                        .DataSource(ds =>
+                        {
+                        ds.Read(read => read.Action("CheuqeByAccId", "Account").Data("GetAcc")).ServerFiltering(true);
+                        })
+                        .HtmlAttributes(new { @style = "width:100%",@required="true" })
+                        )
+                    </div>
+                    <div class="col-md-3">
+                        @Html.Label("Instrument No")
+                        @Html.Kendo().TextBox().Name("InstrumentNo").HtmlAttributes(new { @style = "width:100%" })
+                     
+                        
+                    </div>
+                    <div class="col-md-3">
+                        @Html.Label("Cheque Type")
+                        @(Html.Kendo()
+                     .DropDownList()
+                     .Name("ChequeType")
+                     .OptionLabel("Select Cheque Type")
+                     .BindTo(SelectListVM.ChequeType)
+                     .HtmlAttributes(new { @style = "width:100%" ,@required="true" })
+                        )
+                    </div>
+                </div>
+              
+                <div class="row">
+                    <div class="col-md-2 col-sm-2">
+                        @Html.Label("Recipient")
+                        @Html.Kendo().TextBox().Name("Recipient").HtmlAttributes(new { @style = "width:100%" ,@required="true" })
+                    </div>
+                    <div class="col-md-2 col-sm-2">
+                        @Html.Label("Cheuqe Date")
+                        @(Html.Kendo().DatePicker()
+                        .Name("ChequeDate")
+                        .HtmlAttributes(new { @style = "width:100%" ,@required="true" }))
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Amount")
+                        @(Html.Kendo().NumericTextBox().Name("Amount")
+                        .HtmlAttributes(new { @style = "width:100%" ,@required="true",@value="0.00" }))
+                    </div>
+                    <div class="col-md-4">
+                        @Html.Label("Remarks")
+                        @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%",@required="true" })
+                    </div>
+                    <div class="col-md-2">
+                        <br />
+                        <button class="k-button margin-10" type="button" onclick="SaveDoc()">
+                            <i class="fas fa-plus "></i>&nbsp; Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        //$('#m_19000000').addClass('active');
+        //$('#d_19000000').css("display", "block");
+        //$('#m_19030000').addClass('active');
+        //$('#a_19030000').addClass('active');
+    });
+    function GetAcc() {
+        return {
+            AccId: $('#AccId').val()
+        }
+    }
+    function SaveDoc() {
+        if (confirm("Are you sure that you want to proceed?")) {
+            kendo.ui.progress($('.card'), true);
+            $('#frm').submit();
+        }
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+
+        if (result == true) {
+            //dia.title("Msg");
+            //dia.content("Save Successfully");
+            //dia.open();
+            
+            $('#InstrumentNo').val('');
+            $('#Remarks').val("");
+
+            $.confirm({
+                title: 'Success!',
+                content: 'Saved Successfully?',
+                type: 'red',
+                typeAnimated: true,
+                icon: 'fas fa-check',
+                buttons: {
+                    Ok: function () {
+                        window.location.href = "/Account/ChequeIssue"
+                    },
+                    Cancel: function () {
+                    }
+                }
+            });
+        }
+        else {
+            var dia = $("#msgBox").data("kendoDialog");
+            dia.title("Error");
+            dia.content("Not Save Successfully");
+            dia.open();
+        }
+    }
+                //function typeChange() {
+                //    var type = $("#Type").val();
+                //    if (type == "S") {
+                //        $(".cashDetail").attr("hidden", "hidden");
+                //        $(".cashLoc").removeAttr("hidden");
+                //    }
+                //    else {
+                //        GetCashDet();
+                //        $(".cashDetail").removeAttr("hidden");
+                //        $(".cashLoc").attr("hidden", "hidden");
+                //    }
+                //}
+
+                //function GetCashDet() {
+                //    var LocId = $('#LocId').val();
+                //    var type = $('#Type').val();
+                //    if (LocId > 0 && type == "H") {
+                //        $.getJSON("/Account/CashDetail?LocId=" + LocId, function (data) {
+                //            if (data != null) {
+                //                $('#CashSale').data('kendoNumericTextBox').value(data.Sale);
+                //                $('#CashSaleReturn').data('kendoNumericTextBox').value(data.SaleReturn);
+                //                $('#Processing').data('kendoNumericTextBox').value(data.Processing);
+                //                $('#Advance').data('kendoNumericTextBox').value(data.Advance);
+                //                $('#Inst').data('kendoNumericTextBox').value(data.Inst);
+                //                $('#CashTransfered').data('kendoNumericTextBox').value(data.TransferedCash);
+                //                $('#CashReceived').data('kendoNumericTextBox').value(data.CashReceived);
+                //                $('#PendingCash').data('kendoNumericTextBox').value(data.PendingCash);
+                //                $('#Total').data('kendoNumericTextBox').value(data.Sale - data.SaleReturn + data.Processing + data.Advance +
+                //                    data.Inst-data.TransferedCash+data.CashReceived+data.PendingCash);
+                //            }
+                //        });
+                //    }
+                //}
+</script>

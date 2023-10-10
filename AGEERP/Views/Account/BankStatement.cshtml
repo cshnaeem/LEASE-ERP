@@ -1,0 +1,439 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Bank Statement";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Bank Statement</h3>
+            <div class="card-tools">
+                @*&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;*@
+                <a style="font-size: 16px;">Deposit Bank vs GL :<b id="depositbk">0</b>&nbsp;&nbsp;|&nbsp;&nbsp;<b id="depositGL">0</b></a>&nbsp;&nbsp;&nbsp;
+                <a style="font-size: 16px;">Payment Bank vs GL :<b id="paymentbk">0</b>&nbsp;&nbsp;|&nbsp;&nbsp;<b id="paymentGL">0</b></a>&nbsp;&nbsp;&nbsp;
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">Bank Statement</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 col-xs-4">
+                @Html.Label("Doc Date")
+                @(Html.Kendo().DatePicker()
+                .Name("DocDate")
+                .HtmlAttributes(new { @style = "width:100%", @required = "true" }))
+            </div>
+            <div class="col-md-4 col-xs-4">
+                @Html.Label("A/C Code")
+                @(Html.Kendo().MultiColumnComboBox()
+                .Name("SubCode")
+                .DataTextField("Name")
+                .DataValueField("Id")
+                .FilterFields(new string[] { "Code", "Name" })
+                .Columns(columns =>
+                {
+                    columns.Add().Field("Code").Width("200px");
+                    columns.Add().Field("Name").Width("200px");
+                })
+                .Suggest(true)
+                .IgnoreCase(true)
+                .Filter(FilterType.Contains)
+                .DataSource(dataSource =>
+                {
+                    dataSource.Read(read => read.Action("SubCodeBankList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+            </div>
+
+            <div class="col-md-4 col-xs-4">
+                <label>Select File to Import</label>
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control importfile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Select File" aria-describedby="basic-addon1">
+                    <div class="input-group-append">
+                        <button class="btn btn-info btnLoadFile k-button" type="button">LOAD FILE</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-4" id="DEmpIdSel">
+                @(Html.Kendo().Grid<FinBRSDetailVM>()
+.Name("GridBankStatement")
+.Columns(columns =>
+{
+columns.Bound(p => p.DocDtlId).Hidden();
+columns.Bound(p => p.TransactionDate).Width(40).Format("{0:dd/MM/yyyy}");
+columns.Bound(p => p.Narration).Width(60);
+columns.Bound(p => p.ChequeNo).Width(100).Title("ChequeNo");
+columns.Bound(p => p.DebitAmount).Width(100).Title("DebitAmount");
+//columns.ForeignKey(c => c.DesgId, (List<DesignationVM>)ViewData["DesgnationsVD"], "DesgId", "DesgName").Title("Designation").Width(100);
+//columns.ForeignKey(c => c.DeptId, (List<DepartmentVM>)ViewData["DepartmentVD"], "DeptId", "DeptName").Title("Department").Width(100);
+columns.Bound(p => p.CreditAmount).Title("CreditAmount").Width(60);
+columns.Bound(p => p.Balance).Title("Balance").Width(60);
+//columns.Bound(p => p.VrDtlId).EditorTemplateName("_BankRecon").Width(60);
+columns.Bound(p => p.Status).Width(60).ClientTemplate("# if(Status) " +
+                                      "{# <div>Verified</div> #} " +
+                                      "else{# <div>Unverified</div> #}#");
+    @*columns.Select().Width(50).HeaderTemplate(@<text>0
+                                    <label></label>
+                        </text>);*@
+
+
+})
+
+
+    .AutoBind(false)
+    .Sortable()
+    .Editable(m => m.Mode(GridEditMode.InCell))
+    .PersistSelection()
+    //.Events(ev => ev.Change("onDatab")/*.DataBound("SelMatched")*/)
+    .Events(e => e.DataBound("setColor"))
+    .Search(s => { s.Field(a => a.ChequeNo); s.Field(a => a.Narration); })
+      .ToolBar(toolbar =>
+      {
+
+      toolbar.Template(@<text>
+
+                    <a class="k-button k-button-icontext k-grid-save-changes" href="javascript:void(0)"><span class="k-icon k-i-check"></span>Save changes</a>
+                    <a class="k-button k-button-icontext k-grid-cancel-changes" href="javascript:void(0)"><span class="k-icon k-i-cancel"></span>Cancel changes</a>
+                    <span class="k-textbox k-grid-search k-display-flex"><input autocomplete="off" class="k-input" placeholder="Search..." title="Search..." type="text"><span class="k-input-icon"><span class="k-icon k-i-search"></span></span></span>
+    </text>);
+      })
+
+.Navigatable()
+.Scrollable()
+
+
+.HtmlAttributes(new { style = "height:400px;" })
+
+.DataSource(dataSource => dataSource
+.Ajax()
+//.PageSize(20)
+//.Batch(true)
+//.Events(e => { e.Change("onDatab"); })
+.Batch(true)
+.Model(model =>
+{
+    model.Id(m => m.DocDtlId);
+    model.Field(m => m.Narration).Editable(false);
+    model.Field(m => m.ChequeNo).Editable(false);
+    model.Field(m => m.DebitAmount).Editable(false);
+    model.Field(m => m.CreditAmount).Editable(false);
+    model.Field(m => m.Balance).Editable(false);
+    model.Field(m => m.Status).Editable(false);
+})
+.ServerOperation(false)
+.Read(read => read.Action("BankStatement_Read", "Account").Data("BankStatmentVals"))
+.Create(read => read.Action("BankStatement_Create", "Account").Data("BankStatmentVals"))
+.Update(read => read.Action("BankStatement_Create", "Account").Data("BankStatmentVals"))
+))
+            </div>
+
+        </div>
+    </div>
+</div>
+<style>
+    .vouc {
+        color: #f00 !important;
+    }
+</style>
+<script type="text/javascript" src="/scripts/xlsx.full.min.js"></script>
+<script type="text/javascript" src="/scripts/jszip.js"></script>
+<script src="~/Scripts/accounting.min.js"></script>
+@section scripts
+{
+    <script type="text/javascript">
+        var gridElement = $("#GridBankStatement");
+            var SelEMps = 0;
+        var lst = [];
+        function setColor(e) {
+            var rows = e.sender.tbody.children();
+            for (var j = 0; j < rows.length; j++) {
+                var row = $(rows[j]);
+                var dataItem = e.sender.dataItem(row);
+                var status = dataItem.get("Status");
+                if (status == false) {
+                    row.addClass("vouc");
+                }
+                else {
+                    row.removeClass("vouc");
+                }
+            }
+            onDatab();
+        }
+        $(document).ready(function () {
+            //resizeGrid();
+            //$('#m_18000000').addClass('active');
+            //$('#d_18000000').css("display", "block");
+            //$('#m_18040000').addClass('active');
+            //$('#a_18040000').addClass('active');
+
+
+        });
+        //function loadVcr() {
+        //    var l = [];
+        //    for (var a = 0; a < lst.length; a++) {
+        //        if (lst[a].TrxSeqId == 0) {
+        //            l.push({ Value: lst[a].VrDtlId, Text: lst[a].Particulars})
+        //        }
+        //    }
+        //    $('#VrDtlId').data('kendoDropDownList').dataSource.data(l);
+        //}
+        $('body').addClass('sidebar-collapse');
+        //function SelMatched() {
+           
+        //    var accId = $('#SubCode').val();
+        //    var vrDate = $('#DocDate').val();
+
+
+        //    $.ajax({
+        //        url: "/Account/GetBankDetail",
+        //        type: 'POST',
+        //        async: false,
+        //        data: JSON.stringify({ "AccId": accId, "vrDate": vrDate }),
+        //        contentType: 'application/json; charset=utf-8',
+        //        success: function (data) {
+        //            if (data != null) {
+        //                lst = data;
+        //            }
+        //        }
+        //    });
+
+        //    var grid = $("#GridBankStatement").data("kendoGrid");
+        //    var rows = grid.items();
+        //    grid.clearSelection();
+
+        //    for (var j = 0; j < rows.length; j++) {
+        //        var row = $(rows[j]);
+        //        var dataItem = grid.dataItem(row);
+        //        var Cr = dataItem.get("CreditAmount");
+        //        var Dr = dataItem.get("DebitAmount");
+        //        var sta = dataItem.get("Status");
+        //        for (var a = 0; a < lst.length; a++) {
+        //            if (lst[a].Cr == Dr && lst[a].Dr == Cr && lst[a].TrxSeqId == 0) {
+        //                grid.select(row);
+                        
+
+        //                $(row).find(".k-checkbox").attr('disabled', true);
+        //            }
+        //        }
+        //    }
+
+
+
+
+        //}
+        function onDatab() {
+            var deposit = 0;
+            var payment = 0;
+          
+            var ls = $("#GridBankStatement").data('kendoGrid').dataSource.data();
+            for (var i = 0; i < ls.length; i++) {
+                if (ls[i].Naration == "Opening Balance") {
+
+                }
+                else if (ls[i].Naration == "Closing Balance") {
+
+                }
+                else /*if (ls[i].Status == true)*/ {
+                    deposit += ls[i].CreditAmount;
+                    payment += ls[i].DebitAmount;
+                }
+            }
+            //debugger;
+            $('#depositbk').text(accounting.formatMoney(deposit, "", 0));
+            $('#paymentbk').text(accounting.formatMoney(payment, "", 0));
+        }
+
+        function BankStatmentVals() {
+            return {
+                AccId: $('#SubCode').val(),
+                DocDate: $('#DocDate').val()
+            }
+        }
+
+        $(".btnLoadFile").click(function () {
+            var fileUpload = $(".importfile")[0];
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+            if (regex.test(fileUpload.value.toLowerCase())) {
+                if (typeof (FileReader) != "undefined") {
+                    var reader = new FileReader();
+                    if (reader.readAsBinaryString) {
+                        reader.onload = function (e) {
+                            ProcessExcel(e.target.result);
+                        };
+                        reader.readAsBinaryString(fileUpload.files[0]);
+                    } else {
+                        reader.onload = function (e) {
+                            var data = "";
+                            var bytes = new Uint8Array(e.target.result);
+                            for (var i = 0; i < bytes.byteLength; i++) {
+                                data += String.fromCharCode(bytes[i]);
+                            }
+                            ProcessExcel(data);
+                        };
+                        reader.readAsArrayBuffer(fileUpload.files[0]);
+                    }
+                } else {
+                    $(".btnLoadFile").html("LOAD FILE");
+                    alert('This browser does not support HTML5.');
+                }
+            } else {
+                $(".btnLoadFile").html("LOAD FILE");
+                alert('Please upload a valid Excel file.');
+            }
+        });
+        function setDirty(e) {
+            console.log(e);
+            var rows = e.sender.tbody.children();
+            for (var j = 0; j < rows.length; j++) {
+                var row = $(rows[j]);
+                var dataItem = e.sender.dataItem(row);
+                dataItem.dirty = true;
+            }
+        }
+        function ProcessExcel(data) {
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+
+            var firstSheet = workbook.SheetNames[0];
+            var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+
+           
+            var accId = $('#SubCode').val();
+            var vrDate = $('#DocDate').val();
+
+
+            $.ajax({
+                url: "/Account/GetBankDetail",
+                type: 'POST',
+                async: false,
+                data: JSON.stringify({ "AccId": accId, "vrDate": vrDate }),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    if (data != null) {
+                        lst = data;
+                    }
+                }
+            });
+
+            var ls = [];
+            for (var i = 0; i < excelRows.length; i++) {
+                var dat = {
+                    DocDtlId: 0,
+                    TransactionDate: typeof excelRows[i]["Transaction Date"] === 'undefined' ? "0" : new Date((excelRows[i]["Transaction Date"]).replace(/(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3")),
+                    Narration: (typeof excelRows[i]["Naration"] === 'undefined' ? "" : excelRows[i]["Naration"]).replace("<", "(").replace(">", ")"),
+                    ChequeNo: (typeof excelRows[i]["Cheque #"] === 'undefined' ? "" : excelRows[i]["Cheque #"]) || "",
+                    DebitAmount: typeof excelRows[i]["Debit Amount"] === 'undefined' ? 0 : parseFloat(excelRows[i]["Debit Amount"]),
+                    CreditAmount: typeof excelRows[i]["Credit Amount"] === 'undefined' ? 0 : parseFloat(excelRows[i]["Credit Amount"]),
+                    Balance: typeof excelRows[i]["Balance"] === 'undefined' ? "" : excelRows[i]["Balance"],
+                    VrDtlId: 0,
+                    Status: false
+                };
+                ls.push(dat);
+            }
+
+            for (var i = 0; i < ls.length; i++) {
+                for (var a = 0; a < lst.length; a++) {
+                    if (Math.round(ls[i].DebitAmount) == lst[a].Cr && Math.round(ls[i].CreditAmount) == lst[a].Dr && lst[a].TrxSeqId == 0) {
+                        ls[i].VrDtlId = lst[a].VrDtlId;
+                        ls[i].Status = true;
+                        lst[a].TrxSeqId = 1;
+                        break;
+                    }
+                }
+            }
+            var deposit = 0;
+            var payment = 0;
+            for (var a = 0; a < lst.length; a++) {
+                deposit += lst[a].Dr;
+                payment += lst[a].Cr;
+            }
+            $('#depositGL').text(accounting.formatMoney(deposit, "", 0));
+            $('#paymentGL').text(accounting.formatMoney(payment, "", 0));
+
+            $("#GridBankStatement").data('kendoGrid').dataSource.data(ls);
+            $("#GridBankStatement").data('kendoGrid').refresh();
+        }
+
+
+
+
+
+        function onRequestEnd(e) {
+            if (e.type == "update" || e.type == "create") {
+                $.confirm({
+                    title: 'Updated Successfully!',
+                    content: '',
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-check',
+                    buttons: {
+                        Ok: function () {
+                            window.location.reload();
+                        }
+                    }
+                });
+
+            }
+        }
+
+
+        //function refreshGrid() {
+        //    var grid = $("#GridBankStatement").data('kendoGrid');
+        //    grid.refresh();
+        //}
+
+
+        //function error_handler(e) {
+        //    console.log(e.errors)
+        //    if (e.errors) {
+        //        var message = "";
+        //        $.each(e.errors,
+        //            function (key, value) {
+        //                if ('Msg' == key) {
+        //                    $.each(value.errors,
+        //                        function () {
+        //                            message += this;
+        //                        });
+        //                } else {
+        //                    $.each(value.errors,
+        //                        function () {
+        //                            message += this;
+        //                        });
+        //                }
+        //            });
+        //        if (message > 0) {
+        //            $.confirm({
+        //                title: 'Saved Successfully!',
+        //                content: '',
+        //                type: 'red',
+        //                typeAnimated: true,
+        //                icon: 'fas fa-check',
+        //                buttons: {
+        //                    Ok: function () {
+        //                        window.location.reload();
+        //                    }
+        //                }
+        //            });
+        //            $("#GridBankStatement").data("kendoGrid").dataSource.read();
+        //        } else {
+        //            var dia = $("#msgBox").data("kendoDialog");
+        //            dia.title("Message");
+        //            dia.content(message);
+        //            dia.open();
+        //            $("#GridBankStatement").data("kendoGrid").dataSource.read();
+        //        }
+        //    }
+        //}
+
+
+    </script>
+
+}
+

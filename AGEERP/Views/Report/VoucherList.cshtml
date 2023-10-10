@@ -1,0 +1,86 @@
+﻿
+@{
+    ViewBag.Title = "VoucherList";
+}
+@using (Html.BeginForm("VoucherList", "Report", FormMethod.Post, new { @target = "print_popup",
+    @onsubmit="window.open('about:blank','print_popup','fullscreen=1,location=0');" }))
+{
+    @Html.AntiForgeryToken()
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Voucher List</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Report</a></li>
+                    <li class="breadcrumb-item active">Voucher List</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                @Html.Label("Fiscal Year")
+                @(Html.Kendo()
+                .DropDownList()
+                .Name("YrCode")
+                .SelectedIndex(0)
+                .DataValueField("YrCode")
+                .DataTextField("YrName")
+                //.Suggest(true)
+                //.Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("FinancialYearList", "Account"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                        )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                @Html.Label("From Date")
+                @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("To Date")
+                @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Voucher Type")
+                @(Html.Kendo()
+                        .DropDownList()
+                        .Name("VrTypeId")
+                        //.SelectedIndex(0)
+                        .DataValueField("VrTypeId")
+                        .DataTextField("VrTypeId")
+                        .Filter(FilterType.Contains)
+                        .OptionLabel("All")
+                        .DataSource(ds =>
+                        {
+                        ds.Read(read => read.Action("VoucherTypeList", "Account"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+            </div>
+            <div class="col-md-3" style="margin-top:16px;">
+                <br />
+                <button class="k-button k-primary" type="submit">
+                    <i class="fas fa-print"></i>&nbsp; Show
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+    }
+    <script>
+        $(document).ready(function () {
+            //$('#m_17000000').addClass('active');
+            //$('#d_17000000').css("display", "block");
+            //$('#m_17030000').addClass('active');
+            //$('#d_17030000').css("display", "block");
+            //$('#m_17030300').addClass('active');
+            //$('#a_17030300').addClass('active');
+        });
+    </script>

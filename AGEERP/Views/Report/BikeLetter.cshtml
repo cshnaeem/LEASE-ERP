@@ -1,0 +1,102 @@
+﻿@{
+    ViewBag.Title = "BikeLetter";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+
+@using (Html.BeginForm("BikeLetter", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Bike Search</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                        <li class="breadcrumb-item active">Bike Search</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row ">
+
+                <div class="col-3">
+                    @Html.Label("Type")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("TypeId")
+                    .OptionLabel("All")
+                    .DataValueField("TypeId")
+                    .DataTextField("Name")
+                    .Filter(FilterType.Contains)
+
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("TypeListByProductId", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                                )
+                </div>
+
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("SuppId")
+                    .OptionLabel("All Supplier ...")
+                    //.SelectedIndex(0)
+                    .DataValueField("SuppId")
+                    .DataTextField("SuppName")
+                    .Filter(FilterType.Contains)
+                    //.Suggest(true)
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("SupplierByCatList", "Setup").Data("filterSupplier"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;" })
+                )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+  
+   
+
+                <div class="col-md-3 col-sm-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-search"></i>&nbsp; Search
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+}
+<script>
+    function filterSupplier() {
+        return {
+
+            CategoryId: 3
+        }
+    }
+
+
+</script>
+

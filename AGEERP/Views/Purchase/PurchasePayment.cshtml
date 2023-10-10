@@ -1,0 +1,312 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Local Purchase Payment";
+}
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Local Purchase Payment</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">Local Purchase Payment</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col s12">
+            @using (Ajax.BeginForm("PurchasePayment", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("Location")
+                        @(Html.Kendo()
+                            .MultiColumnComboBox()
+                        .Name("LocId")
+                        .Placeholder("Select Locations ...")
+                        .DataValueField("LocId")
+                        .DataTextField("LocName")
+                        .Events(e => e.Change("LocationChanged"))
+                        .SelectedIndex(0)
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("LocCode").Width("100px");
+                            columns.Add().Field("LocName").Width("200px");
+                        })
+                        .FilterFields(new string[] { "LocCode", "LocName" })
+                        .Filter(FilterType.Contains)
+                            .DataSource(ds =>
+                            {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                            })
+                            .HtmlAttributes(new { @style = "width:100%", @required = true })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("WorkingDate")
+                        @(Html.Kendo()
+                            .DatePicker()
+                            .Name("WorkingDate")
+                            .Value(ViewBag.WorkingDate)
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("PO No")
+                        @(Html.Kendo().MultiColumnComboBox()
+                              .Name("POInvId")
+                              .Placeholder("Select...")
+                              .DataTextField("InvNo")
+                              .DataValueField("PInvId")
+                              .Columns(columns =>
+                                {
+                                    columns.Add().Field("InvNo").Width("200px");
+                                    columns.Add().Field("Supplier").Width("200px");
+                                })
+                              .Filter(FilterType.Contains)
+                              .Events(e => e.Change("InvoiceChange"))
+                              .FilterFields(new string[] { "InvNo", "Supplier" })
+                              .MinLength(3)
+                              .DataSource(source =>
+                                      {
+                                  source.Read(read =>
+                                  {
+                                      read.Action("InvoiceList", "Purchase").Data("loadInvoices");
+                                  });
+                              })
+                              .HtmlAttributes(new { @style = "width:100%", required = true })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("Supplier")
+                        @(Html.Kendo()
+                            .TextBox()
+                            .Name("Supplier")
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("Total Price")
+                        @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("TotalPrice")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("Previous Balance")
+                        @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("PreviousBalance")
+                            .Format("###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("Amount")
+                        @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("Amount")
+                            .Value(0)
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Events(e => e.Change("AmountChange"))
+                            .HtmlAttributes(new { @style = "width:100%", required = true })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("Discount")
+                        @(Html.Kendo()
+                .NumericTextBox()
+                .Name("Discount")
+                .Format("##,###")
+                .Min(0)
+                .Max(9999999999)
+                 .Value(0)
+                .Events(e => e.Change("AmountChange"))
+                .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("Balance")
+                        @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("Balance")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("PaidBy")
+                        @(Html.Kendo()
+                        .TextBox()
+                        .Name("PaidBy")
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm4">
+                        @Html.Label("Remarks")
+                        @(Html.Kendo()
+                        .TextBox()
+                        .Name("Remarks")
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm4">
+                        <br />
+                        <button id="btnSave" class="k-button margin-10" type="button" onclick="SaveDoc()">
+                            <i class="fas fa-plus"></i>&nbsp; Save
+                        </button>
+                    </div>
+                </div>
+            }
+            <br />
+        </div>
+    </div>
+</div>
+
+<script>
+    //function filterAcc() {
+    //    return {
+    //        AccNo: $('#AccNo').data("kendoNumericTextBox").value()
+    //    }
+    //}
+    $(document).ready(function () {
+        LocationChanged();
+    });
+    function LocationChanged() {
+        $('#POInvId').data('kendoMultiColumnComboBox').dataSource.read();
+    }
+    function loadInvoices() {
+        return {
+            LocId: $('#LocId').val() || 0
+        }
+    }
+    //function filterRecovery() {
+    //    return {
+    //        LocId: $('#LocId').val(),
+    //        DesgId: 111
+    //    }
+    //}
+    function IsValid() {
+        var dia = $("#msgBox").data("kendoDialog");
+        dia.title("Validation");
+        var TotalAmt = parseFloat($('#Amount').val()) + parseFloat($('#Discount').val());
+        debugger;
+
+        var cust = $('#POInvId').data('kendoMultiColumnComboBox').value() || 0;
+        if (cust <= 0) {
+            dia.content("Please Select Invoice");
+            dia.open();
+            return false;
+        } else if (TotalAmt <= 0) {
+            dia.content("Please Enter Amount");
+            dia.open();
+            return false;
+        } else if (TotalAmt > parseFloat($('#PreviousBalance').val())) {
+            dia.content("Amount should not be greater than Previous Balance");
+            dia.open();
+            return false;
+        }
+        return true;
+    }
+    function filterBranches() {
+        return {
+            CityLst: $('#CCtyLst').val()
+        }
+    }
+    function SaveDoc() {
+        if (IsValid() == true) {
+            $.confirm({
+                title: 'Confirmation!',
+                content: 'Are you sure that you want to proceed?',
+                type: 'red',
+                typeAnimated: true,
+                icon: 'fas fa-check',
+                buttons: {
+                    Save: function () {
+                        kendo.ui.progress($('.card'), true);
+
+                        $('#frm').submit();
+                    },
+                    Cancel: function () {
+                    }
+                }
+            });
+        }
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+        if (result.TransId > 0) {
+            dia.title("Msg");
+            dia.content("Saved Successfully. " + result.TransId);
+            dia.open();
+            ClearAll();
+        }
+        else {
+            dia.title("Error");
+            dia.content("Failed to Save");
+            dia.open();
+        }
+    }
+    function InvoiceChange() {
+        var POInv = $('#POInvId').data("kendoMultiColumnComboBox").dataItem();
+        console.log(POInv);
+        if (POInv.PInvId > 0) {
+            $('#Supplier').val(POInv.Supplier);
+            $.getJSON("/Purchase/GetInvDetails", { POInvId: POInv.PInvId })
+                .done(function (data) {
+                    if (data != null) {
+                        $('#TotalPrice').data("kendoNumericTextBox").value(data.Payment);
+                        $('#PreviousBalance').data("kendoNumericTextBox").value(data.PreBalance);
+                        AmountChange();
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Invoice does not exist');
+                    ClearAll();
+                });
+        }
+    }
+    function ClearAll() {
+        $('#TotalPrice').data("kendoNumericTextBox").value(0);
+        //$('#Advance').data("kendoNumericTextBox").value(0);
+        $('#PreviousBalance').data("kendoNumericTextBox").value(0);
+        $('#Amount').data("kendoNumericTextBox").value(0);
+        $('#Discount').data("kendoNumericTextBox").value(0);
+        $('#Balance').data("kendoNumericTextBox").value(0);
+        $('#Supplier').val("");
+        $('#Remarks').val("");
+        $('#POInvId').val("");
+    }
+    function AmountChange() {
+        var PreviousBalance = $('#PreviousBalance').data("kendoNumericTextBox").value();
+        var Amount = $('#Amount').data("kendoNumericTextBox").value();
+        var Discount = $('#Discount').data("kendoNumericTextBox").value();
+        $('#Balance').data("kendoNumericTextBox").value(PreviousBalance - (Amount + Discount));
+    }
+
+</script>

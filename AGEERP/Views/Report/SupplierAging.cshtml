@@ -1,0 +1,118 @@
+﻿
+@{
+    ViewBag.Title = "Supplier Aging";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using (Html.BeginForm("SupplierAging", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Supplier Aging</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Report</a></li>
+                        <li class="breadcrumb-item active">Supplier Aging</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="row">
+                <div class="col-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+
+                </div>
+                <div class="col-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+
+                </div>
+                <div class="col-3">
+                    @Html.Label("Category")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CatId")
+                    //.OptionLabel("All")
+                    .DataValueField("CategoryId")
+                    .DataTextField("CategoryTitle")
+                    .SelectedIndex(0)
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("loadSupplier").DataBound("loadSupplier"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("SuppliersCatList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-3">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("SuppId")
+                    .OptionLabel("Select Supplier")
+                    .DataValueField("SuppId")
+                    .DataTextField("SuppName")
+                    .Filter(FilterType.Contains)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("SupplierByCatList", "Setup").Data("filterSupplier"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;" })
+                    )
+                </div>
+
+                <div class="col-3">
+                    @Html.Label("Type")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("Type")
+                    .SelectedIndex(0)
+                    .BindTo(new List<SelectListItem>()
+                    {
+                        new SelectListItem{Text = "GRN Base",Value = "G"},
+                        new SelectListItem{Text = "DO Base",Value = "D"},
+                    })
+                    .HtmlAttributes(new { @style = "width:100%"})
+                    )
+                </div>
+
+                <div class="col-9">
+                    <br /><br />
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Detail Report").Value("1").Checked(true)
+                    @Html.Kendo().RadioButton().Name("rpt").Label("Summary Report").Value("2")
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+}
+<script>
+    function filterSupplier() {
+        return {
+            CategoryId: $('#CatId').val() || 0
+        }
+    }
+    function loadSupplier() {
+        $('#SuppId').data('kendoDropDownList').dataSource.read();
+    }
+</script>
+
+
+
+

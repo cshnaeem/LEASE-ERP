@@ -1,0 +1,224 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "PaymentAdvice";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Payment Advice</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Account">Account</a></li>
+                    <li class="breadcrumb-item active">Payment Advice</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 col-sm-4">
+                <br />
+                @Html.Kendo().RadioButton().Name("Reg").Label("Registered").Checked(true).Value("R")
+                @Html.Kendo().RadioButton().Name("Reg").Label("Non Registered").Checked(false).Value("U")
+            </div>
+                <div class="col-md-6 col-sm-6">
+                    @Html.Label("A/C")
+                    @(Html.Kendo()
+                        .MultiColumnComboBox()
+                        .Name("Code")
+                        .Placeholder("Select COA ...")
+                        //.SelectedIndex(0)
+                        .DataValueField("Id")
+                        .DataTextField("Name")
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("Code").Width("150px");
+                            columns.Add().Field("Name").Width("350px");
+                        })
+                        //.Suggest(true)
+                        //.Filter(FilterType.Contains)
+                        //.FilterFields(new string[] { "Code", "Name" })
+                        //.MinLength(3)
+                        //.Events(e => e.Change("loadGrid"))
+                        //.AutoBind(false)
+                        .BindTo(ViewBag.COA4)
+                        //.DataSource(ds =>
+                        //{
+                        //    ds.Read(read => read.Action("SubCodeList", "Account").Data("filterSubCode"))
+                        //    .ServerFiltering(true);
+                        //})
+                        //.IgnoreCase(true)
+                        .HtmlAttributes(new { @style = "width:100%;", @required = true })
+                        )
+                </div>
+            @*<div class="col-md-3">
+
+
+            </div>*@
+            <div class="col-md-4 col-sm-4" align="right">
+                <br />
+                <button class="k-button margin-10" type="button" onclick="filterGrid()">
+                    <i class="fas fa-search"></i>&nbsp; FILTER SELECTED
+                </button>
+                <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                    <i class="fas fa-search"></i>&nbsp; Search
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                @Html.Label("PaymentAdviceDetail")
+                @(Html.Kendo()
+                .Grid<PaymentAdviceDetailVM>()
+                .Name("gridPaymentAdviceDetail")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.AdviceDtlID).Hidden();
+                    columns.Select().Width(50);
+                    columns.Bound(c => c.SubCode).Width(130);
+                    columns.Bound(c => c.SubCodeDesc).Width(200);
+                    columns.Bound(c => c.Supplier).Width(200);
+                    columns.Bound(c => c.ChequeName).Width(200);
+                    columns.Bound(c => c.ChequeNo);
+                    columns.Bound(c => c.LedgerClosingBal);
+                    columns.Bound(c => c.PaymentAmount);
+                    columns.Bound(c => c.TaxRate);
+                    columns.Bound(c => c.TaxAmount);
+                    columns.Bound(c => c.MergeValue);
+                    columns.Bound(c => c.CheqValue);
+                    columns.Command(c => { c.Destroy(); });
+                })
+                //.Pageable()
+                //.Sortable()
+                .Scrollable()
+                .AutoBind(false)
+                .Navigatable()
+                .PersistSelection()
+                .ToolBar(t => t.Save())
+                .Editable(e => e.Mode(GridEditMode.InCell))
+                .HtmlAttributes(new { style = "height:300px;font-size:12px;" })
+                .Events(e => e.Edit("OnProductChange"))
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                //.PageSize(20)
+                .Batch(true)
+                .Events(e => e.Error("error_handler").Change("OnAmountChange"))
+                .Model(model =>
+                {
+                    model.Id(m => m.AdviceDtlID);
+                    model.Field(m => m.SubCode).Editable(false);
+                    model.Field(m => m.SubCodeDesc).Editable(false);
+                    model.Field(m => m.ChequeName).Editable(false);
+                    model.Field(m => m.LedgerClosingBal).Editable(false);
+                    model.Field(m => m.TaxRate);
+                    model.Field(m => m.TaxAmount);
+                    model.Field(m => m.PaymentAmount);
+                    model.Field(m => m.CheqValue);
+                })
+                .Read(read => read.Action("PaymentAdvice_Read", "Account").Data("filterPaymentAdvice"))
+                .Create(create => create.Action("PaymentAdvice_Create", "Account").Data("filterPaymentAdvice"))
+                .Update(update => update.Action("OrderPlan_Update", "Account").Data("filterPaymentAdvice"))
+                ))
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.modal').modal();
+        //$('#m_15000000').addClass('active');
+        //$('#d_15000000').css("display", "block");
+        //$('#m_15080000').addClass('active');
+        //$('#a_15080000').addClass('active');
+        resizeGrid();
+    });
+    function filterPaymentAdvice() {
+        return {
+            Reg: $('input[name=Reg]:checked').val() == "R" ? true : false,
+            $('#Code').val()
+        }
+    }
+    function filterGrid() {
+        var grid = $("#gridPaymentAdviceDetail").data("kendoGrid");
+        var rows = grid.select();
+        var newData = [];
+        rows.each(function () {
+            var dataItem = grid.dataItem(this);
+            console.log(dataItem);
+            newData.push(dataItem);
+        });
+        grid.dataSource.data(newData);
+    }
+    function loadGrid() {
+        $('#gridPaymentAdviceDetail').data('kendoGrid').dataSource.read();
+    }
+    function OnAmountChange(e) {
+        console.log(e);
+        if (e.action === "itemchange") {
+            if (e.field === "PaymentAmount") {
+                var model = e.items[0];
+                if (model.PaymentAmount > model.LedgerClosingBal) {
+                    model.set("PaymentAmount", model.LedgerClosingBal);
+                }
+
+                model.set("TaxAmount", model.PaymentAmount * (model.TaxRate / 100));
+                model.set("CheqValue", model.PaymentAmount - model.TaxAmount);
+            }
+        }
+    }
+    function OnProductChange(e) {
+        var cur = this.columns[this.cellIndex(e.container)].field;
+        if (cur === "TaxAmount" || cur === "TaxRate" || cur === "CheqValue") {
+            this.closeCell();
+        }
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message.indexOf("Server Error") > -1) {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Success");
+                dia.content(message);
+                dia.open();
+                $("#gridPaymentAdviceDetail").data("kendoGrid").dataSource.data([]);
+            }
+        }
+    }
+    var gridElement = $("#gridPaymentAdviceDetail");
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridPaymentAdviceDetail").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+</script>

@@ -1,0 +1,339 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Account Search";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Account Search</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">Account Search</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-sm-12">
+            <div class="card card-primary card-outline card-outline-tabs">
+                <div class="card-header p-0 border-bottom-0">
+                    <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="custom-tabs-three-home-tab" data-toggle="pill" href="#custom-tabs-three-home" role="tab" aria-controls="custom-tabs-three-home" aria-selected="true"><i class="fas fa-user ml-2"></i>&nbsp; Account Search &nbsp;</a>
+                        </li>
+                        @*<li class="nav-item">
+                                <a class="nav-link" id="custom-tabs-three-profile-tab" data-toggle="pill" href="#custom-tabs-three-profile" role="tab" aria-controls="custom-tabs-three-profile" aria-selected="false"><i class="fas fa-graduation-cap"></i>&nbsp; All Branches CNIC Search</a>
+                            </li>*@
+                        <li class="nav-item">
+                            <a class="nav-link" id="custom-tabs-three-profile-tab" data-toggle="pill" href="#custom-tabs-three-profile" role="tab" aria-controls="custom-tabs-three-profile" aria-selected="false"> <i class="fas fa-users ml-2"></i>&nbsp; Advance Search &nbsp;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="custom-tabs-three-tabContent">
+                        <div class="tab-pane fade active show" id="custom-tabs-three-home" role="tabpanel" aria-labelledby="custom-tabs-three-home-tab">
+
+                            <div class="row">
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Location")
+                                    @(Html.Kendo()
+                                    .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.DataBound("LocationBound"))
+                                    .DataSource(ds =>
+                                    {
+                                    ds.Read(read => read.Action("LocationList", "Setup"));
+                                    })
+                                    .HtmlAttributes(new { @style = "width:100%" })
+                                    )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Search By")
+                                    @(Html.Kendo()
+                                    .ComboBox()
+                                    .Name("Crit1")
+                                    .Placeholder("Search By")
+                                    //.SelectedIndex(0)
+                                    .DataValueField("RowId")
+                                    .DataTextField("Title")
+                                    .Suggest(true)
+                                    .Filter(FilterType.Contains)
+                                    .DataSource(ds =>
+                                    {
+                                    ds.Read(read => read.Action("SearchCriteria", "Sale"));
+                                    })
+                                    .HtmlAttributes(new { @style = "width:100%" })
+                                    )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Search")
+                                    @(Html.Kendo()
+                                    .TextBox()
+                                    .Name("CritVal1")
+                                    .HtmlAttributes(new { @style = "width:100%" })
+                                    )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    <br />
+                                    <button class="k-button margin-10" type="button" onclick="loadGrid()">
+                                        <i class="fas fa-search"></i>&nbsp; Search
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Search By")
+                                    @(Html.Kendo()
+                                    .ComboBox()
+                                    .Name("Crit2")
+                                    .Placeholder("Search By")
+                                    //.SelectedIndex(0)
+                                    .DataValueField("RowId")
+                                    .DataTextField("Title")
+                                    .Suggest(true)
+                                    .Filter(FilterType.Contains)
+                                    .DataSource(ds =>
+                                    {
+                                    ds.Read(read => read.Action("SearchCriteria", "Sale"));
+                                    })
+                                    .HtmlAttributes(new { @style = "width:100%" })
+                                    )
+                                </div>
+                                <div class="col-md-3 col-sm-4">
+                                    @Html.Label("Search")
+                                    @(Html.Kendo()
+                                    .TextBox()
+                                    .Name("CritVal2")
+                                    .HtmlAttributes(new { @style = "width:100%" })
+                                    )
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    @(Html.Kendo()
+                                .Grid<AccountSearchVM>()
+                                .Name("gridAccountSearch")
+                                .Columns(columns =>
+                                {
+                                    if (ViewBag.IsInstRight)
+                                    {
+                                        columns.Bound(c => c.Status).Title("").ClientTemplate("# if(Status == 'Open') " +
+                                          "{# <div><a class='k-button' target='_blank'  href='/Sale/Installment/#=AccNo#'>Installment</a></div> #}#").Width(110).Locked();
+
+                                    }
+                                    columns.Command(c => c.Custom("Doc").Click("GetDoc")).Width(80).Locked();
+                                    columns.Command(c => c.Custom("Print").Click("PrintSlip")).Width(80).Locked();
+                                    columns.Bound(c => c.AccNo).ClientTemplate("<a style='color:red;cursor:pointer;' onclick=\"PrintInvoice('#=AccNo#')\">#=AccNo#</a>").Width(80);
+                                    columns.Bound(c => c.DeliveryDate).Format("{0: dd/MM/yyyy}").Width(90);
+                                    columns.Bound(c => c.Customer).Width(110);
+                                    columns.Bound(c => c.FName).Width(110);
+                                    columns.Bound(c => c.Mobile1).Width(110);
+                                    columns.Bound(c => c.NIC).ClientTemplate("<a style='color:blue;cursor:pointer;' onclick=\"NICClick('#=NIC#')\">#=NIC#</a>").Width(120);
+                                    columns.Bound(c => c.MonthlyInst).Title("Inst").Width(80);
+                                    columns.Bound(c => c.InstPrice).Width(90);
+                                    columns.Bound(c => c.Status).Width(80);
+                                    columns.Bound(c => c.Product).Width(120);
+                                    columns.Bound(c => c.SKU).Width(120);
+                                    //columns.Command(c => c.Custom("Print Invoice").Click("PrintInvoice")).Width(100);
+                                })
+                                .Sortable()
+                                .Scrollable()
+                                .Pageable()
+                                .AutoBind(false)
+                                .Navigatable()
+                                .HtmlAttributes(new { style = "font-size:12px;height:500px;" })
+                                .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(20)
+                                .Model(model =>
+                                {
+                                    model.Id(m => m.AccNo);
+                                    model.Field(c => c.AccNo).Editable(false);
+                                    model.Field(c => c.DeliveryDate).Editable(false);
+                                    model.Field(c => c.Customer).Editable(false);
+                                    model.Field(c => c.FName).Editable(false);
+                                    model.Field(c => c.Mobile1).Editable(false);
+                                    model.Field(c => c.NIC).Editable(false);
+                                    model.Field(c => c.MonthlyInst).Editable(false);
+                                    model.Field(c => c.InstPrice).Editable(false);
+                                    model.Field(c => c.Status).Editable(false);
+                                    model.Field(c => c.Product).Editable(false);
+                                    model.Field(c => c.SKU).Editable(false);
+                                    model.Field(c => c.Company).Editable(false);
+                                })
+                                .Read(read => read.Action("AccountSearch_Read", "Sale").Data("filterAccountSearch"))
+                                ))
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="tab-pane fade" id="custom-tabs-three-profile" role="tabpanel" aria-labelledby="custom-tabs-three-profile-tab">
+                                <div class="row">
+                                    <div class="col-md-3 col-sm-4">
+                                        @Html.Label("CNIC")
+                                        @(Html.Kendo()
+                                        .MaskedTextBox()
+                                        .Name("CNIC")
+                                        .Mask("00000-0000000-0")
+                                        .HtmlAttributes(new { @style = "width:100%",required = "required" })
+                                        )
+                                    </div>
+                                    <div class="col-md-3 col-sm-4">
+                                        <br />
+                                        <button class="k-button margin-10" type="button" onclick="loadNICGrid()">
+                                            <i class="fas fa-search"></i>&nbsp; Search
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>*@
+                        <div class="tab-pane fade" id="custom-tabs-three-profile" role="tabpanel" aria-labelledby="custom-tabs-three-profile-tab">
+                            @Html.Partial("~/Views/Sale/_AccountSearch.cshtml")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div hidden="hidden">@Html.Partial("~/Views/Report/_CReport.cshtml")</div>
+<div hidden="hidden">@Html.Partial("~/Views/Document/_Doc.cshtml")</div>
+<div hidden="hidden">@Html.Partial("~/Views/Report/_Report.cshtml")</div>
+
+<script>
+    $(document).ready(function () {
+        //$('#m_14000000').addClass('active');
+        //$('#d_14000000').css("display", "block");
+        //$('#m_14030000').addClass('active');
+        //$('#d_14030000').css("display", "block");
+        //$('#m_14030500').addClass('active');
+        //$('#a_14030500').addClass('active');
+    });
+    $('body').addClass('sidebar-collapse');
+    function LocationBound() {
+        $('#RecoveryId').data('kendoDropDownList').dataSource.read();
+    }
+    function filterAccountSearch() {
+        return {
+            LocId: $('#LocId').val() || 0,
+            Crit1: $('#Crit1').val() || 0,
+            CritVal1: $('#CritVal1').val(),
+            Crit2: $('#Crit2').val() || 0,
+            CritVal2: $('#CritVal2').val()
+        }
+    }
+    //function keyd(e) {
+    //    var keycode = (e.keyCode ? e.keyCode : e.which);
+    //    if (keycode == '13') {
+    //        loadGrid();
+    //        return false;
+    //    }
+    //}
+    $("#CritVal1").on('keydown', function (e) {
+        if (e.which == 13) {
+            loadGrid();
+            return false;
+        }
+    });
+    $("#CritVal2").on('keydown', function (e) {
+        if (e.which == 13) {
+            loadGrid();
+            return false;
+        }
+    });
+
+    function loadGrid() {
+        var dat = filterAccountSearch();
+        if (dat.LocId > 0) {
+            if (dat.Crit1 > 0 && dat.CritVal1 == "") {
+                $('#CritVal1').val("");
+                return;
+            }
+            else if (dat.Crit2 > 0 && dat.CritVal2 == "") {
+                $('#CritVal2').val("");
+                return;
+            }
+            else {
+                $("#gridAccountSearch").data("kendoGrid").dataSource.read();
+            }
+        }
+    }
+    //function loadNICGrid() {
+    //    var nic = $('#CNIC').val();
+    //    $('#LocId').val(0);
+    //    //$('#Crit1').val("");
+    //    $('#CritVal1').val(nic);
+    //    //$('#Crit2').val("");
+    //    //$('#CritVal2').val("");
+
+    //    //var dat = filterAccountSearch();
+    //    //if (dat.LocId > 0) {
+    //    //    if (dat.Crit1 > 0 && dat.CritVal1 == "") {
+    //    //        return;
+    //    //    }
+    //    //    else if (dat.Crit2 > 0 && dat.CritVal2 == "") {
+    //    //        return;
+    //    //    }
+    //    //    else {
+    //    $("#gridAccountSearch").data("kendoGrid").dataSource.read();
+    //    //    }
+    //    //}
+    //}
+    function NICClick(nic) {
+        $('#Crit1').data('kendoComboBox').value(74);
+        $('#CritVal1').val(nic);
+        $('#Crit2').val("");
+        $('#CritVal2').val("");
+        loadGrid();
+    }
+    function GuarantorDetail(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        console.log(dataItem);
+        window.open('/Sale/Guarantor/' + dataItem.AccNo, '_blank');
+    }
+    function PrintSlip(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#rptC").val("Customer");
+        $("#TransIdC").val(dataItem.AccNo);
+        $("#rptCForm").submit();
+    }
+
+    function PrintInvoice(e) {
+        //e.preventDefault();
+        //var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        //console.log(dataItem);
+        $("#rpt").val("DeliverySlip");
+        $("#TransId").val(e);
+        $("#rptForm").submit();
+    }
+    function GetDoc(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#DocId").val(dataItem.AccNo);
+        $("#RefObjId").val(3);
+        $("#frmDoc").submit();
+    }
+
+</script>
+@section scripts{
+    <iframe hidden="hidden" src="" id="pdfPage" onload="printt()" />
+}

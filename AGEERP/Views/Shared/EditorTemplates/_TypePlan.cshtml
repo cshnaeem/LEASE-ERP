@@ -1,0 +1,89 @@
+﻿@model AGEERP.Models.TypePlanVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 800px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.PolicyId)
+
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("Title")
+        @(Html.Kendo().TextBoxFor(x => x.Title).HtmlAttributes(new { @style = "width:100%", @maxlength = "50", required = "true" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("EffectiveDate")
+        @(Html.Kendo().DatePickerFor(x => x.EffectiveDate).Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("EndDate")
+        @(Html.Kendo().DatePickerFor(x => x.EndDate).HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Duration")
+        @(Html.Kendo().NumericTextBoxFor(x => x.Duration).HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("MinAdvance")
+        @(Html.Kendo().NumericTextBoxFor(x => x.MinAdvance).HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("MaxAdvance")
+        @(Html.Kendo().NumericTextBoxFor(x => x.MaxAdvance).HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("MarkUp")
+        @(Html.Kendo().NumericTextBoxFor(x => x.MarkUp).HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Is Local")<br />
+        @(Html.Kendo().CheckBoxFor(x => x.IsLocal))
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Reg Fee")
+        @(Html.Kendo().NumericTextBoxFor(x => x.RegFee).HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+</div>
+
+    <div class="row">
+        <div class="col-md-6">
+            @Html.Label("Location")
+            @(Html.Kendo().MultiSelectFor(x => x.Loc)
+                               .Placeholder("Select Location ...")
+                               .DataValueField("LocId")
+                               .DataTextField("LocCode")
+                               .ValuePrimitive(true)
+                               .Filter("contains")
+                               .DataSource(ds =>
+                               {
+                                   ds.Read(read => read.Action("LocationByType", "Setup").Data("filerLocation"));
+                               })
+                               .HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+        <div class="col-md-6">
+            @Html.Label("Type")
+            @(Html.Kendo().MultiSelectFor(x => x.Type)
+            .Placeholder("Select Type ...")
+            .DataValueField("TypeId")
+            .DataTextField("Name")
+            .ValuePrimitive(true)
+            .Filter("contains")
+            .DataSource(ds =>
+            {
+                ds.Read(read => read.Action("TypesList", "Setup"));
+            })
+            .HtmlAttributes(new { @style = "width:100%" }))
+        </div>
+
+    </div>
+    <div class="row" style="height:200px;">
+
+    </div>
+}

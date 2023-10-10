@@ -1,0 +1,70 @@
+﻿@{
+    ViewBag.Title = "CashPaymentReport";
+}
+@using (Html.BeginForm("CashPaymentReport", "Report", FormMethod.Post, new { target = "_blank" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Cash Payment Report</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Reports</a></li>
+                        <li class="breadcrumb-item active">Cash Payment Report</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Cash Collection Center")
+                    @(Html.Kendo().DropDownList()
+                .Name("LocId")
+                //.OptionLabel("All")
+                .SelectedIndex(0)
+                .DataValueField("LocId")
+                .DataTextField("LocName")
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("CashCollectionCenterList", "Cash"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <br />
+                    <button class="k-button margin-10" type="submit">
+                        <i class="fas fa-print"></i>&nbsp; Show
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+}
+<script>
+
+    $(document).ready(function () {
+        //$('#m_17000000').addClass('active');
+        //$('#d_17000000').css("display", "block");
+        //$('#m_17040000').addClass('active');
+        //$('#d_17040000').css("display", "block");
+        //$('#m_17040100').addClass('active');
+        //$('#a_17040100').addClass('active');
+    });
+</script>

@@ -1,0 +1,70 @@
+﻿@using AGEERP.Models
+@model AGEERP.Models.BasicSalarySlabVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 900px;
+    }
+</style>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.SlabId)
+
+    <div class="row">
+        <div class="col m4 s4">
+            @Html.Label("Slab Title")
+            @Html.TextBox("SlabTitle", "", new { placeholder = "Enter Slab Title", @class = "form-control" })
+            <span class="k-invalid-msg" data-for="SlabTitle"></span>
+        </div>
+        <div class="col m4 s4">
+            @Html.Label("Salary Status")
+            @(Html.Kendo().DropDownListFor(m => m.Status)
+            .Name("Status")
+            .BindTo(ViewBag.Status)
+            .OptionLabel("Select Status")
+            .HtmlAttributes(new { style = "width: 100%", required = "required", validationmessage = "Please select Status" })
+            )
+            <span class="k-invalid-msg" data-for="Status"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            @(Html.Kendo()
+            .Grid<BasicSalarySlabDtlVM>()
+            .Name("gridEmployeeSlabDtl")
+            .Columns(columns =>
+            {
+                                columns.Bound(c => c.TransId).Hidden();
+                                columns.Bound(c => c.SlabId).Hidden();
+                                columns.Bound(c => c.SlabStart).Title("Slab Start");
+                                columns.Bound(c => c.SlabEnd).Title("Slab End");
+                                columns.Bound(c => c.BasicSalary).Title("Basic Salary");
+            })
+            .Scrollable()
+            .AutoBind(true)
+            .Navigatable()
+            .ToolBar(t => { t.Save(); })
+            .Editable(e => e.Mode(GridEditMode.InCell))
+            .HtmlAttributes(new { style = "height:300px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .Batch(true)
+            .Model(model =>
+            {
+                            model.Id(m => m.TransId);
+                                model.Id(m => m.SlabId);
+                                model.Id(m => m.SlabStart);
+                                model.Id(m => m.SlabEnd);
+                                model.Id(m => m.BasicSalary);
+            })
+            .Read(read => read.Action("EmployeeBasicSalarySlabDtl_Read", "Employee").Data("GetSlabId"))
+            .Create(update => update.Action("EmployeeBasicSalarySlab_Create", "Employee").Data("FormatGridMasterData"))
+            .Update(update => update.Action("EmployeeBasicSalarySlab_Create", "Employee").Data("FormatGridMasterData"))
+            ))
+        </div>
+    </div>
+ 
+}

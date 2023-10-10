@@ -1,0 +1,256 @@
+﻿@using AGEERP.Models
+@{
+    if (ViewBag.Level == "V")
+    {
+        ViewBag.Title = "Voucher Validation";
+    }
+    else
+    {
+        ViewBag.Title = "Voucher Approval";
+    }
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">@ViewBag.Title</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active">@ViewBag.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-12">
+                @(Html.Kendo()
+                .Grid<VoucherSearchVM>()
+                .Name("gridVoucherApproval")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.VrId).Hidden();
+                    columns.Bound(c => c.VrNo).Width(180).Title("VoucherNo").Filterable(f => f.Multi(true).Search(true));
+                    columns.Bound(c => c.VrDate).Format("{0: dd/MM/yyyy}").Title("Date").Filterable(f => f.Multi(true).Search(true));
+                    columns.Bound(c => c.VrTypeId).Title("Type").Filterable(f => f.Multi(true).Search(true));
+                    columns.Bound(c => c.CreateBy).Filterable(f => f.Multi(true).Search(true));
+                    columns.Command(c => c.Custom("Edit").Click("EditVoucher"));
+                    if (ViewBag.Level == "A")
+                        columns.Bound(c => c.ValidateBy).Filterable(f => f.Multi(true).Search(true));
+                    columns.Bound(c => c.Amount);
+                    columns.Command(c => c.Custom("Detail").Click("PrintVoucher"));
+                    if (ViewBag.Level == "V")
+                        columns.Command(c => c.Custom("Validate").Click("Validate"));
+                    else
+                        columns.Command(c => c.Custom("Approve").Click("Approve"));
+                    columns.Command(c => c.Custom("Revoke").Click("Revoke").Visible("checkRev"));
+                })
+                .Sortable()
+                .Pageable()
+                .Scrollable()
+                .Filterable()
+                //.AutoBind(false)
+                .Navigatable()
+                .HtmlAttributes(new { style = "height:300px;" })
+                .Editable(GridEditMode.InLine)
+                .Events(e => e.DataBound("setColor"))
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(100)
+
+                .Model(model =>
+                {
+                    model.Id(m => m.VrId);
+                    model.Field(m => m.VrTypeId);
+                })
+                .Read(read => read.Action("VoucherApproval_Read", "Account").Data("filterVoucherApproval"))
+                .Create(create => create.Action("City_Create", "Setup"))
+                .Update(update => update.Action("VoucherApproval_Destroy", "Account").Data("filterVoucherApproval"))
+                .Destroy(read => read.Action("VoucherApproval_Destroy", "Account").Data("filterVoucherApproval"))
+                ))
+            </div>
+        </div>
+    </div>
+</div>
+@using (Html.BeginForm("VoucherEdit", "Account", FormMethod.Post, new
+{
+    @Id = "VEditForm",
+    @target = "_blank",
+    //@hidden = "hidden",
+    //@onsubmit = "window.open('about:blank','_blank','fullscreen=0,location=0');"
+}))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("VcrId")
+}
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<div id="modalWindow">
+    <h3>Do you want to proceed this Voucher?</h3>
+    <button id="yes" class="k-button">Yes</button>
+    <button id="no" class="k-button">No</button>
+</div>
+<script>
+    var level = '@ViewBag.Level';
+    var usr = '@ViewBag.UserId';
+    var wnd;
+    $(document).ready(function () {
+        //$('#m_15000000').addClass('active');
+        //$('#d_15000000').css("display", "block");
+        //if (level == "V") {
+        //    $('#m_15110000').addClass('active');
+        //    $('#a_15110000').addClass('active');
+        //} else {
+        //    $('#m_15120000').addClass('active');
+        //    $('#a_15120000').addClass('active');
+        //}
+        resizeGrid();
+        wnd = $("#modalWindow").kendoWindow({
+                        title: "Confirmation",
+                        modal: true,
+                        visible: false,
+                        resizable: false,
+                        width: 300
+                    }).data("kendoWindow");
+    });
+    var gridElement = $("#gridVoucherApproval");
+    function resizeGrid() {
+        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+        if (height < 200) {
+            height = 200;
+        }
+        else if (height > 910) {
+            height = 910;
+        }
+        $("#gridVoucherApproval").css("height", height);
+        gridElement.data("kendoGrid").resize();
+    }
+
+    $(window).resize(function () {
+        resizeGrid();
+    });
+    function checkRev(e) {
+        if (e.Status == "R") {
+            return false
+        }
+        else {
+            return true;
+        }
+    }
+
+    function setColor(e) {
+        var rows = e.sender.tbody.children();
+        for (var j = 0; j < rows.length; j++) {
+            var row = $(rows[j]);
+            var dataItem = e.sender.dataItem(row);
+            var status = dataItem.get("Status");
+            if (status == "R") {
+                row.addClass("revoked");
+            }
+        }
+    }
+    function Validate(e) {
+        e.preventDefault();
+        var grid = this;
+        var row = $(e.currentTarget).closest("tr");
+        var data = this.dataItem(row);
+        wnd.center().open();
+        $("#yes").click(function () {
+            data.Status = "V";
+            console.log(data);
+            grid.dataSource.remove(data);
+            grid.dataSource.sync();
+            wnd.close();
+        });
+        $("#no").click(function () {
+            wnd.close();
+        });
+    }
+    function Approve(e) {
+        e.preventDefault();
+        var grid = this;
+        var row = $(e.currentTarget).closest("tr");
+        var data = this.dataItem(row);
+        wnd.center().open();
+        $("#yes").click(function () {
+            data.Status = "A";
+            grid.dataSource.remove(data);
+            grid.dataSource.sync();
+            wnd.close();
+        });
+        $("#no").click(function () {
+            wnd.close();
+        });
+    }
+    function Revoke(e) {
+        e.preventDefault();
+        var grid = this;
+        var row = $(e.currentTarget).closest("tr");
+        var data = this.dataItem(row);
+        //console.log(e);
+        //console.log(row);
+        //console.log(data);
+
+        wnd.center().open();
+        $("#yes").click(function () {
+            data.Status = "R";
+            if (level == "A") {
+                grid.dataSource.remove(data);
+            }
+            else {
+                data.dirty = true;
+                row.addClass("revoked");
+            }
+            grid.dataSource.sync();
+            wnd.close();
+        });
+        $("#no").click(function () {
+            wnd.close();
+        });
+    }
+    //function Validate(e) {  //add a click event listener on the delete button
+    //    e.preventDefault(); //prevent page scroll reset
+    //    var tr = $(e.target).closest("tr"); //get the row for deletion
+    //    var data = this.dataItem(tr); //get the row data so it can be referred later
+    //    wnd.content(windowTemplate(data)); //send the row data object to the template and render it
+    //    wnd.center().open();
+
+    //    $("#yesButton").click(function () {
+    //        grid.dataSource.remove(data)  //prepare a "destroy" request
+    //        grid.dataSource.sync()  //actually send the request (might be ommited if the autoSync option is enabled in the dataSource)
+    //        wnd.close();
+    //    })
+    //    $("#noButton").click(function () {
+    //        wnd.close();
+    //    })
+    //}
+    function filterVoucherApproval() {
+        return {
+            Level: '@ViewBag.Level'
+        }
+    }
+    function loadGrid() {
+        $("#gridVoucherApproval").data("kendoGrid").dataSource.read();
+    }
+    function PrintVoucher(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $("#rpt").val("Voucher");
+        $("#TransId").val(dataItem.VrId);
+        $("#rptForm").submit();
+
+    }
+    function EditVoucher(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        //$("#rpt").val("Voucher");
+        $("#VcrId").val(dataItem.VrId);
+        $("#VEditForm").submit();
+
+    }
+
+</script>
+<style>
+    .revoked {
+        color: #f00;
+    }
+</style>

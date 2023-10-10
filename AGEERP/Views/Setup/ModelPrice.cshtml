@@ -1,0 +1,294 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Model Price";
+}
+
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Model Price</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                        <li class="breadcrumb-item active">Model Price</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("City")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("CityId")
+                    //.Placeholder("Select City ...")
+                    //.SelectedIndex(0)
+                    .OptionLabel("All")
+                    .DataValueField("CityId")
+                    .DataTextField("City")
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("LoadGrid"))
+                    //.Suggest(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CityList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Company")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ComId")
+                    //.Placeholder("Select Company ...")
+                    //.SelectedIndex(0)
+                    .OptionLabel("All")
+                    .DataValueField("ComId")
+                    .DataTextField("ComName")
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("LoadGrid"))
+                    //.Suggest(true)
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("CompanyList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Product")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ProductId")
+                    //.Placeholder("Select Product ...")
+                    //.SelectedIndex(0)
+                    .OptionLabel("All")
+                    .DataValueField("ProductId")
+                    .DataTextField("Name")
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.Change("LoadGrid"))
+                    //.Suggest(true)
+                    //.CascadeFrom("ComId")
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("ProductList", "Setup"));//.Data("filterProduct"))
+                    //.ServerFiltering(true);
+                    })
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Duration")
+                    @(Html.Kendo().NumericTextBox().Name("Duration").Value(12).Min(0).Max(18).HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Type")
+                    @(Html.Kendo().DropDownList().Name("Type")
+                    .BindTo(new List<SelectListItem>
+                    () {
+                    new SelectListItem() {
+                    Text = "All",
+                    Value = ""
+                    },
+                    new SelectListItem() {
+                    Text = "New",
+                    Value = "N"
+                    },
+                    new SelectListItem() {
+                    Text = "InStock",
+                    Value = "S"
+                    }
+                    })
+                    .Events(e => e.Change("LoadGrid"))
+                    .HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Percentage")
+                    @(Html.Kendo().NumericTextBox().Name("Percentage").Value(0).Min(0).Max(999).HtmlAttributes(new { @style = "width:100%" }))
+                </div>
+            </div>
+        </div>
+     </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            @(Html.Kendo()
+                             .Grid<ModelPriceVM>()
+                             .Name("gridModelPrice")
+                             .Columns(columns =>
+                             {
+                             columns.Bound(c => c.City);
+                             columns.Bound(c => c.Company);
+                             columns.Bound(c => c.Product);
+                             columns.Bound(c => c.Model).Width(200);
+                             columns.Bound(c => c.CashPrice);
+                             columns.Bound(c => c.InstPrice);
+                             columns.Bound(c => c.Advance);
+                             columns.Bound(c => c.Inst);
+                             //columns.Bound(c => c.Duration);
+                             })
+                             .Pageable()
+                             .Sortable()
+                             .Scrollable()
+                             .Filterable(ftb => ftb.Mode(GridFilterMode.Row).Extra(false)
+                             .Operators(operators => operators
+                             .ForString(str => str.Clear()
+                             .Contains("Contains"))))
+                             //.ToolBar(t => t.Create())
+                             .Editable(e => e.Mode(GridEditMode.InCell))
+                             .HtmlAttributes(new { style = "height:400px;" })
+                             .Navigatable()
+                             .DataSource(dataSource => dataSource
+                             .Ajax()
+                             .PageSize(20)
+                             .Events(e => e.Error("error_handler").Change("OnPriceChange"))
+                             .Model(model =>
+                             {
+                             model.Id(m => m.RowId);
+                             model.Field(m => m.RowId).Editable(false);
+                             model.Field(m => m.City).Editable(false);
+                             model.Field(m => m.Company).Editable(false);
+                             model.Field(m => m.Product).Editable(false);
+                             model.Field(m => m.ModelId).Editable(false);
+                             model.Field(m => m.Model).Editable(false);
+                             model.Field(m => m.CashPrice);
+                             model.Field(m => m.Advance);
+                             model.Field(m => m.Inst);
+                             model.Field(m => m.InstPrice);
+                             })
+                             .Read(read => read.Action("ModelPrice_Read", "Setup").Data("filterModelPrice"))
+                             .Create(create => create.Action("ModelPrice_Create", "Setup").Data("ModelPriceData"))
+                             .Update(update => update.Action("ModelPrice_Update", "Setup"))
+                             .Destroy(update => update.Action("ModelPrice_Destroy", "Setup"))
+                             ))
+        </div>
+        </div>
+
+
+         
+            @section scripts
+{
+                <script Model="text/javascript">
+                    var gridElement = $("#gridModelPrice");
+                    $(document).ready(function () {
+                        resizeGrid();
+                        //$('#m_10000000').addClass('active');
+                        //$('#d_10000000').css("display", "block");
+                        //$('#m_10010000').addClass('active');
+                        //$('#d_10010000').css("display", "block");
+                        //$('#m_10010600').addClass('active');
+                        //$('#a_10010600').addClass('active');
+                    });
+                    function OnPriceChange(e) {
+                        if (e.action === "itemchange") {
+                            console.log(e.field);
+                            if (e.field === "CashPrice") {
+                                var model = e.items[0];
+                                var perc = $('#Percentage').data('kendoNumericTextBox').value();
+                                if (perc > 0) {
+                                    var inst = model.CashPrice + (model.CashPrice * perc / 100);
+                                    inst = Math.round(inst / 100) * 100;
+                                    model.set("InstPrice", inst);
+                                }
+                            }
+                            else if (e.field === "InstPrice") {
+                                var model = e.items[0];
+                                var dur = $('#Duration').data('kendoNumericTextBox').value();
+                                if (dur > 0) {
+                                    var inst = Math.round(model.InstPrice / dur);
+                                    model.set("Advance", inst);
+                                    model.set("Inst", inst);
+                                }
+                            }
+                            else if (e.field === "Advance") {
+                                var model = e.items[0];
+                                var dur = $('#Duration').data('kendoNumericTextBox').value();
+                                if (dur > 0) {
+                                    var inst = Math.round((model.InstPrice - model.Advance) / (dur - 1));
+                                    model.set("Inst", inst);
+                                }
+                            }
+                        }
+                    }
+                    function filterModelPrice() {
+                        return {
+                            CompanyId: $('#ComId').val() || 0,
+                            ProductId: $('#ProductId').val() || 0,
+                            CityId: $('#CityId').val() || 0,
+                            Duration: $('#Duration').val() || 0,
+                            Type: $('#Type').val()
+                        }
+                    }
+                    function ModelPriceData() {
+                        return {
+                            EffectedDate: $('#EffectedDate').val()
+                        }
+                    }
+                    function filterType() {
+                        return {
+                            ComId: $('#ComId').val() || 0
+                        }
+                    }
+                    function filterProduct() {
+                        return {
+                            ComId: $('#ComId').val() || 0
+                        }
+                    }
+                    function filterCity() {
+                        return {
+                            CityId: $('#CityId').val() || 0
+                        }
+                    }
+                    function filterModel() {
+                        return {
+                            TypeId: $('#TypeId').val() || 0
+                        }
+                    }
+                    function LoadGrid() {
+                        $('#gridModelPrice').data('kendoGrid').dataSource.read();
+                    }
+
+                    function resizeGrid() {
+                        var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+                        if (height < 200) {
+                            height = 200;
+                        }
+                        else if (height > 910) {
+                            height = 910;
+                        }
+                        $("#gridModel").css("height", height);
+                        gridElement.data("kendoGrid").resize();
+                    }
+
+                    $(window).resize(function () {
+                        resizeGrid();
+                    });
+                    function error_handler(e) {
+                        if (e.errors) {
+                            var message = "Errors:\n";
+                            $.each(e.errors, function (key, value) {
+                                if ('errors' in value) {
+                                    $.each(value.errors, function () {
+                                        message += this + "\n";
+                                    });
+                                }
+                            });
+                            var dia = $("#msgBox").data("kendoDialog");
+                            dia.title("Error");
+                            dia.content(message);
+                            dia.open();
+                        }
+                    }
+                </script>
+                <style>
+                    th [role="listbox"] {
+                        visibility: hidden;
+                    }
+
+                    .k-filtercell, .k-filtercell .k-widget, .k-filtercell > span {
+                        display: table-row;
+                    }
+                </style>
+            }

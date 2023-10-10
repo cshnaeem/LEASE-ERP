@@ -1,0 +1,366 @@
+﻿@model AGEERP.Models.FarStoreVM
+@{
+    ViewBag.Title = "Fixes Asset Allocation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Fixed Asset Allocation</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">FAR</a></li>
+                    <li class="breadcrumb-item active">Fixed Asset Allocation</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @using (Ajax.BeginForm("AssetAllocation", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+        {
+            @Html.Hidden("StoreId")
+            @Html.Hidden("CCCode")
+            @Html.Hidden("EmpId")
+        <div style="float:left;">
+            <img style="height: 150px;width: 150px;" src="~/Content/FarImg/@(Model.SerialNo).jpg" class="user-image img-circle elevation-2">
+            @(Html.Kendo().Upload()
+                        .Name("files")
+                        .Async(a => a
+                            .Save("FARImg", "Procurement")
+                            .AutoUpload(true)
+                        )
+                        .Events(a => 
+                        a.Upload(@<text>
+                                        function(e) {
+                                        e.data = { id: $("#SerialNo").val() };
+                                        }
+                            </text>)
+                        ).Validation(validation => validation.AllowedExtensions(new string[] { ".jpg" })))
+        </div>
+            <div class="row">
+
+                @*<div class="col-md-3 col-sm-4">
+                    @Html.Label("Location")
+                    @(Html.Kendo()
+                        .MultiColumnComboBox()
+                        .Name("LocId")
+                        .Placeholder("Select Locations ...")
+                        .DataValueField("LocId")
+                        .DataTextField("LocName")
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("LocCode").Width("100px");
+                            columns.Add().Field("LocName").Width("200px");
+                        })
+                        .FilterFields(new string[] { "LocCode", "LocName" })
+                        .Filter(FilterType.Contains)
+                        .Suggest(true)
+                        .DataSource(ds =>
+                        {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%", @required = "true" })
+                        )
+                    @Html.ValidationMessage("LocId")
+                </div>*@
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Item")
+                    @Html.Kendo().TextBox().Name("ItemName").HtmlAttributes(new { @style = "width:100%", @readonly = "true" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("SerialNo")
+                    @Html.Kendo().TextBox().Name("SerialNo").HtmlAttributes(new { @style = "width:100%", @readonly = "true" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Supplier")
+                    @Html.Kendo().TextBox().Name("SuppName").HtmlAttributes(new { @style = "width:100%", @readonly = "true" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Condition")
+                    @Html.Kendo().TextBox().Name("Condition").HtmlAttributes(new { @style = "width:100%", @readonly = "true" })
+                </div>
+
+
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Purchase Price")
+                    @Html.Kendo().TextBox().Name("PPrice").HtmlAttributes(new { @style = "width:100%", @readonly = "true" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Current Value")
+                    @Html.Kendo().TextBox().Name("CurrentValue").HtmlAttributes(new { @style = "width:100%", @readonly = "true" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Depreciation Percent")
+                    @Html.Kendo().TextBox().Name("DepreciationPercent").HtmlAttributes(new { @style = "width:100%", @readonly = "true" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Installation Date")
+                    @Html.Kendo().TextBox().Name("InstallationDate").HtmlAttributes(new { @style = "width:100%", @readonly = "true" })
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Current Cost Center")
+                    @Html.Kendo().TextBox().Name("CCCodeDesc").HtmlAttributes(new { @style = "width:100%", @readonly = "true" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Current Employee")
+                    @Html.Kendo().TextBox().Name("EmpName").HtmlAttributes(new { @style = "width:100%", @readonly = "true" })
+                </div>
+                @*<div class="col-md-3 col-sm-3">
+                        @Html.Label("Item Type")
+                        @(Html.Kendo()
+                    .DropDownList()
+                    .Name("ItemType")
+                    .OptionLabel("Select ItemType")
+                    .Events(e => e.Change("ItemTypeChange"))
+                    .BindTo(AGEERP.Models.SelectListVM.ItemTypeSL)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                    </div>
+                    <div class="col-md-3 col-sm-3 sku" style="display:none;">
+                        @Html.Label("SKU")
+                        @(Html.Kendo().MultiColumnComboBox()
+                    .Name("SKUId")
+                    .AutoBind(false)
+                    .Placeholder("Select SKU...")
+                    .DataTextField("SKUName")
+                    .DataValueField("SKUId")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("SKUName").Width("300px");
+                        columns.Add().Field("Company").Width("200px");
+                        columns.Add().Field("Product").Width("200px");
+                    })
+                    .Suggest(true)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "SKUName", "Company", "Product" })
+                    .Events(e => e.Change("SKUChange"))
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("SKUByLocSearchList", "Setup").Data("filterSKU")).ServerFiltering(true);
+                    })
+                    .CascadeFrom("LocId")
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%", @required = true })
+                        )
+                        @Html.ValidationMessage("SKUId")
+                    </div>
+                    <div class="col-md-3 col-sm-3 itm" style="display:none;">
+                        @Html.Label("Item")
+                        @(Html.Kendo().MultiColumnComboBox()
+                        .Name("ItemId")
+                        .AutoBind(false)
+                        .Placeholder("Select Item...")
+                        .DataTextField("Item")
+                        .DataValueField("ItemId")
+                        .Columns(columns =>
+                        {
+                            columns.Add().Field("Item").Width("300px");
+                            columns.Add().Field("ItemBrand").Width("200px");
+                            columns.Add().Field("ItemProduct").Width("200px");
+                        })
+                        .Suggest(true)
+                        .Filter(FilterType.Contains)
+                        .FilterFields(new string[] { "Item", "ItemBrand", "ItemProduct" })
+                        .DataSource(dataSource =>
+                        {
+                            dataSource.Read(read => read.Action("ItemSearchList", "Procurement").Data("filterItem")).ServerFiltering(true);
+                        })
+                        .IgnoreCase(true)
+                        .HtmlAttributes(new { @style = "width:100%", @required = true })
+                        )
+                        @Html.ValidationMessage("ItemId")
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("SerialNo")
+                        @(Html.Kendo().MultiColumnComboBox()
+                .Name("SerialNo")
+                .AutoBind(false)
+                .Placeholder("Select Serial...")
+                .DataTextField("SerialNo")
+                .DataValueField("ItemId")
+                .Columns(columns =>
+                {
+                    columns.Add().Field("SerialNo").Width("200px");
+                    columns.Add().Field("Aging").Width("70px");
+                })
+                .Suggest(true)
+                .DataSource(dataSource =>
+                {
+                    dataSource.Read(read => read.Action("ItemBySKULoc", "Sale").Data("filterSerial"));
+                })
+                //.CascadeFrom("SKUId")
+                //.IgnoreCase(true)
+                .HtmlAttributes(new { @style = "width:100%", @required = true })
+                        )
+                    </div>*@
+
+            </div>
+            <div class="row">
+                @*<div class="col-md-3 col-sm-3">
+                    @Html.Label("Installation Date")
+                    @Html.Kendo().DatePicker().Name("InstallationDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @required = true })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Condition")
+                    @Html.Kendo().TextBox().Name("Condition").HtmlAttributes(new { @style = "width:100%", @required = true, @maxlength = "50" })
+                </div>*@
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("To Cost Center")
+                    @(Html.Kendo()
+                .DropDownList()
+                    .Name("ToCCCode")
+                    .OptionLabel("Select Department ...")
+                    .DataValueField("CCCode")
+                    .DataTextField("Department")
+                    //.SelectedIndex(0)
+                    .Events(e => e.Change("deptChange").DataBound("deptChange"))
+                    .Filter(FilterType.Contains)
+                .DataSource(ds =>
+                {
+                    ds.Read(read => read.Action("GetDeptList", "Employee"));
+                })
+                .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("To Employee")
+                    @(Html.Kendo().MultiColumnComboBox()
+            .Name("ToEmpId")
+            .Placeholder("Search Employee")
+            .DataValueField("EmpId")
+            .DataTextField("EmpName")
+            .Columns(columns =>
+            {
+                columns.Add().Field("EmpId").Width("100px");
+                columns.Add().Field("EmpName").Width("200px");
+                //columns.Add().Field("DeptName").Width("200px");
+                columns.Add().Field("CNIC").Width("200px");
+
+            })
+            .AutoBind(false)
+            .Filter(FilterType.Contains)
+            .FilterFields(new string[] { "EmpName", "EmpId", "CNIC" })
+            //.Events(e => e.Change("EmpChange"))
+            //.MinLength(5)
+            .DataSource(dataSource =>
+            {
+                dataSource.Read(read => read.Action("EmpByDeptList", "Employee").Data("filterEmp"));
+            })
+            .IgnoreCase(true)
+            .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Remarks")
+                    @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%", @maxlength = "200" })
+                </div>
+                <div class="col-md-3" id="savebtn">
+                    <br />
+                    <button class="k-button margin-10" type="button" id="btnSave" onclick="SaveDoc()">
+                        <i class="fas fa-plus"></i>&nbsp; Save
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script>
+    //function ItemTypeChange() {
+    //    if ($('#ItemType').val() == "P") {
+    //        $('.sku').css('display', 'none');
+    //        $('.itm').css('display', 'block');
+    //    }
+    //    else {
+    //        $('.itm').css('display', 'none');
+    //        $('.sku').css('display', 'block');
+    //    }$('#ItemId').data('kendoMultiColumnComboBox').value("");
+    //}
+    //function filterSKU() {
+    //        return {
+    //            LocId: $('#LocId').val(),
+    //            filterModel: $("#SKUId").data("kendoMultiColumnComboBox").input.val() || ""
+    //        }
+    //}
+    //function filterItem() {
+    //    return {
+    //        filterModel: $("#ItemId").data("kendoMultiColumnComboBox").input.val() || ""
+    //    }
+    //}
+    //function filterSerial() {
+    //        return {
+    //            LocId: $('#LocId').val(),
+    //            SKUId: $('#SKUId').val()
+    //        }
+    //}
+    //function SKUChange() {
+    //    var LocId = $('#LocId').val() || 0;
+    //    var SKUId = $('#SKUId').val() || 0;
+        
+    //    if (SKUId > 0 && LocId > 0) {
+    //        $('#ItemId').data('kendoMultiColumnComboBox').dataSource.read();
+    //    }
+    //}
+    function deptChange() {
+        $('#ToEmpId').data("kendoMultiColumnComboBox").dataSource.read();
+    }
+    function filterEmp() {
+        var itm = $('#ToCCCode').data('kendoDropDownList').dataItem();
+        if (itm != null) {
+            return {
+                DeptId: itm.DeptId
+                //str: $('#EmplId').data("kendoMultiColumnComboBox").input.val() || ""
+            }
+        }
+        return {
+            DeptId: 0
+            //str: $('#EmplId').data("kendoMultiColumnComboBox").input.val() || ""
+        }
+    }
+    function IsValid() {
+        var tcc = $('#ToCCCode').data('kendoDropDownList').value() || 0;
+        var tempid = $('#ToEmpId').data('kendoMultiColumnComboBox').value() || 0;
+        var cc = $('#CCCode').val() || 0;
+        var empid = $('#EmpId').val() || 0;
+        if (tcc == cc && tempid == empid) {
+            return false;
+        }
+        return true;
+    }
+    function SaveDoc() {
+        if (IsValid() == true) {
+            $.confirm({
+                title: 'Confirmation',
+                content: 'Are you sure that you want to proceed?',
+                buttons: {
+                    confirm: function () {
+                        kendo.ui.progress($('.card'), true);
+                        $('#savebtn').css('display', 'none');
+                        $('#frm').submit();
+                    },
+                    cancel: function () {
+                    }
+                }
+            });
+        }
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);      
+        if (result == "OK") {
+            alert("Save Successfully");
+            window.reload();
+        }
+        else {
+            alert("Something went wrong");
+            $('#savebtn').css('display', 'block');
+        }
+    }
+    function serialData() {
+        return {
+            id: $('#SerialNo').val()
+        }
+    }
+</script>

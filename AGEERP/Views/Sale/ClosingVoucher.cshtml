@@ -1,0 +1,455 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Closing Voucher";
+}
+<style>
+    .profile-user-img {
+        border: 3px solid #adb5bd;
+        margin: 0 auto;
+        margin-bottom: 0px;
+        padding: 0px;
+        width: 140px;
+    }
+
+    .form-group {
+        margin-bottom: 0px;
+    }
+
+    .table td, .table th {
+        padding: 0.35rem;
+        padding-left: 0.35rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .card-primary.card-outline {
+        border-top: 3px solid #dc3545 !important;
+    }
+
+    .k-grid .k-grid-search {
+        width: 15.7em !important;
+        float: left !important;
+        border: 1px solid black !important;
+    }
+</style>
+
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h2 class="card-title">MONTH CLOSING VOUCER</h2>
+
+            <div style="float:right">
+                <div class="form-group" style="float:left;">
+                    <label for="exampleInputEmail1">LOCATION</label>
+                    @(Html.Kendo()
+                           .MultiColumnComboBox()
+                           .Name("LocId")
+                           .DataValueField("LocId")
+                           .DataTextField("LocName")
+                           .SelectedIndex(0)
+                           .Columns(columns =>
+                           {
+                               columns.Add().Field("LocCode").Width("100px");
+                               columns.Add().Field("LocName").Width("200px");
+                           })
+                           .FilterFields(new string[] { "LocCode", "LocName" })
+                           .Filter(FilterType.Contains)
+
+                           .DataSource(ds =>
+                           {
+                               ds.Read(read => read.Action("LocationList", "Setup"));
+                           })
+                           .HtmlAttributes(new { @style = "width:70%", @required = true })
+                    )
+                </div>
+                <div class="form-group" style="float:left;">
+                    <label for="exampleInputPassword1">MONTH</label>
+                    @Html.Kendo().DatePicker().Name("SalMon").Depth(CalendarView.Year).Start(CalendarView.Year).Events(ev => ev.Change("onChange"))
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.card-header -->
+    <!-- form start -->
+    <form role="form">
+        <div class="card-body">
+
+
+            <section class="content">
+                <div class="container-fluid">
+                    <div id="CLosVouc" style="display:none;">
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <div class="card card-primary card-outline" sstyle="border-top: 5px solid #dc3545;">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            CLOSING VOUCHER
+                                        </h3>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+
+                                                    <th>
+                                                        Head
+                                                    </th>
+                                                    <th>Amount</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody id="CVoucher">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            @*<div class="col-md-6">
+                                    <div class="card card-primary card-outline" style="border-top: 5px solid #dc3545;">
+                                        <div class="card-body box-profile">
+                                            <div class="text-center">
+                                                <h5>CLOSING VOUCHER</h5>
+                                            </div>
+
+                                            <ul class="list-group list-group-unbordered mb-3" id="CVoucher">
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>*@
+
+                            <div class="col-md-6">
+                                <div class="card card-primary card-outline" sstyle="border-top: 5px solid #dc3545;">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            Outstand Adjustment
+                                        </h3>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Adj.Head
+                                                    </th>
+                                                    <th>Adj.Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="OutStandAdjust">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            @(Html.Kendo()
+                         .Grid<ClosingVoucherDistVM>()
+                         .Name("gridclosingvoucher")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(c => c.DsId).Hidden();
+                             columns.Bound(c => c.DeptId).Hidden();
+                             columns.Bound(c => c.EmpId).Hidden();
+                             columns.Bound(c => c.DesgId).Hidden();
+                             columns.Bound(c => c.EmpName).Title("Name").Width(100);
+                             columns.Bound(c => c.DesgName).Title("Designation").Width(70);
+                             columns.Bound(c => c.CNIC).Title("CNIC").Width(120);
+                             columns.Bound(c => c.EmpLedgerBal).Format("{0:n0}").HtmlAttributes(new { style = "text-align:right" }).Title("Emp Balance").Width(100);
+                             columns.Bound(c => c.Outstand).Format("{0:n0}").HtmlAttributes(new { style = "text-align:right" }).Title("Pending Recovery").Width(100);
+                             columns.Bound(c => c.NetSalary).Format("{0:n0}").HtmlAttributes(new { style = "text-align:right" }).Title("Salary").Width(100);
+                             columns.Bound(c => c.ClosingAdv).Format("{0:n0}").HtmlAttributes(new { style = "text-align:right" }).Editable("CheckEditable").Title("Proposed Adv").Width(100);
+                             columns.Bound(c => c.ApprovedAdv).Format("{0:n0}").HtmlAttributes(new { style = "text-align:right" }).Editable("CheckAppEditable").Title("Approved Adv").Visible((bool)ViewBag.ClosingApproval).Width(100);
+                         })
+                         .Scrollable()
+                         .Events(e => e.CellClose("OnCellClose").DataBound("Calc"))
+                         .AutoBind(false)
+                         .Navigatable()
+                         .ToolBar(toolbar =>
+                         {
+
+                         toolbar.Template(@<text>
+
+                                        <a class="k-button k-button-icontext k-grid-save-changes" href="javascript:void(0)"><span class="k-icon k-i-check"></span>Save changes</a>
+                                        <a class="k-button k-button-icontext k-grid-cancel-changes" href="javascript:void(0)"><span class="k-icon k-i-cancel"></span>Cancel changes</a>
+                                        <span class="k-textbox k-grid-search k-display-flex"><input autocomplete="off" class="k-input" placeholder="Search..." title="Search..." type="text"><span class="k-input-icon"><span class="k-icon k-i-search"></span></span></span>
+                                        <div class="toolbar">
+
+                                            <label style="padding-left: 60px;" class="category-label float-right" for="category">Total Emp Adj: <span id="toteadj"></span></label>
+
+                                            <label class="category-label float-right" for="category">Total Salary: <span id="totsal"></span></label>
+                                        </div>
+                        </text>);
+})
+
+.Search(s => { s.Field(a => a.EmpName); s.Field(a => a.CNIC); s.Field(a => a.DesgName); })
+.Editable(e => e.Mode(GridEditMode.InCell))
+.HtmlAttributes(new { style = "height:300px;" })
+.DataSource(dataSource => dataSource
+.Ajax()
+.Sort(sort =>
+sort.Add("SortOrder").Descending())
+//.PageSize(20)
+.Batch(true)
+.Events(e => e.RequestEnd("onRequestEnd"))
+//.Events(e => e.Error("error_handler"))
+.Model(model =>
+{
+model.Id(m => m.EmpId);
+model.Field(m => m.DsId).Editable(false);
+model.Field(m => m.EmpId).Editable(false);
+model.Field(m => m.DesgId).Editable(false);
+model.Field(m => m.EmpName).Editable(false);
+model.Field(m => m.DesgName).Editable(false);
+model.Field(m => m.CNIC).Editable(false);
+model.Field(m => m.EmpLedgerBal).Editable(false);
+model.Field(m => m.Outstand).Editable(false);
+model.Field(m => m.NetSalary).Editable(false);
+model.Field(m => m.ClosingAdv).Editable(true);
+model.Field(m => m.ApprovedAdv).Editable(true);
+model.Field(m => m.ApprovedDate).Editable(true);
+
+})
+.ServerOperation(false)
+.Read(read => read.Action("ClosingVoucherDetail_Read", "Sale").Data("FormatGridMasterData"))
+.Update(read => read.Action("ClosingVoucher_Update", "Sale").Data("FormatGridMasterDataUpdate"))
+))
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </form>
+</div>
+
+
+
+
+
+
+
+@section scripts {
+
+    <script src="~/Scripts/accounting.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            //$('#m_20000000').addClass('active');
+            //$('#d_20000000').css("display", "block");
+            //$('#m_20300000').addClass('active');
+            //$('#a_20300000').addClass('active');
+
+        });
+        $('body').addClass('sidebar-collapse');
+
+        var lastday = function (y, m) {
+            return new Date(y, m + 1, 0).getDate();
+        }
+
+        function onChange(e) {
+            var date = this.value();
+            date = new Date(date.getFullYear(), date.getMonth(), lastday(date.getFullYear(), date.getMonth()));
+            this.value(date);  //or put this.set("bindname", date); if you use a data-bind.
+            ReadGridData();
+            SetData();
+            $('#CLosVouc').css('display', 'block');
+        }
+        function OnCellClose(e) {
+            //if (e.model) {
+            //    if (e.model.ClosingAdv > e.model.NetSalary) {
+            //        $.confirm({
+            //            title: 'Proposed Adjustment should not be greater than Net Salary!',
+            //            content: "",
+            //            type: 'red',
+            //            typeAnimated: true,
+            //            icon: 'fas fa-close',
+            //            buttons: {
+            //                Ok: function () {
+            //                    e.model.ClosingAdv = "0";
+            //                    return true;
+            //                }
+            //            }
+            //        });
+            //        e.model.ClosingAdv = "0";
+            //        return true;
+            //    }
+            //    else {
+            //        Calc();
+            //    }
+
+            //}
+            return true;
+        }
+        function Calc() {
+            $('#toteadj').text('');
+            $('#totsal').text('');
+            var tot = 0;
+            var sal = 0;
+            var ord = $("#gridclosingvoucher").data("kendoGrid").dataSource.data();
+            for (var i = 0; i < ord.length; i++) {
+              
+                tot += ord[i].ClosingAdv;
+                sal += ord[i].NetSalary;
+            }
+            debugger;
+            $('#toteadj').text(accounting.formatMoney(tot, "", 0));
+            $('#totsal').text(accounting.formatMoney(sal, "", 0));
+        }
+
+
+
+        function ReadGridData() {
+            $('#gridclosingvoucher').data('kendoGrid').dataSource.read();
+        }
+
+
+        function RefeshGrid() {
+            $('#gridclosingvoucher').data('kendoGrid').dataSource.read();
+            $('#gridclosingvoucher').data('kendoGrid').refresh();
+        }
+
+        function FormatGridMasterDataUpdate(e) {
+
+            var proData = $("#gridclosingvoucher").data("kendoGrid").dataSource.data();
+            var _ItemList = [];
+            for (var i = 0; i < proData.length; i++) {
+                debugger;
+                var _Item = {
+                    DsId: proData[i].DsId,
+                    DeptId: proData[i].DeptId,
+                    EmpId: proData[i].EmpId,
+                    EmpName: proData[i].EmpName,
+                    CNIC: proData[i].CNIC,
+                    DesgId: proData[i].DesgId,
+                    DesgName: proData[i].DesgName,
+                    NetSalary: proData[i].NetSalary,
+                    EmpLedgerBal: proData[i].EmpLedgerBal,
+                    Outstand: proData[i].Outstand,
+                    ClosingAdv: proData[i].ClosingAdv,
+                    ApprovedAdv: proData[i].ApprovedAdv
+                }
+                _ItemList.push(_Item)
+            }
+            var Mons = $('#SalMon').val();
+            var Loc = $('#LocId').val();
+            var EmpFine = {
+                mod: _ItemList,
+                mon: Mons,
+                LocId: Loc
+            };
+            return EmpFine;
+
+        }
+
+        function CheckEditable(e) {
+            var locid = @ViewBag.LocId;
+            debugger;
+            if (locid != 72 && (e.ApprovedAdv == 0 || e.ApprovedAdv == null)) {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+            
+        }
+        function CheckAppEditable() {
+            var locid = @ViewBag.LocId;
+            debugger;
+
+            if (locid == 72) {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        function SetData() {
+            var LocId = $('#LocId').val();
+            var Mons = $('#SalMon').val();
+
+            $.ajax({
+                url: "/Sale/GetClosingVoucherHeader",
+                type: "POST",
+                data: JSON.stringify({ LocId: LocId, mon: Mons }),
+                contentType: 'application/json',
+                success: function (result) {
+                    if (result != null) {
+                        SetAdjVoucherData(result.VoucherAdj);
+                        SetCVoucherData(result.VoucherDet);
+                    }
+                }
+
+            });
+        }
+
+        function SetAdjVoucherData(dat) {
+            var html = "";
+            var TotAdj = 0;
+
+            for (var i = 0; i < dat.length; i++) {
+                TotAdj += parseFloat(dat[i].InstCharges);
+                var Amt = accounting.formatMoney(dat[i].InstCharges, "", 0);
+                html += '<tr><td>' + dat[i].PaidBy + '</td><td>' + Amt + '</td></tr>';
+            }
+            html += "<tr><td>Total Adjustment</td><td>" + accounting.formatMoney(TotAdj, "", 0); + "</td></tr>"
+            $('#OutStandAdjust').html(html);
+        }
+
+        function SetCVoucherData(dat) {
+            var html = "";
+
+            for (var i = 0; i < dat.length; i++) {
+                var Amt = accounting.formatMoney(dat[i].Amount, "", 0);
+                html += '<tr><td>' + dat[i].Head + '</td><td>' + Amt + '</td></tr>';
+            }
+            $('#CVoucher').html(html);
+        }
+
+        function FormatGridMasterData() {
+            return {
+                mon: $('#SalMon').val(),
+                LocId: $('#LocId').val()
+            }
+        }
+
+
+        function onRequestEnd(e) {
+            if (e.response == true) {
+                $.confirm({
+                    title: 'Save Successfully!',
+                    content: "",
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-close',
+                    buttons: {
+                        Ok: function () {
+                            RefeshGrid();
+                        }
+                    }
+                });
+            } else if (e.response == false) {
+                $.confirm({
+                    title: 'Some Error Occured!',
+                    content: "",
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-close',
+                    buttons: {
+                        Ok: function () {
+
+                        }
+                    }
+
+                })
+            }
+        }
+
+
+
+    </script>
+}

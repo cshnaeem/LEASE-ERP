@@ -1,0 +1,114 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "User Group";
+    ViewBag.Parent = "Security";
+}
+
+    @(Html.Kendo()
+                      .Grid<UsersGroupVM>()
+                      .Name("gridUserGroups")
+                      .Columns(columns =>
+                      {
+                          columns.Bound(c => c.GroupId).Filterable(false).Hidden();
+                          columns.Bound(c => c.GroupName);
+                          columns.Command(c => { c.Edit(); }).Width(250);
+                      })
+                      .Pageable()
+                      .Sortable()
+                      .Scrollable()
+                              //.Filterable(/*ftb => ftb.Mode(GridFilterMode.Row)*/)
+                            @*.ToolBar(toolBar =>
+                                {
+                                    toolBar.Template(@<text> <div class="col-sm-2">@item.CreateButton() </div>  <div class="col-sm-4 col-sm-push-7"><span>Search</span> &nbsp;&nbsp; <input class='k-textbox' value="Search..." onfocus="if (this.value==='Search...') this.value='';" onblur="this.value = this.value===''?'Search...':this.value;" id='searchbox' /></div></text>);
+                                })*@
+                            .ToolBar(t => t.Create())
+                            .Editable(e => e.Mode(GridEditMode.InLine))
+                            .HtmlAttributes(new { style = "height:400px;" })
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(20)
+                                //.Events(e => e.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(m => m.GroupId);
+                                    model.Field(m => m.GroupName);
+                                })
+                                .Read(read => read.Action("UserGroup_Read", "Security"))
+                                .Create(create => create.Action("UserGroup_Create", "Security"))
+                                .Update(update => update.Action("UserGroup_Update", "Security"))
+                            ))
+
+@section scripts
+{
+    <script>
+
+
+        //function addSearch() {
+        //    return { searchbox: $('#searchbox').val() };
+        //}
+        //$('#searchbox').keyup(function () {
+        //    var val = $('#searchbox').val();
+        //    $("#gridUserGroups").data("kendoGrid").dataSource.filter({
+        //        logic: "or",
+        //        filters: [
+        //            {
+        //                field: "GroupName",
+        //                operator: "contains",
+        //                value: val
+        //            }
+        //        ]
+        //    });
+        //    //$('#UserGroups').data('kendoGrid').dataSource.read();
+        //});
+
+        //function RefreshGrid()
+        //{
+        //    $('#UserGroups').data('kendoGrid').dataSource.read();
+        //}
+
+    </script>
+    <script type="text/javascript">
+        var gridElement = $("#gridUserGroups");
+
+
+        $(document).ready(function () {
+            resizeGrid();
+            //$('#m_11000000').addClass('active');
+            //$('#d_11000000').css("display", "block");
+            //$('#m_11010000').addClass('active');
+            //$('#a_11010000').addClass('active');
+        })
+
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridUserGroups").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    </script>
+}

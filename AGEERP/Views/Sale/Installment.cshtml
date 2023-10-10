@@ -1,0 +1,820 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Installment";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+</style>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Installment</h3>&nbsp;&nbsp;
+            <a id="btnNew" class="k-button" href="/Sale/Installment">New</a>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Lease</a></li>
+                    <li class="breadcrumb-item active">Installment</li>
+                </ol>
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><b> Date : @(((DateTime)ViewBag.WorkingDate).ToString("dd-MMM-yyyy")) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;</b></li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-3">
+                @Html.Partial("~/Views/Sale/_Installment.cshtml")
+            </div>
+            <div class="col-sm-9">
+                @using (Ajax.BeginForm("Installment", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+                {
+                    <div class="row">
+                        <div class="col-md-9 col-sm-12">
+                            <div class="row">
+                                <div class="col-md-4 col-sm-4">
+                                    @Html.Label("Current Location")
+                                    @(Html.Kendo()
+                            .MultiColumnComboBox()
+                    .Name("LocId")
+                    .Placeholder("Select Locations ...")
+                    .DataValueField("LocId")
+                    .DataTextField("LocName")
+                    .SelectedIndex(0)
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("LocCode").Width("100px");
+                        columns.Add().Field("LocName").Width("200px");
+                    })
+                    .FilterFields(new string[] { "LocCode", "LocName" })
+                    .Filter(FilterType.Contains)
+                    .Events(e => e.DataBound("gridLocationBound"))
+                            .DataSource(ds =>
+                            {
+                            ds.Read(read => read.Action("LocationList", "Setup"));
+                            })
+                            .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                                </div>
+                                <div class="col-md-4 col-sm-4">
+                                    @Html.Label("Acc No")
+                                    @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("AccNo")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Spinners(false)
+                            .Events(e => e.Change("AccNoChange"))
+                            .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                                </div>
+                                <div class="col-md-4 col-sm-4">
+                                    @Html.Label("Account Branch")
+                                    @(Html.Kendo()
+                            .TextBox()
+                            .Name("AccBranch")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 col-sm-4">
+                                    @Html.Label("Customer Name")
+                                    @(Html.Kendo()
+                            .TextBox()
+                            .Name("CustName")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                                </div>
+                                <div class="col-md-4 col-sm-4">
+                                    @Html.Label("S/O")
+                                    @(Html.Kendo()
+                            .TextBox()
+                            .Name("FName")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                                </div>
+                                <div class="col-md-4 col-sm-4">
+                                    @Html.Label("Recovery")
+                                    @(Html.Kendo()
+                            .TextBox()
+                            .Name("Recovery")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-4 ImgDiv">
+                            <img id="CustImg" class="responsive-img center" style="max-height:166px;" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Company")
+                            @(Html.Kendo()
+                            .TextBox()
+                            .Name("Company")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                            )
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Product")
+                            @(Html.Kendo()
+                            .TextBox()
+                            .Name("Product")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                            )
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("SKU")
+                            @(Html.Kendo()
+                            .TextBox()
+                            .Name("SKU")
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                            )
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("ActualAdvance")
+                            @(Html.Kendo()
+                            .NumericTextBox()
+                            .Name("ActualAdvance")
+                            .Format("##,###")
+                            .Min(0)
+                            .Max(9999999999)
+                            .Enable(false)
+                            .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Total Price")
+                            @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("TotalPrice")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Advance")
+                            @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("Advance")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Previous Balance")
+                            @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("PreviousBalance")
+                        .Format("###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Actual Installment")
+                            @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("ActualInstallment")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Arrear Installment")
+                            @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("ArrearInstallment")
+                        .Format("##,###")
+                        //.Min(0)
+                        //.Max(9999999999)
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Received Installment")
+                            @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("InstCharges")
+                        .Value(0)
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Events(e => e.Change("InstChargesChange"))
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Discount")
+                            @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("Discount")
+                        .Value(0)
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Events(e => e.Change("InstChargesChange"))
+                        .Enable(ViewBag.DiscAllow)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Balance")
+                            @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("Balance")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Enable(false)
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("FineType")
+                            @(Html.Kendo().DropDownList()
+                        .Name("FineType")
+                        .SelectedIndex(0)
+                        .BindTo(new List<SelectListItem>() {
+                        new SelectListItem() {
+                        Text = "Nothing",
+                        Value = "N"
+                        },
+                        new SelectListItem() {
+                        Text = "Exempt",
+                        Value = "E"
+                        }
+                        ,
+                        new SelectListItem() {
+                        Text = "Receive",
+                        Value = "R"
+                        }
+                        }).HtmlAttributes(new { @style = "width:100%", @readonly = true }))
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            @Html.Label("Fine")
+                            @(Html.Kendo()
+                        .NumericTextBox()
+                        .Name("Fine")
+                        .Format("##,###")
+                        .Min(0)
+                        .Max(9999999999)
+                        .Value(0)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+                        </div>
+                        <div class="col-md-3">
+                            @Html.Label("Paid By")
+                            @(Html.Kendo().DropDownList().Name("PaidBy")//.Events(e => e.Select("onPaidSelect"))
+                            .BindTo(ViewBag.InstPaidBy).HtmlAttributes(new { @style = "width:100%" }))
+                        </div>
+                        <div class="col-md-3 col-sm-3">
+                            @Html.Label("Comments")
+                            @(Html.Kendo()
+                        .TextBox()
+                        .Name("Comments")
+                        .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                        )
+
+                        </div>
+                        <div class="col-md-9 col-sm-9">
+                            @Html.Label("Remarks")
+                            @(Html.Kendo()
+                        .TextBox()
+                        .Name("Remarks")
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <br />
+                            <button class="k-button margin-10" type="button" id="btnSave" onclick="SaveDoc()">
+                                <i class="fas fa-plus"></i>&nbsp; Save
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-sm-12">
+                <div class="row">
+                    <input type="hidden" id="WrkDtes" value="@ViewBag.WrkDte" />
+                    <div class="col-md-12 col-sm-12">
+                        @(Html.Kendo()
+                        .Grid<InstDetailVM>()
+                        .Name("gridInstDetail")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.TransId).Title("RecvNo").ClientTemplate("<a style='color:red;cursor:pointer;' onclick=\"PrintInst('#=TransId#')\">#=TransId#</a>");
+                            columns.Bound(c => c.InstallDate).Format("{0: dd/MM/yyyy}");
+                            columns.Bound(c => c.PreBalance);
+                            columns.Bound(c => c.InstCharges);
+                            columns.Bound(c => c.Discount);
+                            columns.Bound(c => c.Fine);
+                            columns.Bound(c => c.FineType);
+                            columns.Bound(c => c.Balance);
+                            columns.Bound(c => c.RecoveryOff);
+                            columns.Bound(c => c.Remarks);
+                            //columns.Command(c => { c.Edit().Visible("editVisible"); }).Width(250);
+                        })
+                        .AutoBind(false)
+                        //.Editable(e => e.Mode(GridEditMode.InLine))
+                        .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+                        .Events(e => e.DataBound("setColor"))
+                        .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Events(e => e.Error("error_handler").Change("EditInst"))
+                        .Model(model =>
+                        {
+                            model.Id(m => m.TransId);
+                            model.Field(m => m.InstallDate).Editable(false);
+                            model.Field(m => m.PreBalance).Editable(false);
+                            model.Field(m => m.InstCharges);
+                            model.Field(m => m.Discount).Editable(false);
+                            model.Field(m => m.Fine).Editable(false);
+                            model.Field(m => m.FineType).Editable(false);
+                            model.Field(m => m.Balance).Editable(false);
+                            model.Field(m => m.RecoveryOff).Editable(false);
+                            model.Field(m => m.Remarks).Editable(false);
+                        })
+                        .Read(read => read.Action("Installment_Read", "Sale").Data("filterAcc"))
+                        //.Update(read => read.Action("Installment_Update", "Sale"))
+                        ))
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<style>
+    .vouc {
+        color: #f00 !important;
+    }
+</style>
+<script>
+    $('body').addClass('sidebar-collapse');
+    function OnRowSelect(e) {
+        kendo.ui.progress($('.card'), true);
+        var grid = e.sender;
+        var selectedRow = grid.select();
+        var data = grid.dataItem(selectedRow);
+        $("#AccNo").data("kendoNumericTextBox").value(data.AccNo);
+        $("#InstCharges").data("kendoNumericTextBox").value(data.InstCharges);
+        $("#Discount").data("kendoNumericTextBox").value(data.Discount);
+        $("#PaidBy").data("kendoDropDownList").value(data.PaidBy);
+        $("#FineType").data("kendoDropDownList").value(data.FineType);
+        $("#Fine").data("kendoNumericTextBox").value(data.Fine);
+        $("#Remarks").val(data.Remarks);
+
+        $("#AccNo").data("kendoNumericTextBox").readonly();
+        $("#InstCharges").data("kendoNumericTextBox").readonly();
+        $("#Discount").data("kendoNumericTextBox").readonly();
+        $("#Fine").data("kendoNumericTextBox").readonly();
+        $("#PaidBy").data("kendoDropDownList").readonly();
+        $('#btnSave').attr("disabled", true);
+        $('#Remarks').attr("disabled", true);
+        InstAccByNo(data.TransId).done(function () {
+            kendo.ui.progress($('.card'), false);
+        });
+    }
+
+    function todayInstallments() {
+        return {
+            LocId: $('#LocId').val() || 0,
+            Date: $('#InstallmentDate').val()
+        }
+    }
+    $(document).ready(function () {
+        //$('#m_14000000').addClass('active');
+        //$('#d_14000000').css("display", "block");
+        //$('#m_14030000').addClass('active');
+        //$('#d_14030000').css("display", "block");
+        //$('#m_14030400').addClass('active');
+        //$('#a_14030400').addClass('active');
+
+
+        var url = window.location.pathname;
+        var id = url.substring(url.lastIndexOf('/') + 1);
+        if (id > 0) {
+            var numerictextbox = $("#AccNo").data("kendoNumericTextBox");
+            var value = numerictextbox.value();
+            numerictextbox.value(id);
+            //numerictextbox.trigger("change");
+        }
+        var date = new Date('@ViewBag.WrkDte');
+        if (date.getDate() > 15) {
+            $('#FineType').data('kendoDropDownList').value("E");
+        }
+        else {
+            $('#FineType').data('kendoDropDownList').value("N");
+        }
+
+        
+    });
+
+    function editVisible(dataItem) {
+
+        var dte = new Date(dataItem.InstallDate);
+        var tdy = new Date('@ViewBag.WrkDte');
+
+        if (tdy.getUTCDate() == dte.getUTCDate()
+            && tdy.getUTCMonth() == dte.getUTCMonth()
+            && tdy.getUTCFullYear() == dte.getUTCFullYear()) {
+            return true;
+
+        }
+        else {
+            return false;
+
+        }
+
+    }
+
+    function setColor(e) {
+        var rows = e.sender.tbody.children();
+        for (var j = 0; j < rows.length; j++) {
+            var row = $(rows[j]);
+            var dataItem = e.sender.dataItem(row);
+            var mrp = dataItem.get("PaidBy");
+            if (mrp != 1) {
+                row.addClass("vouc");
+            }
+        }
+    }
+    function filterAcc() {
+        return {
+            AccNo: $('#AccNo').data("kendoNumericTextBox").value()
+        }
+    }
+
+    function filterRecovery() {
+        return {
+            LocId: $('#LocId').val(),
+            DesgId: 111
+        }
+    }
+    function IsValid() {
+        var dia = $("#msgBox").data("kendoDialog");
+        dia.title("Validation");
+
+        var cust = $('#CustName').val();
+        if (cust.length == 0) {
+            dia.content("Please enter valid customer");
+            dia.open();
+            return false;
+        }
+        var inst = parseInt($('#InstCharges').val());
+        var disc = parseInt($('#Discount').val());
+        var arre = parseInt($('#ArrearInstallment').val());
+        var recov = $('#Recovery').val();
+        var balc = $('#PreviousBalance').val();
+        if (balc < (inst + disc)) {
+            dia.content("Amount Exceeding the Balance");
+            dia.open();
+            return false;
+        }
+        if (arre > (inst + disc) && recov == "") {
+            dia.content("Please Assign recovery officer for Partial Installment");
+            dia.open();
+            return false;
+        }
+
+        if (inst == 0 && disc == 0) {
+            dia.content("Please enter Received Amount");
+            dia.open();
+            return false;
+        }
+
+        return true;
+    }
+    function SaveDoc() {
+        if (IsValid() == true) {
+            var acc = $('#AccNo').data("kendoNumericTextBox").value();
+            kendo.ui.progress($('.card'), true);
+            $.ajax({
+                url: "/Sale/InstExist",
+                type: 'POST',
+                async: false,
+                data: JSON.stringify({ "AccNo": acc }),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    if (data != null) {
+                        if (data == true) {
+                            kendo.ui.progress($('.card'), false);
+                            if (confirm("Installment already received in this month. Do you want to proceed?")) {
+                                kendo.ui.progress($('.card'), true);
+                                $('#frm').submit();
+                            }
+                        }
+                        else {
+                            kendo.ui.progress($('.card'), true);
+                            $('#frm').submit();
+                        }
+                    }
+                    else {
+                        kendo.ui.progress($('.card'), false);
+                    }
+                },
+                error: function () {
+                    kendo.ui.progress($('.card'), false);
+                }
+            });
+
+
+        }
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+        if (result.InstId > 0) {
+
+
+            $.confirm({
+                title: 'Saved Successfully!',
+                content: 'Do you want to print?',
+                type: 'red',
+                typeAnimated: true,
+                icon: 'fas fa-check',
+                buttons: {
+                    Print: function () {
+                        $("#rpt").val("Installment");
+                        $("#TransId").val(result.InstId);
+                        $("#rptForm").submit();
+                    },
+                    Cancel: function () {
+                    }
+                }
+            });
+            ClearAll();
+            //myconfirm("Save Successfully", "Do you want to print?").then(function () {
+            //    $("#rpt").val("Processing");
+            //    $("#ProcessNo").val(result.CustId);
+            //    $("#rptForm").submit();
+            //});
+        }
+        else {
+            dia.title("Error");
+            dia.content("Not Save Successfully");
+            dia.open();
+        }
+    }
+    function gridLocationBound() {
+        var AccNo = $('#AccNo').data("kendoNumericTextBox").value();
+        if (AccNo > 0) {
+            AccNoChange();
+        }
+        $('#gridInstallments').data('kendoGrid').dataSource.read();
+    }
+    function InstAccByNo(instId) {
+        var async = $.Deferred();
+        var AccNo = $('#AccNo').data("kendoNumericTextBox").value();
+        var LocId = $('#LocId').val() || 0;
+        if (LocId == 0) {
+            return;
+        }
+        if (AccNo > 0) {
+            $.getJSON("/Sale/InstAccByNo", { AccNo: AccNo, InstId: instId})
+                .done(function (data) {
+                    if (data.msg == "OK") {
+                        
+                        $('#TotalPrice').data("kendoNumericTextBox").value(data.InstPrice);
+                        $('#ActualAdvance').data("kendoNumericTextBox").value(data.ActualAdvance);
+                        $('#Advance').data("kendoNumericTextBox").value(data.Advance);
+                        $('#PreviousBalance').data("kendoNumericTextBox").value(data.PrevBalance);
+                        $('#ArrearInstallment').data("kendoNumericTextBox").value(data.Arrear);
+                        $('#ActualInstallment').data("kendoNumericTextBox").value(data.MonthlyInstallment);
+                        $('#Recovery').val(data.Recovery);
+                        $('#AccBranch').val(data.LocName);
+                        $('#Company').val(data.Company);
+                        $('#Product').val(data.Product);
+                        $('#SKU').val(data.SKU);
+                        $('#CustName').val(data.CustName);
+                        $('#FName').val(data.FName);
+                        $('#Comments').val(data.Comments);
+                        InstChargesChange();
+                        $('#gridInstDetail').data('kendoGrid').dataSource.read();
+
+                        //if (data.Status == 3) {
+                        //    $('#btnSave').removeAttr("disabled");
+                        //}
+                        //else if (data.Status == 4) {
+                        //    $('#btnSave').attr("disabled", true);
+                        //}
+                        if (AccNo > 0) {
+                            $(".ImgDiv").show();
+                            $("#CustImg").attr("src", "../../Content/CustImg/" + AccNo + ".jpg");
+                        }
+                        else {
+                            $(".ImgDiv").hide();
+                        }
+                        async.resolve();
+                    }
+                    else {
+                        alert(data.msg);
+                        ClearAll();
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Account does not exist');
+                    ClearAll();
+                });
+        }
+        
+        return async.promise();
+    }
+    function AccNoChange() {
+        var AccNo = $('#AccNo').data("kendoNumericTextBox").value();
+        var LocId = $('#LocId').val() || 0;
+        if (LocId == 0) {
+            return;
+        }
+        if (AccNo > 0) {
+            $.getJSON("/Sale/AccByNo", { AccNo: AccNo })
+                .done(function (data) {
+                    if (data.msg == "OK") {
+                        if (data.LocId != LocId) {
+                            //kendo.alert(data.LocName);
+                            alert('Account does not exist on your Branch. Please use Installment (Other Branches) Form');
+                            ClearAll();
+                            return;
+                        }
+                        $('#TotalPrice').data("kendoNumericTextBox").value(data.InstPrice);
+                        $('#ActualAdvance').data("kendoNumericTextBox").value(data.ActualAdvance);
+                        $('#Advance').data("kendoNumericTextBox").value(data.Advance);
+                        $('#PreviousBalance').data("kendoNumericTextBox").value(data.PrevBalance);
+                        $('#ArrearInstallment').data("kendoNumericTextBox").value(data.Arrear);
+                        $('#ActualInstallment').data("kendoNumericTextBox").value(data.MonthlyInstallment);
+                        $('#Recovery').val(data.Recovery);
+                        $('#AccBranch').val(data.LocName);
+                        $('#Company').val(data.Company);
+                        $('#Product').val(data.Product);
+                        $('#SKU').val(data.SKU);
+                        $('#CustName').val(data.CustName);
+                        $('#FName').val(data.FName);
+                        $('#Comments').val(data.Comments);
+                        InstChargesChange();
+                        $('#gridInstDetail').data('kendoGrid').dataSource.read();
+
+                        if (data.Status == 3) {
+                            $('#btnSave').removeAttr("disabled");
+                        }
+                        else if (data.Status == 4) {
+                            $('#btnSave').attr("disabled", true);
+                        }
+                        if (AccNo > 0) {
+                            $(".ImgDiv").show();
+                            $("#CustImg").attr("src", "../../Content/CustImg/" + AccNo + ".jpg");
+                        }
+                        else {
+                            $(".ImgDiv").hide();
+                        }
+                    }
+                    else {
+                        alert(data.msg);
+                        ClearAll();
+                    }
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    alert('Account does not exist');
+                    ClearAll();
+                });
+        }
+    }
+    function ClearAll() {
+        $('#TotalPrice').data("kendoNumericTextBox").value(0);
+        $('#ActualAdvance').data("kendoNumericTextBox").value(0);
+        $('#Advance').data("kendoNumericTextBox").value(0);
+        $('#PreviousBalance').data("kendoNumericTextBox").value(0);
+        $('#InstCharges').data("kendoNumericTextBox").value(0);
+        $('#Discount').data("kendoNumericTextBox").value(0);
+        $('#ArrearInstallment').data("kendoNumericTextBox").value(0);
+        $('#ActualInstallment').data("kendoNumericTextBox").value(0);
+        $('#Balance').data("kendoNumericTextBox").value(0);
+        $('#AccBranch').val("");
+        $('#Recovery').val("");
+        $('#CustName').val("");
+        $('#FName').val("");
+        $('#Company').val("");
+        $('#Product').val("");
+        $('#SKU').val("");
+        $('#Comments').val("");
+        $('#gridInstDetail').data('kendoGrid').dataSource.data([]);
+    }
+    function InstChargesChange() {
+        var PreviousBalance = $('#PreviousBalance').data("kendoNumericTextBox").value();
+        var InstCharges = $('#InstCharges').data("kendoNumericTextBox").value();
+        var Discount = $('#Discount').data("kendoNumericTextBox").value();
+        $('#Balance').data("kendoNumericTextBox").value(PreviousBalance - InstCharges - Discount);
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            //kendo.ui.progress($('.card'), false);
+            if (message > 0) {
+                $.confirm({
+                    title: 'Saved Successfully!',
+                    content: 'Do you want to print?',
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-check',
+                    buttons: {
+                        Print: function () {
+                            $("#rpt").val("Installment");
+                            $("#TransId").val(message);
+                            $("#rptForm").submit();
+                        },
+                        Cancel: function () {
+                        }
+                    }
+                });
+                ClearAll();
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+    function PrintInst(trans) {
+        $("#rpt").val("dInstallment");
+        $("#TransId").val(trans);
+        $("#rptForm").submit();
+    }
+    function EditInst(e) {
+        if (e.action === "itemchange") {
+
+            var dat = $("#gridInstDetail").data("kendoGrid").dataSource.data();
+            var recvAmt = 0;
+            recvAmt = parseInt($('#Advance').val());
+            for (var i = 0; i < dat.length; i++) {
+                recvAmt = recvAmt + parseInt(dat[i].InstCharges) + parseInt(dat[i].Discount);
+            }
+            debugger;
+            var model = e.items[0];
+            var instPrice = $('#TotalPrice').val();
+            if (e.field === "InstCharges") {
+                if (recvAmt > instPrice) {
+                        alert('Amount Exceeding Balance');
+                        model.set("InstCharges", "0");
+                }
+            }
+            else if (e.field === "Discount") {
+                if (recvAmt > instPrice) {
+                    alert('Amount Exceeding Balance');
+                    model.set("Discount", "0");
+                }
+            }
+        }
+    }
+    //function onPaidSelect(e) {
+    //    if (e.dataItem.Value == 3) {
+    //        e.preventDefault();
+    //    }
+    //}
+</script>

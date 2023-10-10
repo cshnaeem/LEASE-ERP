@@ -1,0 +1,72 @@
+﻿@model IEnumerable<AGEERP.Models.UserMenuInfo>
+@{
+    ViewBag.Title = "Setup";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var stpFrm = Model.Where(it => it.Menu2 == 32).OrderBy(it => it.SortOrder).ToList();
+    var stpRpt = Model.Where(it => it.Menu2 == 23).OrderBy(it => it.SortOrder).ToList();
+}
+<style>
+    
+</style>
+<div class="row">
+    @if (stpFrm.Count > 0)
+    {
+
+
+        <div class="col-md-6" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Setup Form
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in stpFrm)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+    @if (stpRpt.Count > 0)
+    {
+        <div class="col-md-6" style="margin-top:5px;">
+            <div class="card h-100 card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-text-width"></i>
+                        Setup Report
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <ul style="list-style:none;padding-left:0px;">
+                        @foreach (var menu in stpRpt)
+                        {
+                            <li id="m_@menu.MenuId">
+
+                                <a class="dropdown-item" href="@menu.ActionLink" style="color:black;">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    @menu.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    }
+</div>

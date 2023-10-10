@@ -1,0 +1,252 @@
+﻿
+@{
+    ViewBag.Title = "Thumb Enrollment";
+}
+
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Thumb Enrollment</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Attendance</a></li>
+                        <li class="breadcrumb-item active">Thumb Enrollment</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                @*<div class="col-md-3">
+                    @Html.Label("Head Dept")
+                    @(Html.Kendo()
+                                                                    .DropDownList()
+                                                                    .Name("HDeptId")
+                                                                    .OptionLabel("Select Department ...")
+                                                                    .DataValueField("HDeptId")
+                                                                    .DataTextField("HDeptName")
+                                                                    .Filter(FilterType.Contains)
+                                                                    .DataSource(ds =>
+                                                                    {
+                                                                        ds.Read(read => read.Action("HDepartmentList", "Employee"));
+                                                                    })
+                                                                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Department")
+                    @(Html.Kendo()
+                                                                    .DropDownList()
+                                                                    .Name("DeptId")
+                                                                    .OptionLabel("Select Department ...")
+                                                                    .DataValueField("DeptId")
+                                                                    .DataTextField("Department")
+                                                                    .Filter(FilterType.Contains)
+                                                                    .CascadeFrom("HDeptId")
+                                                                    .DataSource(ds =>
+                                                                    {
+                                                                        ds.Read(read => read.Action("DeptByHDeptList", "Employee").Data("filterDept")).ServerFiltering();
+                                                                    })
+                                                                    .HtmlAttributes(new { @style = "width:100%", @required = "required", @class = "validate" })
+                    )
+                </div>*@
+                <div class="col-md-6">
+                    @(Html.Kendo().MultiColumnComboBox()
+                    .Name("EmpId")
+                    .Placeholder("Search Employee")
+                    .DataValueField("EmpId")
+                    .DataTextField("EmpName")
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field("EmpId").Width("100px");
+                        columns.Add().Field("EmpName").Width("200px");
+                        columns.Add().Field("DeptName").Width("200px");
+                        columns.Add().Field("DesgName").Width("200px");
+
+                    })
+                    .AutoBind(false)
+                    .Filter(FilterType.Contains)
+                    .FilterFields(new string[] { "EmpName", "DeptName", "EmpId", "DesgName" })
+                    .Events(e => e.Change("EmpChange"))
+                    .MinLength(3)
+                    .DataSource(dataSource =>
+                    {
+                        dataSource.Read(read => read.Action("EmpList", "Employee").Data("filterEmp")).ServerFiltering(true);
+                    })
+                    .IgnoreCase(true)
+                    .HtmlAttributes(new { @style = "width:100%" })
+                    )
+                </div>
+                @*<div class="col-md-3">
+        <a class="btn-small btn-light-indigo" onclick="Javascript:onStart()">Enroll</a>
+        </div>*@
+            </div>
+            <div class="row">
+                        <div class="col-sm-12 col-md-3">
+                            <img id="imgPic" onerror="this.src ='../../app-assets/images/avatar/user.png'" src="../../../app-assets/images/avatar/user.png" alt="users view avatar" class="z-depth-4 circle" width="200" height="200">
+                        </div>
+                            <div class="col-sm-12 col-md-6">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span><b>EmployeeId:</b></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <span id="EmployeeId"></span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span><b> Employee Name: </b></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <span id="EmployeeName"></span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span><b>CNIC:</b></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <span id="CNIC"></span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span><b>Department:</b></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <span id="Department"></span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span><b>Designation:</b></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <span id="Designation"></span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span><b>Device Status:</b></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <span id="status"></span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span><b>Message:</b></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <span id="msg"></span>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="col-sm-12 col-md-3">
+                                <img id="imagediv" class="img-responsive" height="200" width="200" src="~/Content/Attendance/fingerprint.png" /><br />
+                                <span><b>Quality:</b></span>
+                                <span id="qualityInputBox"></span>
+                            </div>
+
+                        </div>
+                </div>
+            </div>
+        <script src="~/Scripts/Attendance/es6-shim.js"></script>
+        <script src="~/Scripts/Attendance/websdk.client.bundle.min.js"></script>
+        <script src="~/Scripts/Attendance/fingerprint.sdk.min.js"></script>
+        @*<script src="~/Scripts/Attendance/app.js"></script>*@
+        <script src="~/Scripts/Attendance/enrollment.js"></script>
+        <script>
+            $(document).ready(function () {
+                //$('#m_20000000').addClass('active');
+                //$('#d_20000000').css("display", "block");
+                //$('#m_20100000').addClass('active');
+                //$('#a_20100000').addClass('active');
+            });
+
+            function filterDept() {
+                return {
+                    HDeptId: $('#HDeptId').val() || 0
+                }
+            }
+            function filterEmp() {
+                return {
+                    //DeptId: $('#DeptId').val(),
+                    str: $('#EmpId').data("kendoMultiColumnComboBox").input.val() || ""
+                }
+            }
+
+            function EmpChange() {
+                var dat = $('#EmpId').data('kendoMultiColumnComboBox').dataItem();
+                $('#EmployeeId').text(dat.EmpId);
+                $('#EmployeeName').text(dat.EmpName);
+                $('#CNIC').text(dat.CNIC);
+                $('#Department').text(dat.DeptName);
+                $('#Designation').text(dat.DesgName);
+                $('#Designation').text(dat.DesgName);
+                var img = document.getElementById('imgPic');
+                img.src = "../../Content/EmpImg/" + dat.EmpId + ".jpg";
+                Reset();
+                document.getElementById("msg").textContent = "Please scan your fingure " + count + " times";
+            }
+            function CaptureEnrollment(s) {
+                var empId = $('#EmployeeId').text();
+                if (empId > 0) {
+                    if (currentFormat == Fingerprint.SampleFormat.PngImage) {
+                        localStorage.setItem("imageSrc", "");
+                        var samples = JSON.parse(s.samples);
+                        localStorage.setItem("imageSrc", "data:image/png;base64," + Fingerprint.b64UrlTo64(samples[0]));
+                        var image = document.getElementById("imagediv");
+                        image.src = localStorage.getItem("imageSrc");
+                        template.push(Fingerprint.b64UrlTo64(samples[0]));
+                        count--;
+                        document.getElementById("msg").textContent = "Please scan your fingure " + count + " times";
+                        if (count == 0) {
+                            IsLoading = true;
+
+                            kendo.ui.progress($('.card'), true);
+                            $.ajax({
+                                url: "/Attendance/Enrollment",
+                                type: "POST",
+                                data: JSON.stringify({ EmpId: empId, EmployeeEnrolledStr: template }),
+                                processData: false,
+                                contentType: 'application/json',
+                                success: function (result) {
+                                    kendo.ui.progress($('.card'), false);
+                                    IsLoading = false;
+                                    var dia = $("#msgBox").data("kendoDialog");
+                                    if (result == "Enroll Successfully") {
+                                        dia.title("Success");
+                                        dia.content("Save Successfully");
+                                    }
+                                    else {
+                                        dia.title("Error");
+                                        dia.content(result);
+                                    }
+                                    dia.open();
+                                    Reset();
+                                    document.getElementById("msg").textContent = result;
+                                    $('#EmpId').data('kendoMultiColumnComboBox').value("");
+                                }
+                            });
+                        }
+
+                    }
+                    else {
+                        var dia = $("#msgBox").data("kendoDialog");
+                        dia.title("Error");
+                        dia.content("Format Error");
+                        dia.open();
+                    }
+                }
+                else {
+                    var dia = $("#msgBox").data("kendoDialog");
+                    dia.title("Validation");
+                    dia.content("Please Select Employee");
+                    dia.open();
+                }
+            }
+        </script>

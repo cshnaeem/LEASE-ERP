@@ -1,0 +1,191 @@
+﻿
+@{
+    ViewBag.Title = "Complain";
+    ViewBag.Parent = "Sale";
+}
+    <script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+
+
+ 
+        <div class="card">
+            <div class="content-header">
+                <div class="card-header">
+                    <h3 class="card-title">Register Complain</h3>
+                    <div class="card-tools">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                            <li class="breadcrumb-item active">Complain</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                @using (Ajax.BeginForm("Complain", null, new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSave" }, new { @Id = "frm" }))
+                {
+                    @Html.ValidationSummary()
+                    @Html.Hidden("Status", "")
+                <div class="row">
+                    <div class="col-md-3 col-sm-4">
+                        @Html.Label("Sale Type")
+                        @(Html.Kendo().DropDownList()
+                        .Name("TransactionId")
+                        .OptionLabel("Select Type")
+                        .DataValueField("TransactionTypeId")
+                        .DataTextField("TransactionType")
+                        //.ValuePrimitive(true)
+                        .DataSource(ds =>
+                        {
+                        ds.Read(read => read.Action("SaleTypeList", "Sale"));
+                        })
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        )
+
+                        @*@(Html.Kendo().DropDownList()
+                 .Name("SaleType")
+                 .OptionLabel("Select Type")
+                 .SelectedIndex(0)
+                 .DataTextField("Text")
+                 .DataValueField("Value")
+                 //.Events(e => e.Change("change"))
+                 .BindTo(new List<SelectListItem>() {
+                                 new SelectListItem() {
+                                     Text = "Cash Sale",
+                                     Value = "1"
+                                 },
+                                 new SelectListItem() {
+                                     Text = "Installment",
+                                     Value = "2"
+                                 }
+                 })
+             .HtmlAttributes(new { style = "width: 100%", @required = true })
+            )*@
+                    </div>
+                    <div class="col-md-3 col-sm-4" style="margin-top:6px">
+                        @Html.Label("Bill No / Acc No")
+                        @Html.Kendo().TextBox().Name("TransId").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+
+                    <div class="col-md-3 col-sm-3" style="margin-top:6px">
+                        @Html.Label("Serial No")
+                        @Html.Kendo().TextBox().Name("SrNo").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+                    <div class="col-md-3 col-sm-3" style="margin-top:6px">
+                        @Html.Label("CSerial No")
+                        @Html.Kendo().TextBox().Name("SrNo").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+
+                </div>
+                <div class="row">
+
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Customer Name")
+                        @Html.Kendo().TextBox().Name("Customer").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Customer Mobile")
+                        @Html.Kendo().TextBox().Name("CustomerMobile").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Complain")
+                        @Html.Kendo().TextBox().Name("Complain").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("CComplainNo")
+                        @Html.Kendo().TextBox().Name("CComplainNo").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-3 col-sm-3" style="margin-top:6px">
+                        @Html.Label("Communicator")
+                        @Html.Kendo().TextBox().Name("Communicator").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+                    <div class="col-md-3 col-sm-3"  style="margin-top:6px">
+                        @Html.Label("Communicator Mobile")
+                        @Html.Kendo().TextBox().Name("CommunicatorMobile").HtmlAttributes(new { @style = "width:100%", @required = true })
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        @Html.Label("Action")
+                        @(Html.Kendo().DropDownList()
+                         .Name("Action")
+                         .OptionLabel("Select Action")
+                         .DataTextField("Text")
+                         .DataValueField("Value")
+                         //.Events(e => e.Change("change"))
+                         .BindTo(new List<SelectListItem>
+                            () {
+                                            new SelectListItem() {
+                                            Text = "Branch",
+                                            Value = "1"
+                                            },
+                                            new SelectListItem() {
+                                            Text = "Service Center",
+                                            Value = "2"
+                                            }
+                            })
+                         .HtmlAttributes(new { style = "width: 100%", @required = true })
+                        )
+                    </div>
+                </div>
+                 
+                    <div class="row">
+                        <div class="col-md-3">
+                            <br />
+                            <button class="k-button margin-10" type="button" id="btnSave" onclick="SaveDoc()">
+                                <i class="fas fa-plus"></i>&nbsp; Save
+                            </button>
+                        </div>
+
+                    </div>
+                }
+            </div>
+        </div>
+
+
+
+        <script>
+
+        function SaveDoc() {
+        $.confirm({
+            title: 'Confirmation',
+            content: 'Are you sure that you want to proceed?',
+            buttons: {
+                confirm: function () {
+                    $('#frm').submit();
+                    kendo.ui.progress($('.card'), true);
+                },
+                cancel: function () {
+                }
+            }
+        });
+        //myconfirm("Confirmation", "Are you sure that you want to proceed?").then(function () {
+        //    kendo.ui.progress($('.card'), true);
+        //    $('#frm').submit();
+        //});
+    }
+    function OnSave(result) {
+        kendo.ui.progress($('.card'), false);
+        var dia = $("#msgBox").data("kendoDialog");
+        if (result.TransId > 0) {
+            dia.title("Msg");
+            dia.content("Save Successfully");
+            dia.open();
+            //myconfirm("Save Successfully", "Do you want to print?").then(function () {
+            //    $("#rpt").val("Processing");
+            //    $("#TransId").val(result.AccNo);
+            //    $("#rptForm").submit();
+            //});
+        }
+        else {
+            dia.title("Error");
+            dia.content("Not Save Successfully");
+            dia.open();
+        }
+    }
+
+        </script>
+
+
+
+

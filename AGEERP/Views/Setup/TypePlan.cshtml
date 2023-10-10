@@ -1,0 +1,163 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Type Wise Plan Policy";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Type Wise Plan Policy</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Setup</a></li>
+                    <li class="breadcrumb-item active">Type Wise Plan Policy</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-10">
+                @(Html.Kendo()
+        .Grid<TypePlanVM>()
+        .Name("gridTypePlan")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.PolicyId).Hidden();
+            columns.Bound(c => c.Title).Width(200);
+            columns.Bound(c => c.EffectiveDate).Format("{0: dd/MM/yyyy}");
+            columns.Bound(c => c.MinAdvance);
+            columns.Bound(c => c.MaxAdvance);
+            columns.Bound(c => c.Duration);
+            columns.Bound(c => c.MarkUp);
+            columns.Bound(c => c.IsLocal).ClientTemplate("# if(IsLocal){ #" +
+      "<span>Yes</span>" +
+      "#} else {#" +
+      "<span>No</span>" +
+      "# } #");
+            columns.Bound(c => c.RegFee);
+
+            columns.Command(c => { c.Edit(); });
+        })
+        .Pageable()
+        .Sortable()
+        .Scrollable()
+        //.AutoBind(false)
+        .ToolBar(t => t.Create())
+        .Editable(e => e.Mode(GridEditMode.PopUp).TemplateName("_TypePlan"))
+        .HtmlAttributes(new { style = "height:400px;font-size:12px;" })
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(20)
+        .Events(e => e.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(m => m.PolicyId);
+        })
+        .Read(read => read.Action("TypePlan_Read", "Setup"))
+        .Create(create => create.Action("TypePlan_Create", "Setup"))
+        .Update(update => update.Action("TypePlan_Update", "Setup"))
+        .Destroy(update => update.Action("TypePlan_Destroy", "Setup"))
+        ))
+            </div>
+            <div class="col-md-2">
+                @(Html.Kendo()
+                .Grid<TypePlanVM>()
+                .Name("listTypePlan")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.Title).Title("Unassigned Type");
+                })
+                .Pageable()
+                .HtmlAttributes(new { style = "height:400px;font-size:12px;" })
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(20)
+                .Read(read => read.Action("TypePlanRemain_Read", "Setup"))
+                ))
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        var gridElement = $("#gridTypePlan");
+        $(document).ready(function () {
+            resizeGrid();
+            //LoadGrid();
+            //$('#m_10000000').addClass('active');
+            //$('#d_10000000').css("display", "block");
+            //$('#m_10010000').addClass('active');
+            //$('#d_10010000').css("display", "block");
+            //$('#m_10010900').addClass('active');
+            //$('#a_10010900').addClass('active');
+        });
+
+        //function filterProduct() {
+        //    return {
+        //        ComId: $('#ComId').val()
+        //    }
+        //}
+        //function filterType() {
+        //    return {
+        //        ComId: $('#ComId').val() || 0,
+        //        ProductId: $('#ProductId').val() || 0
+        //    }
+        //}
+        //function ModelData() {
+        //    return {
+        //        Type: $('#TypeId').val()
+        //    }
+        //}
+        //function LoadGrid() {
+        //    $('#gridTypePlan').data('kendoGrid').dataSource.read();
+        //}
+
+        function filerLocation() {
+            return {
+                LocTypeId: 1
+            }
+        }
+        function resizeGrid() {
+            var height = $(window).innerHeight() - $('header').innerHeight() - 180;
+            if (height < 200) {
+                height = 200;
+            }
+            else if (height > 910) {
+                height = 910;
+            }
+            $("#gridTypePlan").css("height", height);
+            gridElement.data("kendoGrid").resize();
+        }
+
+        $(window).resize(function () {
+            resizeGrid();
+        });
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    </script>
+    <style>
+        th [role="listbox"] {
+            visibility: hidden;
+        }
+
+        .k-filtercell, .k-filtercell .k-widget, .k-filtercell > span {
+            display: table-row;
+        }
+    </style>
+}

@@ -1,0 +1,142 @@
+﻿@model AGEERP.Models.EmployeeLoanListVM
+
+<style>
+    .k-edit-form-container {
+        position: relative;
+        width: 900px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.LoanId)
+
+<div class="row">
+
+    <div class="col-md-3 col-sm-3" id="addemp">
+        @Html.Label("Employee")
+        @(Html.Kendo().MultiColumnComboBoxFor(x => x.EmpId)
+                  .Placeholder("Search Employee")
+                  .DataValueField("EmpId")
+                  .DataTextField("EmpName")
+                  .Columns(columns =>
+                  {
+                      columns.Add().Field("EmpId").Width("100px");
+                      columns.Add().Field("EmpName").Width("200px");
+                      columns.Add().Field("DeptName").Width("200px");
+                      columns.Add().Field("DesgName").Width("200px");
+
+                  })
+                  .AutoBind(false)
+                  .ValuePrimitive(true)
+                  .Filter(FilterType.Contains)
+                  .FilterFields(new string[] { "EmpName", "DeptName", "EmpId", "DesgName" })
+                  .MinLength(3)
+                  .DataSource(dataSource =>
+                  {
+                      dataSource.Read(read => read.Action("EmpList", "Employee").Data("filterEmp")).ServerFiltering(true);
+                  })
+                  .IgnoreCase(true)
+                  .HtmlAttributes(new { @style = "width:100%", @class = "margin-tp" })
+        )
+    </div>
+    <div class="col-md-2 col-sm-2" id="editemp" style="display:none;">
+        @Html.Label("Employee")
+        <br />
+        @Html.Kendo().TextBoxFor(x => x.EmpName).HtmlAttributes(new { @style = "width:100%", @class = "margin-tp" }).Enable(false)
+        @Html.HiddenFor(x => x.EmpId)
+    </div>
+    <div class="col-md-3 col-sm-3" id="LoanTypeDivAdd" style="display:none;">
+        @Html.Label("Loan Type")
+        @(Html.Kendo().ComboBoxFor(x => x.LoanTypeID)
+.Placeholder("Select Loan Type...")
+.DataValueField("LoanTypeId")
+.DataTextField("LoanType")
+.Events(x => x.Change("CheckSeleForAdv"))
+//.ValuePrimitive(true)
+.DataSource(ds =>
+{
+    ds.Read(read => read.Action("GetEmployeeLoanTypes", "Employee"));
+})
+.HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-3 col-sm-3" id="LoanTypeDivEdit" style="display:none;">
+        @Html.Label("Loan Type")
+        <br />
+        @Html.Kendo().TextBoxFor(x => x.LoanType).HtmlAttributes(new { @style = "width:100%", @class = "margin-tp" }).Enable(false)
+        @Html.HiddenFor(x => x.LoanTypeID)
+    </div>
+    <div class="col-md-3 col-sm-3" id="AdvanceTypeDiv" style="display:none;">
+        @Html.Label("Advance Type")
+        @(Html.Kendo().ComboBoxFor(x => x.AdvTypeID)
+.Placeholder("Select Advance Type...")
+.DataValueField("Value")
+.DataTextField("Text")
+.ValuePrimitive(true)
+.DataSource(ds =>
+{
+    ds.Read(read => read.Action("GetEmployeeAdvanceTypes", "Employee"));
+})
+.HtmlAttributes(new { @style = "width:100%" }))
+    </div>
+    <div class="col-md-3 col-sm-3" id="AdvanceTypeDivEdit" style="display:none;">
+        @Html.Label("Advance Type")
+        <br />
+        @Html.Kendo().TextBoxFor(x => x.AdvType).HtmlAttributes(new { @style = "width:100%", @class = "margin-tp" }).Enable(false)
+        @Html.HiddenFor(x => x.AdvTypeID)
+    </div>
+
+    <div class="col-md-3 col-sm-2">
+        @Html.Label("Loan Balance")
+        @(Html.Kendo().TextBoxFor(x => x.LoanBal).HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true", @class = "margin-tp" }))
+    </div>
+
+
+    <div class="col-md-3 col-sm-6">
+        @Html.Label("Loan Amount")
+        @(Html.Kendo().TextBoxFor(x => x.LoanAmt).HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true", @class = "margin-tp" }))
+    </div>
+    <div class="col-md-3 col-sm-6">
+        @Html.Label("Installment")
+        @(Html.Kendo().TextBoxFor(x => x.Inst).HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true", @class = "margin-tp" }))
+    </div>
+    <div class="col-md-3 col-sm-6">
+        @Html.Label("Issue Date")
+        @(Html.Kendo().DatePickerFor(x => x.IssueDate).Format("{0:MM/dd/yyyy}").HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true" }))
+    </div>
+    <div class="col-md-3 col-sm-6">
+        @Html.Label("Deduction Start Date")
+        @(Html.Kendo().DatePickerFor(x => x.DedStartDate).Format("{0:MM/dd/yyyy}").HtmlAttributes(new { @style = "width:100%", @maxlength = "100", required = "true" }))
+    </div>
+
+    <div class="col-md-4 col-sm-6" style="padding: 16px;">
+        @Html.Label("AutoDeduct")
+        @(Html.Kendo().CheckBoxFor(x => x.AutoDeduct))
+    </div>
+    <div class="col-md-4 col-sm-6" id="DivApprovedBy">
+        @Html.Label("Approved By")
+        @(Html.Kendo().TextBoxFor(x => x.ApproveBy).Enable(false))
+    </div>
+
+    <div class="col-md-4 col-sm-6" style="padding: 16px;" id="DivApprove">
+        @if (ViewBag.ApprovalRights == true)
+        {
+            @Html.Label("Approve")
+            @(Html.Kendo().CheckBoxFor(x => x.Approve))
+        }
+    </div>
+    <div class="col-md-12 col-sm-12">
+        @if (ViewBag.ApprovalRights == true)
+        {
+            @Html.Label("Remarks")
+            @(Html.Kendo().TextBoxFor(x => x.Remarks).HtmlAttributes(new { @style = "width:100%" }))
+        }
+    </div>
+
+
+
+</div>
+
+}

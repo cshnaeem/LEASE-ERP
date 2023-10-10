@@ -1,0 +1,166 @@
+﻿@using AGEERP.Models
+@*@model AGEERP.Models.DocumentVM
+    @{
+        Layout = null;
+    }
+
+    @Html.Hidden("DocId", (int)Model.DocId)
+    @Html.Hidden("DocTypeId", (int)ViewBag.DocTypeId)
+    @Html.Hidden("FilePaths", "")*@
+
+@model AGEERP.Models.DocumentVM
+@{
+    int DcTypeId = Model.DocTypeId;
+}
+@Html.Hidden("DocId", (int)Model.DocId)
+@Html.Hidden("DocTypeId", DcTypeId)
+@Html.Hidden("FilePaths", "")
+<div class="product-view k-widget" id="AddDocumentDV">
+    <div class="edit-buttons">
+
+        <a class="btn btn-info btn-sm k-edit-button" href="\\#" style="color:white;"><i class="fas fa-edit"></i>&nbsp;Edit</a>&nbsp;
+        <a class="btn btn-danger btn-sm k-cancel-button discard" href="\\#" style="color:white;"><i class="fas fa-times"></i>&nbsp;Cancel</a>
+
+    </div>
+    <dl>
+        @if (DcTypeId == 1)
+        {
+
+            <dt>Employee</dt>
+            <dd>
+                @(Html.Kendo()
+          .DropDownList()
+          .Name("EmpIdSel")
+          .SelectedIndex(0)
+          .OptionLabel("Select Employee ...")
+          .DataValueField("EmpId")
+          .DataTextField("EmpName")
+          .Filter(FilterType.Contains)
+          .DataSource(x => x.Read("EmployeeList", "Employee"))
+          .HtmlAttributes(new { @style = "width:100%", @placeholder = "Select Employee ..." })
+                )
+            </dd>
+            <dt>Upload Files</dt>
+            <dd>
+                @(Html.Kendo().Upload()
+                  .Name("postedfile")
+                  .Async(a => a
+                  .Save("UploadDoc", "Document", new { id = DcTypeId})
+                  .AutoUpload(true))
+                  .Events(events => events
+                  .Error("onError")
+                  .Success("onSuccess"))
+                  .Multiple(true)
+                  .Validation(validation => validation.AllowedExtensions(new string[] { ".pdf", ".PDF" })))
+                <span data-for="postedfile" class="k-invalid-msg"></span>
+            </dd>
+            <dt>Remarks</dt>
+            <dd>@Html.TextArea("textarea", "", new { @class = "k-textbox", style = "width: 100%;", @name = "Remarks", @id = "Remarks", @col = 5 })</dd>
+        }
+        else if (DcTypeId == 2)
+        {
+
+        }
+        else if (DcTypeId == 3)
+        {
+
+        }
+    </dl>
+
+
+</div>
+<div class="product-view k-widget" id="EditDocumentDV">
+    <div class="edit-buttons">
+        <a class="btn btn-info btn-sm k-edit-button" href="\\#" style="color:white;"><i class="fas fa-edit k-edit-button"></i>&nbsp;Edit</a>&nbsp;
+        <a class="btn btn-danger btn-sm k-cancel-button discard" href="\\#" style="color:white;"><i class="fas fa-times"></i>&nbsp;Cancel</a>
+    </div>
+    <dl>
+        <dt>Document Name</dt>
+        <dd>
+            @(Html.EditorFor(p => p.DocName, "", new { @class = "form-control k-textbox" }))
+            <span data-for="DocName" class="k-invalid-msg"></span>
+        </dd>
+
+        <dt>Remarks</dt>
+        <dd>
+            @*@(Html.EditorFor(p => p.Remarks, "", new { @class = "k-textbox" }))*@
+            @Html.TextArea("Remarks", null, new { @class = "form-control k-textbox" })
+            <span data-for="Remarks" class="k-invalid-msg"></span>
+        </dd>
+    </dl>
+</div>
+
+
+@*<h4 class="card-title">Employee Fine Detail</h4>*@
+@*<div class="modal-body">
+        <div class="box-body">
+            <div id="AddDocumentDV k-widget" style="display:none;">
+                @if (ViewBag.DocTypeId == 1)
+                {
+                    <div class="form-group">
+                        @Html.Label("Employee")
+                        @(Html.Kendo()
+                          .DropDownList()
+                          .Name("EmpIdSel")
+                          .SelectedIndex(0)
+                          .OptionLabel("Select Employee ...")
+                          .DataValueField("EmpId")
+                          .DataTextField("EmpName")
+                          .Filter(FilterType.Contains)
+                          .DataSource(x => x.Read("EmployeeList", "Employee"))
+                          .HtmlAttributes(new { @style = "width:100%", @placeholder = "Select Employee ..." })
+                        )
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Remarks")
+                        @Html.TextArea("textarea", "", new { @class = "k-textbox", style = "width: 100%;", @name = "Remarks", @id = "Remarks", @col = 5 })
+                    </div>
+                }
+                else if (ViewBag.DocTypeId == 2)
+                {
+
+                }
+                else if (ViewBag.DocTypeId == 3)
+                {
+
+                }
+                <div class="form-group">
+                    @Html.Label("Upload Files")
+                    @(Html.Kendo().Upload()
+                    .Name("postedfile")
+                    .Async(a => a
+                    .Save("UploadDoc", "Document", new { id = (int)ViewBag.DocTypeId })
+                    .AutoUpload(true))
+                    .Events(events => events
+                    .Error("onError")
+                    .Success("onSuccess"))
+                    .Multiple(true)
+                    .Validation(validation => validation.AllowedExtensions(new string[] { ".pdf", ".PDF" })))
+                </div>
+            </div>
+            <div id="EditDocumentDV k-widget" style="display:none;">
+                <div class="form-group">
+                    <div class="editor-label">
+                        @Html.Label("Document Name")
+                    </div>
+                    <div class="editor-field">
+                        @Html.Kendo().TextBoxFor(x => x.DocName).HtmlAttributes(new { @style = "width:100%" })
+                    </div>
+                </div>
+                <div class="form-group ">
+                    <div class="editor-label">
+                        @Html.Label("Remarks")
+                    </div>
+                    <div class="editor-field">
+                        @Html.TextArea("Remarks", "", new { @class = "k-textbox", style = "width: 100%;", @name = "Remarks", @id = "Remarks", @rows = "4", @cols = "50" })
+                    </div>
+                </div>
+                <div class="edit-buttons">
+                    <a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"></span></a>
+                    <a class="k-button k-delete-button" href="\\#"><span class="k-icon k-i-delete"></span></a>
+                </div>
+            </div>
+
+        </div>
+    </div>*@
+

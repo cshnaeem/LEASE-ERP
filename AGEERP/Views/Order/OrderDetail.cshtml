@@ -1,0 +1,303 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "OrderDetail";
+}
+
+    <div class="card">
+        <div class="content-header">
+            <div class="card-header">
+                <h3 class="card-title">Order Detail</h3>
+                <div class="card-tools">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Order</a></li>
+                        <li class="breadcrumb-item active">Order Detail</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("PO No")
+                    @Html.Kendo().TextBox().Name("POId").HtmlAttributes(new { @style = "width:100%", @Id = "POOId", @readonly = true })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("SuppName")
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+                </div>
+
+                @*<div class="col-md-3 col-sm-4">
+                    @Html.Label("From Date")
+                    @Html.Kendo().DatePicker().Name("FromDate").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("To Date")
+                    @Html.Kendo().DatePicker().Name("ToDate").HtmlAttributes(new { @style = "width:100%" })
+                </div>*@
+
+                @*<div class="col-md-3 col-sm-4">
+                @Html.Label("Location")
+                @(Html.Kendo()
+                .TextBox()
+                .Name("LocId")
+                .Value(ViewBag.LocId)
+                )
+
+                </div>*@
+                @*<div class="col-md-3 col-sm-4">
+                @Html.Label("Company")
+                @(Html.Kendo()
+                .TextBox()
+                .Name("ComId")
+                .Value(ViewBag.ComId)
+                )
+
+                </div>*@
+            </div>
+            @*<div class="row">
+            <div class="col-md-3 col-sm-4">
+            @Html.Label("Type")
+            @(Html.Kendo()
+            .TextBox()
+            .Name("Type")
+
+            )
+            </div>
+            <div class="col-md-3 col-sm-4">
+            @Html.Label("Product")
+            @(Html.Kendo()
+            .TextBox()
+            .Name("Product")
+            )
+            </div>
+
+            </div>*@
+            <div class="row">
+                @*<div class="col-md-3 col-sm-4">
+                    @Html.Label("City")
+                    @(Html.Kendo()
+                    .TextBox()
+                    .Name("City")
+                    .HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                    )
+                </div>*@
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Remarks")
+                    @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Order Date")
+                    @Html.Kendo().DatePicker().Name("PODate").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    @Html.Label("Due Date")
+                    @Html.Kendo().DatePicker().Name("DeliveryDate").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <br />
+                    <button class="k-button k-primary" type="button" onclick="printGrid()">
+                        <i class="fa fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    @Html.Label("Order Detail")
+                    @(Html.Kendo()
+                    .Grid<PODetailVM>()
+                    .Name("gridOrderPlanDetail")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(c => c.PODtlId).Hidden();
+                        columns.Bound(c => c.SKUId).Hidden();
+                        columns.Bound(c => c.Model).Width(150);
+                        columns.Bound(c => c.SKU).Width(200);
+                        columns.Bound(c => c.Qty).Title("Order").Width(100);
+                        columns.Bound(c => c.TP).Width(100);
+                        columns.Bound(c => c.Discount).Title("Discount").Width(100);
+                        columns.Bound(c => c.MRP).Width(100);
+                        columns.Bound(c => c.GST).Title("GST 17%").Width(100);
+                        columns.Bound(c => c.WHT).Title("WHT 1%").Width(100);
+                        columns.Bound(c => c.NetPrice).Width(100);
+                        columns.Bound(c => c.Amount).Title("Total Amount").Width(100);
+                        //columns.Command(c => c.Custom("Schedule").Click("OrderDetail")).Width(100);
+                    })
+                    //.Pageable()
+                    .Sortable()
+                    .Scrollable()
+                    .AutoBind(true)
+                    .Navigatable()
+                    .HtmlAttributes(new { style = "height:300px;" })
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    //.Events(e => e.Error("error_handler"))
+                    .Model(model =>
+                    {
+                        model.Id(m => m.PODtlId);
+                    })
+                    .Read(read => read.Action("OrderDetail_Read", "Order").Data("filterOrderDetail"))
+                    ))
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<div id="stockmodal" class="modal fade">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Order Schedule</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="OrdSch"></div>
+                </div>-->
+                @*<div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+        </div>*@
+            <!--</div>
+        </div>-->
+                @*<div class="modal-footer">
+                <a href="#" class="k-button k-primary" onclick="SaveSchedule()">Save Schedule</a>
+                </div>*@
+    <!--</div>-->
+            <form action="/Report/PrintSlip" method="post" target="_blank" id="rptForm" hidden="hidden">
+                @Html.AntiForgeryToken()
+                @Html.Hidden("rpt")
+                @Html.Hidden("POId")
+            </form>
+            @*<style>
+                .modal{
+                        width: 70%;
+                }
+            </style>*@
+            <script>
+                $(document).ready(function () {
+                    //$('.modal').modal();
+                    resizeGrid();
+                    //$('#m_12000000').addClass('active');
+                    //$('#d_12000000').css("display", "block");
+                    //$('#m_12050000').addClass('active');
+                    //$('#a_12050000').addClass('active');
+                });
+
+                function filterOrderDetail() {
+                    return {
+                        POId: $('#POId').val()
+                    }
+                }
+                //function filterOrderSchedule() {
+                //    return {
+                //        PODtlId: $('#PODtlId').val(),
+                //        FromDate: $('#FromDate').val(),
+                //        ToDate: $('#ToDate').val()
+                //    }
+                //}
+                //function OrderDetail(e) {
+                //    e.preventDefault();
+                //    var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                //    $('#OrdSch').load('/Order/OrderSchedule?PODtlId=' + dataItem.PODtlId);
+                //    $('#stockmodal').modal('show');
+                //}
+                //function OnQtyChange(e) {
+                //    if (e.action === "itemchange") {
+                //        var model = e.items[0];
+                //        var su = 0;
+                //        if (model.PendingQty > model.Qty) {
+                //            model.set("Qty", model.PendingQty);
+                //        }
+
+                //        var proData = $("#gridOrderSchedule").data("kendoGrid").dataSource.data();
+                //        for (var i = 0; i < proData.length; i++) {
+                //            su = su + proData[i].Qty;
+                //        }
+                //        var ord = $("#OrderQty").val();
+                //        if (su > ord) {
+                //            alert('Order Exceeded');
+                //            var model = e.items[0];
+                //            model.set("Qty", 0);
+                //        }
+                //        else {
+                //            $("#RemainQty").val(ord - su);
+                //        }
+                //    }
+                //}
+                //function onDataLoad() {
+                //    var su = 0;
+                //    var proData = $("#gridOrderSchedule").data("kendoGrid").dataSource.data();
+                //    for (var i = 0; i < proData.length; i++) {
+                //        su = su + proData[i].Qty;
+                //    }
+                //    var ord = $("#OrderQty").val();
+                //    $("#RemainQty").val(ord - su);
+                //}
+
+                //function SaveSchedule() {
+                //    //var rem = $("#RemainQty").val();
+                //    //if (rem > 0) {
+                //    //    alert('Please schedule the remaining quantity.');
+                //    //}
+                //    //else {
+                //        $("#gridOrderSchedule").data("kendoGrid").saveChanges();
+                //    //}
+                //}
+                function printGrid() {
+                    $("#rpt").val("PO");
+                    //$("#POId").val("PO");
+                    $("#rptForm").submit();
+                }
+
+                //function error_handler(e) {
+                //    if (e.errors) {
+                //        var message = "";
+                //        $.each(e.errors,
+                //            function (key, value) {
+                //                if ('Msg' == key) {
+                //                    $.each(value.errors,
+                //                        function () {
+                //                            message += this;
+                //                        });
+                //                } else {
+                //                    $.each(value.errors,
+                //                        function () {
+                //                            message += this;
+                //                        });
+                //                }
+                //            });
+                //        if (message.indexOf("Saved") > -1) {
+                //            var dia = $("#msgBox").data("kendoDialog");
+                //            dia.title("Success");
+                //            dia.content(message);
+                //            dia.open();
+                //            $("#gridOrderSchedule").data("kendoGrid").dataSource.data([]);
+                //            $('#stockmodal').modal('hide');
+                //            //$("#gridOrderPlanDetail").data("kendoGrid").dataSource.data([]);
+                //        } else {
+                //            var dia = $("#msgBox").data("kendoDialog");
+                //            dia.title("Error");
+                //            dia.content(message);
+                //            dia.open();
+                //        }
+                //    }
+                //}
+                var gridElement = $("#gridOrderPlanDetail");
+                function resizeGrid() {
+                    var height = $(window).innerHeight() - $('header').innerHeight() - 280;
+                    if (height < 200) {
+                        height = 200;
+                    }
+                    else if (height > 910) {
+                        height = 910;
+                    }
+                    $("#gridOrderPlanDetail").css("height", height);
+                    gridElement.data("kendoGrid").resize();
+                }
+
+
+                $(window).resize(function () {
+                    resizeGrid();
+                });
+            </script>

@@ -1,0 +1,314 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "PO Invoice";
+}
+<style>
+    .k-grid-header .k-header .k-link, .k-grid-header .k-header, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-header, .k-scheduler-agendaview .k-scheduler-datecolumn {
+        font-size: 12px !important;
+    }
+
+    .k-button .k-button-icontext .k-grid-Print {
+        font-size: 12px !important;
+    }
+</style>
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">PO Invoice</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Purchase</a></li>
+                    <li class="breadcrumb-item active">PO Invoice</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-md-12 col-sm-12 col-lg-12">
+
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Supplier")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("SuppId")
+                    .OptionLabel("Select Supplier ...")
+                    .DataValueField("SuppId")
+                    .DataTextField("SuppName")
+                    .Filter(FilterType.Contains)
+                    .Value((string)ViewBag.SuppId)
+                    .Events(e => e.Change("suppChange"))
+                    .DataSource(ds =>
+                    {
+                    ds.Read(read => read.Action("SupplierList", "Setup"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;" })
+                    )   
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("GRN No")
+                    @(Html.Kendo()
+                    .DropDownList()
+                    .Name("GRNId")
+                    .OptionLabel("Select GRN ...")
+                    .DataValueField("GRNId")
+                    .DataTextField("GRNNo")
+                    .Value((string)ViewBag.GRNId)
+                    .Filter(FilterType.Contains)
+                    //.CascadeFrom("SuppId")
+                    .Events(e => e.Change("GetPODetail"))
+                    .DataSource(ds =>
+                    {
+                        ds.Read(read => read.Action("GRNBySupp", "Purchase").Data("filterSupplier"));
+                    })
+                    .HtmlAttributes(new { @style = "width:100%;" })
+                    )
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Location")
+                    @Html.Kendo().TextBox().Name("Location").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("PO No")
+                    @Html.Kendo().TextBox().Name("PONo").HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("PO Date")
+                    @Html.Kendo().DatePicker().Name("PODate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%", @readonly = true })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("DO No")
+                    @Html.Kendo().TextBox().Name("DONo").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("DO Date")
+                    @Html.Kendo().DatePicker().Name("DODate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-3">
+                    @Html.Label("Ref Inv No")
+                    @Html.Kendo().NumericTextBox().Max(9999999999999999999).Name("RefInvNo").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-3 col-sm-3" style="margin-top:-6px">
+                    @Html.Label("Ref Inv Date")
+                    @Html.Kendo().DatePicker().Name("RefInvDate").Value(DateTime.Now.Date).HtmlAttributes(new { @style = "width:100%" })
+                </div>
+                <div class="col-md-6 col-sm-6">
+                    @Html.Label("Remarks")
+                    @Html.Kendo().TextBox().Name("Remarks").HtmlAttributes(new { @style = "width:100%" })
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-xs-12">
+        @(Html.Kendo()
+        .Grid<POInvoiceDetailVM>()
+        .Name("gridPurchaseDetail")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.RowId).Hidden();
+            columns.Bound(c => c.PODtlId).Hidden();
+            columns.Bound(c => c.SKUId).Hidden();
+            //columns.Bound(c => c.Model);
+            columns.Bound(c => c.SKU).Width(250);
+            columns.Bound(c => c.IsGiftItem).Title("IsGiftItem");
+            columns.Bound(c => c.Qty).ClientFooterTemplate("#=sum#");
+            columns.Bound(c => c.MRP);
+            columns.Bound(c => c.RP).Editable("noEdit");
+            columns.Bound(c => c.TP).Title("DP");
+            columns.Bound(c => c.Discount).Title("Discount");
+            columns.Bound(c => c.GST).Editable("noEdit").Title("GST 17%");
+            columns.Bound(c => c.WHT).Editable("noEdit");
+            columns.Bound(c => c.NetPrice).Editable("noEdit");
+            columns.Bound(c => c.Amount).Editable("noEdit").Title("Total Amount").ClientFooterTemplate("#=sum#");
+        })
+        //.Pageable()
+        //.Sortable()
+        .Scrollable()
+        .AutoBind(false)
+        //.Selectable()
+        .Navigatable()
+        .ToolBar(t => t.Save())
+        .Editable(e => e.Mode(GridEditMode.InCell))
+        .HtmlAttributes(new { style = "height:500px;font-size:12px;" })
+        //.Events(e => e.Edit("onEdit"))
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .ServerOperation(false)
+        .Aggregates(aggregates =>
+        {
+            aggregates.Add(p => p.Qty).Sum();
+            aggregates.Add(p => p.Amount).Sum();
+        })
+        .Events(e => e.Change("OnItemChange").Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(m => m.RowId);
+            model.Field(m => m.PODtlId).Editable(false);
+            model.Field(m => m.SKUId).Editable(false);
+            model.Field(m => m.Model).Editable(false);
+            model.Field(m => m.SKU).Editable(false);
+            model.Field(m => m.Qty).Editable(false);
+            model.Field(c => c.TP);
+            model.Field(c => c.RP);
+            model.Field(c => c.Discount);
+            model.Field(c => c.MRP);
+            model.Field(c => c.GST);
+            model.Field(c => c.WHT);
+            model.Field(c => c.NetPrice);
+            model.Field(c => c.Amount);
+        })
+        .Read(read => read.Action("POInv_Read", "Purchase").Data("filterOrderDetail"))
+        .Create(read => read.Action("POInv_Create", "Purchase").Data("MasterPurchase"))
+        .Update(read => read.Action("POInv_Create", "Purchase").Data("MasterPurchase"))
+        ))
+    </div>
+</div>
+
+@Html.Partial("~/Views/Report/_Report.cshtml")
+<script>
+    $(document).ready(function () {
+        GetPODetail();
+    });
+    function suppChange() {
+        $("#GRNId").data("kendoDropDownList").dataSource.read();
+    }
+    function MasterPurchase() {
+        return {
+            GRNId: $('#GRNId').val(),
+            DONo: $('#DONo').val() || "",
+            DODate: $('#DODate').val(),
+            SuppId: $('#SuppId').val(),
+            RefInvNo: $('#RefInvNo').val() || "",
+            RefInvDate: $('#RefInvDate').val(),
+            Remarks: $('#Remarks').val() || ""
+        }
+    }
+    function ClearAll() {
+        $('#GRNId').val("");
+        $('#SuppId').val("");
+        $('#RefInvNo').val("");
+        $('#RefInvDate').val("");
+        $('#Remarks').val("");
+        $("#gridPurchaseDetail").data("kendoGrid").dataSource.data([]);
+    }
+    function filterLocation() {
+        return {
+            LocId: $('#LocId').val()
+        }
+    }
+    function filterSupplier() {
+        return {
+            SuppId: $('#SuppId').val()
+        }
+    }
+    function filterOrderDetail() {
+        return {
+            GRNId: $('#GRNId').val()
+        }
+    }
+    function GetWHT(SuppId, MRP, TP, GST, Discount) {
+        if (SuppId > 0) {
+            $.getJSON("/Purchase/GetWHT?SuppId=" + SuppId + "&MRP=" + MRP + "&TP=" + TP + "&GST=" + GST + "&Discount=" + Discount, function (data) {
+                if (data != null) {
+                    $('#SuppId').val(data.PONo);
+                }
+            });
+        }
+    }
+    function GetPODetail() {
+        var ord = $('#GRNId').val();
+        if (ord > 0) {
+            $.getJSON("/Purchase/GRNById?GRNId=" + ord, function (data) {
+                if (data != null) {
+                    $('#PONo').val(data.PONo);
+                    $('#PODate').data('kendoDatePicker').value(data.PODate);
+                    $('#DONo').val(data.DONo);
+                    $('#DODate').data('kendoDatePicker').value(data.DODate);
+                    $('#Location').val(data.LocName);
+                }
+            });
+            $("#gridPurchaseDetail").data("kendoGrid").dataSource.read();
+        }
+    }
+    function OnItemChange(e) {
+        if (e.action === "itemchange" && (e.field === "TP" || e.field === "Discount"  || e.field === "MRP")) {
+            var model = e.items[0];
+            if (model.GST > 0) {
+                model.set("GST", Math.round(model.MRP * 17 / 117, 0));
+                model.set("RP", Math.round(model.MRP - model.GST,0));
+            }
+            var SuppId = filterSupplier().SuppId;
+            if (SuppId > 0) {
+                $.getJSON("/Purchase/GetWHT?SuppId=" + SuppId + "&MRP=" + model.MRP + "&TP=" + model.TP + "&GST=" + model.GST + "&Discount=" + model.Discount, function (data) {
+                    if (data != null) {
+                        model.set("WHT", data);
+                        model.set("NetPrice", Math.round(model.TP - model.Discount + model.WHT, 0));
+                        model.set("Amount", Math.round(model.NetPrice * model.Qty, 0));
+                    }
+                });
+            }
+            
+        }
+    }
+    //function onEdit(e) {
+    //    var field = e.container.find("input")[0].name;
+    //    if (field === "NetPrice" || e.field === "Total Amount" || e.field === "GST" || e.field === "RP" || e.field === "WHT") {
+    //        this.closeCell();
+    //    }
+    //}
+    function noEdit() {
+        return false;
+    }
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors,
+                function (key, value) {
+                    if ('Msg' == key) {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    } else {
+                        $.each(value.errors,
+                            function () {
+                                message += this;
+                            });
+                    }
+                });
+            if (message > 0) {
+                $.confirm({
+                    title: 'Saved Successfully!',
+                    content: 'Do you want to print?',
+                    type: 'red',
+                    typeAnimated: true,
+                    icon: 'fas fa-check',
+                    buttons: {
+                        Print: function () {
+                            $("#rpt").val("POInvoice");
+                            $("#TransId").val(message);
+                            $("#rptForm").submit();
+                        },
+                        Cancel: function () {
+                        }
+                    }
+                });
+                $("#gridPurchaseDetail").data("kendoGrid").dataSource.data([]);
+            } else {
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    }
+
+</script>

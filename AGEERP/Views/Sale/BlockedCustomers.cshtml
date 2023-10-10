@@ -1,0 +1,91 @@
+﻿@using AGEERP.Models
+@{
+    ViewBag.Title = "Blocked Customers";
+}
+<div class="card">
+    <div class="content-header">
+        <div class="card-header">
+            <h3 class="card-title">Blocked Customer</h3>
+            <div class="card-tools">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Blocked Customer</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @(Html.Kendo()
+           .Grid<BlockCustomerVM>()
+           .Name("gridBlockCustomer")
+           .Columns(columns =>
+           {
+               columns.Bound(c => c.RowId).Filterable(false).Hidden();
+               columns.Bound(c => c.CustomerName).Title("Name");
+               columns.Bound(c => c.CNIC).Width(120);
+               columns.Bound(c => c.MobileNo1).Title("Mobile");
+               columns.Bound(c => c.MobileNo2).Title("Mobile2");
+               columns.Bound(c => c.CareOf);
+               columns.Bound(c => c.Remarks);
+               columns.Bound(c => c.Location);
+               columns.Bound(c => c.City);
+               columns.Bound(c => c.Status);
+               columns.Command(c => { c.Edit(); }).Width(130);
+           })
+           .Pageable()
+           .ToolBar(t => t.Search())
+           .Sortable()
+           .Scrollable()
+              .Search(
+                s =>
+                {
+                    s.Field(a => a.CustomerName);
+                    s.Field(a => a.CNIC);
+                })
+            .ToolBar(t => t.Create())
+            .Editable(e => e.Mode(GridEditMode.InLine))
+            .HtmlAttributes(new { style = "height:600px;font-size:12px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(20)
+            .Events(e => e.Error("error_handler"))
+            .Model(model =>
+            {
+                model.Id(m => m.RowId);
+                model.Field(m => m.CustomerName);
+                model.Field(m => m.CNIC);
+                model.Field(m => m.MobileNo1);
+                model.Field(m => m.MobileNo2);
+                model.Field(m => m.CareOf);
+                model.Field(m => m.Remarks);
+                model.Field(m => m.Location);
+                model.Field(m => m.Status);
+            })
+            .Read(read => read.Action("BlockCustomer_Read", "Sale"))
+            .Create(create => create.Action("BlockCustomer_Create", "Sale"))
+            .Update(update => update.Action("BlockCustomer_Update", "Sale"))
+            ))
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                var dia = $("#msgBox").data("kendoDialog");
+                dia.title("Error");
+                dia.content(message);
+                dia.open();
+            }
+        }
+    </script>
+}
